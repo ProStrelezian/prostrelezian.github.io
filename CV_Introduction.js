@@ -18,3 +18,27 @@ function handleScroll() {
     progressBar
         .style.right = 100 - percentage + '%';
   }
+
+
+/* Chart pour les langues */
+const ctx = document.getElementById('chartlangues');
+      
+new Chart(ctx, {
+      type: 'bar', // Diagramme avec des barres
+      data: {
+            labels: ['Français', 'Anglais', 'Japonais', 'Espagnol'],
+            datasets: [{
+              label: 'Score /1000',
+              data: [1000, 740, 230, 250],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            indexAxis: 'y', // Option pour mettre les barres horizontales
+            scales: {
+              y: {
+                beginAtZero: true // pour commencer à 0
+              }
+            }
+          }
+  });

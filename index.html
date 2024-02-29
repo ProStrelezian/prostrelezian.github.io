@@ -12,9 +12,10 @@
 
     </head>
     <body>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <div class="p-br bg-dark bg-gradient">
         <div class="bg-secondary" id="block1">
-            <div class="m-con container-bla bg-body-tertiary bg-opacity-75">
+            <div class="container-bla bg-body-tertiary bg-opacity-75" id="name">
                 <div id="photo">
                     <img class="photoprofil" src="images\photoprofil.jpeg"></img>
                 </div>
@@ -23,8 +24,8 @@
                     <p class="fs-5 text-end fw-italic">En recherche d’un stage de fin de cursus sur la période du 8 avril 2024 à fin août 2024 pour but d’acquérir de l’expérience, de m’ouvrir de nouveaux horizons et de contribuer à un projet professionnel.</p>
                 </div>
             </div>
-            <div class="container-blb bg-body-tertiary bg-opacity-75">
-                <div id="adresse2">
+            <div class="container-blb bg-body-tertiary bg-opacity-75" id="name">
+                <div id="adresse">
                     <h2>8, allée des Hêtres</h2>
                     <h4>74600 ANNECY</h4>
                     <div id="badge">
@@ -39,16 +40,28 @@
         <div class="bg-secondary" id="block2">
             <div class="container bg-body-tertiary bg-opacity-50" id="formation">
                 <p class="display-6 fw-bold text-body-emphasis"> Licence Economie-Gestion - Informatique, Numérique</p>
-                <p class="display-7 fst-italic text-body-emphasis"> Date </p>
-                <p class="display-8 text-body-emphasis"> Matières clés - Compétences acquises (peut-être mettre du JS) </p>
+                <p class="display-7 fst-italic text-body-emphasis"> Septembre 2021 à aujourd'hui </p>
+                <p class="display-8 text-body-emphasis"> 
+                    Matières clés :
+                    Management & Gestion d’entreprise, Théories économiques, Lois statistiques, Algorithmie, Economie
+                    Internationale, Communication & Marketing, Gestion de Projets, Méthodes agiles, Gestion de base de
+                    données, Programmation en Python, SQL/Postgre, R, HTML5, CSS, JavaScript, Programmation orienté
+                    objet, Création de tableaux de bord et manipulation du logiciel de sondage Sphinx, Enjeux
+                    environnementales et de qualité (ISO 9001, 14001, 45001 & 54001), Simulation d’entreprise “The Blue
+                    Connection” 
+                </p>
 
-                <p class="display-6 fw-bold text-body-emphasis"> Diplôme de Comptabilité et de Gestion (BAC+2)</p>                </p>
-                <p class="display-7 fst-italic text-body-emphasis"> Date </p>
-                <p class="display-8 text-body-emphasis"> Matières clés - Compétences acquises (peut-être mettre du JS) </p>
+                <p class="display-6 fw-bold text-body-emphasis"> Diplôme de Comptabilité et de Gestion (BAC+2)</p>
+                <p class="display-7 fst-italic text-body-emphasis"> Septembre 2019 à Juin 2021 </p>
+                <p class="display-8 text-body-emphasis"> 
+                    Matières clés :
+                    Comptabilité d’entreprise, Droit des sociétés, Finance d'entreprise, Droit fiscal, Economie, Système
+                    d’informations.
+                     </p>
 
                 <p class="display-6 fw-bold text-body-emphasis"> Baccalauréat ES spécialité Economie Approfondie</p>
-                <p class="display-7 fst-italic text-body-emphasis"> Date </p>
-                <p class="display-8 text-body-emphasis"> Matières clés - Compétences acquises (peut-être mettre du JS) </p>
+                <p class="display-7 fst-italic text-body-emphasis"> Juillet 2019 </p>
+                
             </div>
 
             <div class="container bg-body-tertiary bg-opacity-50" id="sousblock1">
@@ -60,35 +73,59 @@
                 <div id="competences">
                     <p class="display-6 fw-bold text-body-emphasis">Compétences</p>
                     <p class="display-7 fst-italic text-body-emphasis">Jouez au jeu du drag and drop pour découvrir mes compétences !</p>
-                    <button class="btn btn-outline-light d-inline-flex align-items-center" type="button" href="\draganddrop\draganddrop.html">
+                    <button class="btn btn-outline-light d-inline-flex align-items-center" type="button"> <a href="draganddrop/draganddrop.html">
                         Direction Drag and Drop
-                    </button>
+                    </a></button>
                 </div>
             </div>
         </div>
 
         <div class="bg-secondary" id="block3">
             <div class="container bg-body-tertiary bg-opacity-50" id="exp_pro">
-                <p class="display-6 fw-bold text-body-emphasis"> Métier I</p>
-                <p class="display-7 fst-italic text-body-emphasis"> Date </p>
-                <p class="display-8 text-body-emphasis"> Matières clés - Compétences acquises (peut-être mettre du JS) </p>
+                <p class="display-6 fw-bold text-body-emphasis"> Étudiant tuteur en comptabilité </p>
+                <p class="display-7 fst-italic text-body-emphasis"> Septembre 2023 à Décembre 2023 </p>
+                <p class="display-8 text-body-emphasis"> Missions :
+                    Préparer des cours de soutiens en comptabilité pour les étudiants en difficulté, répondre aux questions des
+                    étudiants pour les aider à progresser, écouter le retour des étudiants pour s’améliorer.</p>
+                <p class="display-8 text-body-emphasis"> Compétences acquises :
+                    Aisance à l’oral, visualisation des difficultés des étudiants</p>
 
-                <p class="display-6 fw-bold text-body-emphasis"> Métier I</p>
-                <p class="display-7 fst-italic text-body-emphasis"> Date </p>
-                <p class="display-8 text-body-emphasis"> Matières clés - Compétences acquises (peut-être mettre du JS) </p>
+                <p class="display-6 fw-bold text-body-emphasis"> Équipier polyvalent </p>
+                <p class="display-7 fst-italic text-body-emphasis"> Juin 2023 à Août 2023 </p>
+                <p class="display-8 text-body-emphasis"> Missions :
+                    Entretien des locaux et des équipements, service à table, gestion de produits à risques, cuissons et
+                    garnissages de produits destiné à la vente. </p>
+                <p class="display-8 text-body-emphasis"> Compétences acquises :
+                    Rigueur dans le travail, esprit d’équipe, organisation des tâches, professionnalisme, adaptation à des
+                    horaires décalées</p>
 
-                <p class="display-6 fw-bold text-body-emphasis"> Métier I</p>
-                <p class="display-7 fst-italic text-body-emphasis"> Date </p>
-                <p class="display-8 text-body-emphasis"> Matières clés - Compétences acquises (peut-être mettre du JS) </p>
+                <p class="display-6 fw-bold text-body-emphasis"> Aide à la prise de notes pour des étudiants </p>
+                <p class="display-7 fst-italic text-body-emphasis">  Septembre 2022 à Mai 2023 </p>
+                <p class="display-8 text-body-emphasis"> 
+                    Missions :
+                    Aider des étudiants au niveau des cours sur la prise de notes, coopération et organisation avec les étudiants
+                    pour la prise de notes.</p>
+                <p class="display-8 text-body-emphasis">
+                    Compétences acquises :
+                    Coopération, Soin dans l'écriture, Adaptation à certaines situations</p>
 
             </div>
             <div class="container bg-body-tertiary bg-opacity-50" id="sousblock2">
                 <div id="langues">
-                    <h2> Chart js avec pourcentage</h2>
-                    <h3> --------------</h3>
+                    <p class="display-6 fw-bold text-body-emphasis text-center"> Langues </p>
+                    <div id="graphe">
+                        <canvas id="chartlangues"></canvas>
+                    </div>
                 </div>
                 <div id="loisirs">
-                    <h2>Text ou plus </h2>
+                    <p class="display-6 fw-bold text-body-emphasis text-center"> Centre d'interêts et Loisirs </p>
+                    <p class="display-8 text-body-emphasis text-center">Bénévolat sur des événements jeuxvidéos dans l'encadrement des participants et
+                        des spectateurs.</p>
+                    <p class="display-8 text-body-emphasis text-center">Engagement citoyen sur la commune d'Annecy
+                        en tant qu'assesseur. </p>
+                    <p class="display-8 fw-bold text-body-emphasis text-center"> Loisirs </p>
+                    <p class="display-8 text-body-emphasis text-center"> Débats sur des sujets d'actualités, Histoire et
+                        géographie, culture française et asiatique, jeuxvidéos de stratégie. </p>
                 </div>
             </div>
         </div>
