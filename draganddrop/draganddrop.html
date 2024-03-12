@@ -11,5 +11,75 @@
         <link rel="stylesheet" href="DaD.css"/>
     </head>
     <body>
-        <p> Ceci est un place holder </p>
+        <div class="p-br bg-dark bg-gradient" id="background">
+            <div class="container">
+                <span class="p-2 rounded-pill fw-bold text-bg-secondary fs-2">Jeu du drag and drop - Compétences</span>
+                <header class="d-flex justify-content-end py-1">
+                  <ul class="nav">
+                    <a class="btn btn-light" href="C:\Users\krbof\Documents\GitHub\prostrelezian.github.io\index.html" role="button">Retour à la page principale</a>
+                  </ul>
+                </header>
+            </div>
+        <p class="fs-3 fw-bold text-center">Déplacez des compétences vers la droite ou vers la gauche.</p>
+        <div id="disciplines">
+            <div class="discipline">
+                <div class="titre">Compétences au hazard</div>
+                <div id="origine">
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="D1">HTML5/CSS</div>
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="D2">JavaScript</div>
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="D3">Gestion et création de base de données</div>
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="D4">Programation orienté objet (SmallTalk)</div>
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="DN1">PHP</div>
+
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="D5">Création de tableurs automatisé</div>
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="D6">Python</div>
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="DN2">Programation Assembly</div>
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="D7">Git/Github</div>
+                    <div class="text-bg-info fw-bold dragdrop" draggable="true" data-id="DN3">C#/C++</div>
+
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="P1">Ponctuel</div>
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="P2">Rigoureux</div>
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="P3">Aqua-Poney</div>
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="PN1">Créativité</div>
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="PN2">Confiance en soi</div>
+
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="P4">Observateur</div>
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="PN3">Leadership</div>
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="P5">Organisé</div>
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="P6">Ouvert d'esprit</div>
+                    <div class="text-bg-success fw-bold dragdrop" draggable="true" data-id="P7">Altruiste</div>
+
+                    <div class="text-bg-warning fw-bold dragdrop" draggable="true" data-id="E1">Modélisation statistiques & économétique</div>
+                    <div class="text-bg-warning fw-bold dragdrop" draggable="true" data-id="E2">Comptabilité & Contrôle de gestion</div>
+                    <div class="text-bg-warning fw-bold dragdrop" draggable="true" data-id="E3">Connaissance en Marketing</div>
+                    <div class="text-bg-warning fw-bold dragdrop" draggable="true" data-id="EN1">Droit pénal</div>
+                    <div class="text-bg-warning fw-bold dragdrop" draggable="true" data-id="E4">Management de l'environnement et de la qualité</div>
+                    <div class="text-bg-warning fw-bold dragdrop" draggable="true" data-id="EN2">Supply Chain</div>
+                </div>
+            </div>
+                <div class="discipline">
+                    <div class="titre">Compétences que j'ai actuellement</div>
+                    <div id="container">
+                </div>
+            </div>
+        </div>
+        <div class="bouton" onclick="resultat()">
+            Afficher les réponses
+        </div>
+        <div class="text-bg-warning fw-bold" id="reponses">
+            
+        </div>
+            
+            <div class="container">
+                <footer class="py-3 my-4">
+                  <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+                    <li class="nav-item"><a href="#" class="nav-link px-2 text-light">Retour au haut de la page</a></li>
+                  </ul>
+                  <p class="text-center text-light">© 2024 Kilian RIVIERE</p>
+                </footer>
+            </div>
+    
+        </div>
+        <div class="progress_bar">@Tous domaines réservés - Copyright 2024 - Kilian RIVIERE</div>
+        <script src="DaD.js"></script>  
     </body>
