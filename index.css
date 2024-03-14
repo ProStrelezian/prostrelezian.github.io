@@ -61,7 +61,7 @@ a {
 
 /* Modification de la deuxième partie */
 
-div#under_block_1 {
+div#block_middle {
     display: flex;
     align-items: top;
     justify-content: space-between;
@@ -125,7 +125,7 @@ div#professional_experience{
 
 /* > Block Langues & Loisirs */
 
-div#under_block_1{
+div#under_block_2{
     display: block;
     position:static;
     width: 40%;
