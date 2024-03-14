@@ -41,6 +41,7 @@ div.dragdrop {
     width: 45.7%; /* Pour avoir deux compétences par ligne */
     text-align: center;
 }
+
 div.onDropZone {
     border:8px solid #6d6 !important;
     padding:4px !important;
@@ -96,12 +97,26 @@ div#reponses {
 
 .progress_bar {
     height: 20px;
-    background: rgb(198, 156, 156);
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     width: auto;
     text-align: center;
+    color: white;
     box-shadow: 0 0 15px rgba(0, 0, 0, .1);
   }
+
+/* Responsive design */
+
+@media screen and (max-width: 950px) {
+    div.dragdrop {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    div.dragdrop {
+        font-size: 8px;
+    }
+}

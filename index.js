@@ -31,7 +31,12 @@ function chart_langue() {
             labels: ['Français', 'Anglais', 'Japonais', 'Espagnol'],
             datasets: [{
               label: 'Score /1000',
-              data: [1000, 740, 230, 250],
+              data: [1000, 750, 230, 260],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 205, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)'],
               borderWidth: 2
             }]
           },
@@ -40,10 +45,35 @@ function chart_langue() {
             scales: {
               y: {
                 beginAtZero: true // pour commencer à 0
-              }
+              },
             }
           }
   });
 }
 
 chart_langue()
+
+/* Changement d'identité de la page */
+
+function idpage(){
+  var nomid1 = document.getElementById("identity");
+  var nomid2 = document.getElementById("progress_bar");
+  var nomid3 = document.getElementById("end_page");
+  
+  let s;
+  let confirm = window.confirm("Veux-tu changer l'identité de celui qui as fait la page ?");
+
+
+  if (confirm == true) {
+      
+      s = prompt("Quelle est la nouvelle identité de la personne sur cette page ?");
+  } else {
+      window.alert("Dommage !")
+  }
+
+  nomid1.textContent = s;
+  nomid2.textContent = '@Tous domaines réservés - Copyright 2024 - ' + s;
+  nomid3.textContent = '© 2024 ' + s;
+  document.title = s + ' - CV';
+  console.log('Cette page appartient désormais à ' + s + '!')
+};

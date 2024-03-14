@@ -1,20 +1,17 @@
-
-
-/* Gestion drag and drop */
-
+/* Gestion du Drag and Drop */
 
 var element=null; // Variable globale de stockage de l'élément drag
 var source=null;  // Variable globale de stockage de la zone d'éléments
 
 document.addEventListener("readystatechange", function(evt) {
     if (document.readyState=="interactive") {
-        /* Parcourir tous les éléments draggable */
+        /* Parcourir tous les éléments qui peuvent être dragé" */
         var drags=document.querySelectorAll("div.dragdrop");
         for (var i=0; i < drags.length; i++) {
             var d=drags[i];
             d.addEventListener("drag", function(evt) {
                 /* Mise à jour du style de l'élément de départ */
-                evt.currentTarget.style.border="3px dashed #aaa";
+                evt.currentTarget.style.border="2px dashed #aaa";
                 evt.currentTarget.style.color="fff";
                 evt.currentTarget.style.backgroundColor="#fff";
             });
@@ -28,14 +25,14 @@ document.addEventListener("readystatechange", function(evt) {
             });
             d.addEventListener("dragend", function(evt) {
                 /* Retour à la normale en fin de drag and drop */
-                evt.currentTarget.style.border="3px solid #333";
+                evt.currentTarget.style.border="2px solid #333";
                 evt.currentTarget.style.color="#000";
                 element=null;
                 source=null;
             });
         }
 
-        /* Evénements dragover indispensables pour que l'event drop soit actif*/
+        /* Evénements dragover indispensables pour que l'event drop soit actif */
         var container=document.getElementById("container");
         var origine=document.getElementById("origine");
         container.addEventListener("dragover", function(evt) {
@@ -85,14 +82,18 @@ document.addEventListener("readystatechange", function(evt) {
         });
     }
 });
+
 /* Fonction qui retourne le tableau des activités retenues dans div#container */
 function getActivites() {
     var container=document.getElementById("container");
     var activites=[];
     var elts=container.getElementsByClassName("dragdrop");
-    var good_count = 0;
-    var total_count = 0;
-    const wrong_rep = ['DN1', 'DN2', 'DN3','PN1','PN2','PN3','EN1','EN2'];
+
+    var good_count = 0;  /*Calcul des bonnes réponses*/
+    var total_count = 0; /*Total des réponses*/
+    const wrong_rep = ['DN1', 'DN2', 'DN3','PN1','PN2','PN3','EN1','EN2']; /* Identifiants des mauvaises réponses */
+    
+    
     
     for (var i=0; i < elts.length; i++) {
         good_count += 1;
@@ -102,12 +103,17 @@ function getActivites() {
             good_count -= 1;
         }
     }
-    return 'Nombre de bonne(s) réponse(s) : ' + good_count + '/' + total_count + ' - Mauvaise(s) réponse(s) : ' + activites;
+
+    if (total_count == 0) {
+        return "Vous n'avez pas encore répondu !"
+    } else {
+        return 'Nombre de bonne(s) réponse(s) : ' + good_count + '/' + total_count + ' - Mauvaise(s) réponse(s) : ' + activites;
+    };
 }
 
 /* Fonction qui met en avant les résultats */ 
 
-function resultat() {
+function resultats() {
     rep = document.getElementById("reponses")
     console.log(getActivites())
     rep.innerHTML = getActivites();
