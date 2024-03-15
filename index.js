@@ -60,6 +60,7 @@ function idpage(){
   var nomid2 = document.getElementById("progress_bar");
   var nomid3 = document.getElementById("end_page");
   
+
   let s;
   let confirm = window.confirm("Veux-tu changer l'identité de celui qui as fait la page ?");
 

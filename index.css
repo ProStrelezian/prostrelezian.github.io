@@ -11,12 +11,13 @@
 
 /* Modification de la première partie */
 
+/* Cela conserne les deux blocs de texte du bas de la page */
+
 div#block_top {
     display: flex;
     align-items: top;
     justify-content: space-between;
     margin-bottom: 3%;
-    /* height: 230px;*/
 }
 
 /* > Premier block */
@@ -26,16 +27,7 @@ div#name {
     margin-bottom: 0.5%;
 }
 
-div#nom{
-    display: flex;
-    position:static;
-    width: 59%;
-    left: 0.2%;
-    right: auto;
-    padding-top: 1%;
-    padding-bottom: 1%;
-}
-
+/* Modification du placement du blocs qui contient la photo */
 div#picture {
     margin-left: 0.6%;
     margin-right: 0.6%;
@@ -43,23 +35,21 @@ div#picture {
     margin-bottom: auto;
 }
 
+/* Modification de la place que prends mon nom et prénom */
 div#name_first_name {
     width: 75%;
 }
 
+/* Modication de la taille de ma photo */
+
 img.profile_picture { 
     width: 180px;
 }
-
-a {
-    outline: none;
-    text-decoration: none;
-    padding: 2px 1px 0;
-    color: black;
-  }
-
+    
 
 /* Modification de la deuxième partie */
+
+/* Cela conserne les deux blocs de texte du millieu de la page */
 
 div#block_middle {
     display: flex;
@@ -99,6 +89,8 @@ div#under_block_1{
 
 /* Modification de la troisième partie */
 
+/* Cela conserne les deux blocs de texte du bas de la page */
+
 div#block_bottom {
     display: flex;
     align-items: top;
@@ -109,8 +101,7 @@ div#block_bottom {
 }
 
 
-/* > Block Expérience Professionnel*/
-
+/* > Block Expériences Professionnelles */
 
 div#professional_experience{
     display: block;
@@ -176,7 +167,7 @@ div#under_block_2{
     text-align: center;
 }
 
-/* Paramètre de base */
+/* Paramètres de taille de police */
 
 .display-6 {
     font-size: 32px;
@@ -194,13 +185,17 @@ div#under_block_2{
     margin-bottom: 22px;
 }
 
+/* Moyen de detection pour activer le javascript idpage()*/
+p#end_page:hover {
+    cursor: grab;
+}
+
+
 
 /* Responsive design */
 
-
-
 @media screen and (max-width: 950px) {
-    img.photoprofil { 
+    img.profile_picture { 
         width: 130px;
     }
     .display-6 {
@@ -217,7 +212,7 @@ div#under_block_2{
   }
 
 @media screen and (max-width: 650px) {
-    img.photoprofil { 
+    img.profile_picture { 
         width: 80px;
     }
     
@@ -231,5 +226,23 @@ div#under_block_2{
     
     .display-8 {
         font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    img.profile_picture { 
+        width: 55px;
+    }
+    
+    .display-6 {
+        font-size: 18px;
+    }
+
+    .display-7 {
+        font-size: 13px;
+    }
+    
+    .display-8 {
+        font-size: 11px;
     }
 }
