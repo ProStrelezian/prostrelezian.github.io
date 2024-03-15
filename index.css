@@ -17,12 +17,12 @@ div#block_top {
     display: flex;
     align-items: top;
     justify-content: space-between;
-    margin-bottom: 3%;
+    margin-bottom: 10px;
 }
 
 /* > Premier block */
 
-div#name {
+div#top_margin {
     margin-top: 0.5%;
     margin-bottom: 0.5%;
 }
@@ -152,8 +152,8 @@ div#under_block_2{
 
 .container-bla {
     display: flex;
-    width: 59%;
-    left: 0.2%;
+    width: 59.2%;
+    left: 0.1%;
     right: auto;
 
 }
@@ -161,7 +161,7 @@ div#under_block_2{
 .container-blb {
     display: flex;
     flex-direction: column;
-    width: 40%;
+    width: 40.3%;
     left: auto;
     right: 0.2%;
     text-align: center;

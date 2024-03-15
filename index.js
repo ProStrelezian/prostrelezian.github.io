@@ -23,7 +23,7 @@ function handleScroll() {
 /* Chart pour les langues */
 
 function chart_langue() {
-  const ctx = document.getElementById('chartlangues');
+  const ctx = document.getElementById('chartlangues'); //Recherche de la balise 'chartlangues'
       
   new Chart(ctx, {
       type: 'bar', // Diagramme avec des barres
@@ -32,7 +32,7 @@ function chart_langue() {
             datasets: [{
               label: 'Score /1000',
               data: [1000, 750, 230, 260],
-              backgroundColor: [
+              backgroundColor: [ // Définition de la couleur
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(255, 159, 64, 0.2)',
                 'rgba(255, 205, 86, 0.2)',
@@ -62,16 +62,18 @@ function idpage(){
   
 
   let s;
+  // Ouverture d'une fenêtre à questions
   let confirm = window.confirm("Veux-tu changer l'identité de celui qui as fait la page ?");
 
 
-  if (confirm == true) {
-      
-      s = prompt("Quelle est la nouvelle identité de la personne sur cette page ?");
+  if (confirm == true) {  
+      s = prompt("Quelle est la nouvelle identité de la personne sur cette page ?"); // Demande pour changer les informations de la page.
   } else {
       window.alert("Dommage !")
+      s = 'Kilian RIVIERE' // pour éviter que cela remplace par 'undifined'
   }
 
+  // Modification du contenu
   nomid1.textContent = s;
   nomid2.textContent = '@Tous domaines réservés - Copyright 2024 - ' + s;
   nomid3.textContent = '© 2024 ' + s;
