@@ -1,0 +1,122 @@
+/* Background de la page*/
+ 
+.p-br {
+    padding: 1.8%
+}
+.bg-dark {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+    
+  }
+
+div#background {
+    height: auto;
+}
+
+ul.nav {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+/* Couleur du texte */
+p {
+    color: whitesmoke;
+}
+
+/* Drag and Drop */
+
+div {
+    box-sizing: border-box;
+    align-content: center;
+}
+
+div.dragdrop {
+    display: inline-block;
+    padding:3px;
+    margin:2px;
+    border:3px solid #333;
+    word-wrap: break-word;
+    border-radius:2px;
+    cursor: move;
+    background:#fff;
+    width: 45.7%; /* Pour avoir deux compétences par ligne */
+    text-align: center;
+}
+
+div.onDropZone {
+    border:8px solid #6d6 !important;
+    padding:4px !important;
+}
+
+div#disciplines {
+    display:flex;
+    flex-wrap: nowrap;
+    justify-content:space-around;
+    width:100%;
+}
+div.discipline {
+    width:49%;
+}
+div.titre {
+    text-align:center;
+    font-weight:bold;
+    font-size:20px;
+    color: whitesmoke;
+}
+div#origine, div#container {
+    padding:10px;
+    border:2px solid #000;
+    width:100%;
+    min-height:230px;
+    background:#fff;
+}
+div.bouton {
+    cursor:pointer;
+    border:1px solid #333;
+    border-radius:4px;
+    display:inline-block;
+    padding:5px;
+    margin:10px;
+    font-weight:bold;
+    background-color:#ccc;
+    color:#000;
+}
+div.bouton:hover {
+    background-color:#000;
+    color:#fff;
+}
+
+/* Partie Réponses */
+
+div#reponses {
+    text-align: center;
+    color: whitesmoke;
+    font-size: 20px;
+}
+
+/*CSS de la barre de progression */
+
+.progress_bar {
+    height: 20px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    text-align: center;
+    color: white;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .1);
+  }
+
+/* Responsive design */
+
+@media screen and (max-width: 950px) {
+    div.dragdrop {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    div.dragdrop {
+        font-size: 8px;
+    }
+}

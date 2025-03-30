@@ -1,0 +1,248 @@
+/* Background de la page */
+ 
+.p-br {
+    padding: 1.8%
+}
+.bg-dark {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+    
+  }
+
+/* Modification de la première partie */
+
+/* Cela conserne les deux blocs de texte du bas de la page */
+
+div#block_top {
+    display: flex;
+    align-items: top;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+/* > Premier block */
+
+div#top_margin {
+    margin-top: 0.5%;
+    margin-bottom: 0.5%;
+}
+
+/* Modification du placement du blocs qui contient la photo */
+div#picture {
+    margin-left: 0.6%;
+    margin-right: 0.6%;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+/* Modification de la place que prends mon nom et prénom */
+div#name_first_name {
+    width: 75%;
+}
+
+/* Modication de la taille de ma photo */
+
+img.profile_picture { 
+    width: 180px;
+}
+    
+
+/* Modification de la deuxième partie */
+
+/* Cela conserne les deux blocs de texte du millieu de la page */
+
+div#block_middle {
+    display: flex;
+    align-items: top;
+    justify-content: space-between;
+    margin-bottom: 10px ;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+/* > Block Formation */
+
+div#formation{
+    display: block;
+    position:static;
+    width: 59%;
+    left: 0.2%;
+    right: auto;
+    text-align: left;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+/* > Block Projet & Compétences */
+
+div#under_block_1{
+    display: block;
+    position:static;
+    width: 40%;
+    left: auto;
+    right: 0.2%;
+    text-align: center;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+
+/* Modification de la troisième partie */
+
+/* Cela conserne les deux blocs de texte du bas de la page */
+
+div#block_bottom {
+    display: flex;
+    align-items: top;
+    justify-content: space-between;
+    margin-bottom: 10px ;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+
+/* > Block Expériences Professionnelles */
+
+div#professional_experience{
+    display: block;
+    position:static;
+    width: 59%;
+    left: 0.2%;
+    right: auto;
+    text-align: left;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+/* > Block Langues & Loisirs */
+
+div#under_block_2{
+    display: block;
+    position:static;
+    width: 40%;
+    left: auto;
+    right: 0.2%;
+    background-color: brown;
+    text-align: left;
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
+
+/*CSS de la barre de progression */
+
+.progress_bar {
+    height: 20px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    text-align: center;
+    color: white;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  }
+
+
+/* Paramères générales Bootscrap */
+
+.m-con {
+    margin-top: 1.5%;
+    margin-bottom: 1.5%;
+}
+
+.container-bla {
+    display: flex;
+    width: 59.2%;
+    left: 0.1%;
+    right: auto;
+
+}
+
+.container-blb {
+    display: flex;
+    flex-direction: column;
+    width: 40.3%;
+    left: auto;
+    right: 0.2%;
+    text-align: center;
+}
+
+/* Paramètres de taille de police */
+
+.display-6 {
+    font-size: 32px;
+    margin-top: 15px;
+}
+
+.display-7 {
+    font-size: 24px;
+    margin-top: -12px;
+}
+
+.display-8 {
+    font-size: 20px;
+    margin-top: -6px;
+    margin-bottom: 22px;
+}
+
+/* Moyen de detection pour activer le javascript idpage()*/
+p#end_page:hover {
+    cursor: grab;
+}
+
+
+
+/* Responsive design */
+
+@media screen and (max-width: 950px) {
+    img.profile_picture { 
+        width: 130px;
+    }
+    .display-6 {
+        font-size: 26px;
+    }
+
+    .display-7 {
+        font-size: 20px;
+    }
+
+    .display-8 {
+        font-size: 16px;
+    }
+  }
+
+@media screen and (max-width: 650px) {
+    img.profile_picture { 
+        width: 80px;
+    }
+    
+    .display-6 {
+        font-size: 20px;
+    }
+
+    .display-7 {
+        font-size: 15px;
+    }
+    
+    .display-8 {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    img.profile_picture { 
+        width: 55px;
+    }
+    
+    .display-6 {
+        font-size: 18px;
+    }
+
+    .display-7 {
+        font-size: 13px;
+    }
+    
+    .display-8 {
+        font-size: 11px;
+    }
+}

@@ -1,0 +1,141 @@
+/* Paramètres de la page */
+
+body {
+font-family: "Exo 2", sans-serif;
+font-optical-sizing: auto;
+font-style: normal;
+}
+
+#menu {
+    font-size: larger;
+};
+
+/* Background de la page */
+ 
+.p-br {
+    padding: 2.0%
+}
+.bg-dark {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+  }
+
+/* Modification de la première partie */
+
+div#block_top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+/* > Premier block */
+
+div.top_margin {
+    margin-top: 0.5%;
+    margin-bottom: 0.5%;
+}
+
+div.max_width {
+    width: 100%;
+}
+
+div#welcome {
+    font-family: "Tektur", sans-serif;
+    font-optical-sizing: auto;
+    width: auto;
+    margin-left: 4.5%;
+    margin-right: 4.5%;
+}
+
+    
+/*CSS de la barre de progression */
+
+.progress_bar {
+    height: 20px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    text-align: center;
+    color: white;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  }
+
+
+/* Paramères générales Bootscrap */
+
+.m-con {
+    margin-top: 1.5%;
+    margin-bottom: 1.5%;
+}
+
+
+/* Paramètres de taille de police */
+
+.display-6 {
+    font-size: 32px;
+    margin-top: 15px;
+}
+
+.display-7 {
+    font-size: 24px;
+    margin-top: -12px;
+}
+
+.display-8 {
+    font-size: 20px;
+    margin-top: -6px;
+    margin-bottom: 22px;
+}
+
+/* Moyen de detection pour activer le javascript idpage()*/
+p#end_page:hover {
+    cursor: grab;
+}
+
+
+/* Responsive design */
+
+@media screen and (max-width: 950px) {
+    .display-6 {
+        font-size: 26px;
+    }
+
+    .display-7 {
+        font-size: 20px;
+    }
+
+    .display-8 {
+        font-size: 16px;
+    }
+  }
+
+@media screen and (max-width: 650px) {
+    .display-6 {
+        font-size: 20px;
+    }
+
+    .display-7 {
+        font-size: 15px;
+    }
+    
+    .display-8 {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .display-6 {
+        font-size: 18px;
+    }
+
+    .display-7 {
+        font-size: 13px;
+    }
+    
+    .display-8 {
+        font-size: 11px;
+    }
+}
