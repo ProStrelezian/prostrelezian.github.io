@@ -8,24 +8,63 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="index.css"/>
 </head>
 <body>
-    <div class="cover">
-        Kilian RIVIERE
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Kilian RIVIERE</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Formations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Expériences</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://prostrelezian.github.io/contact.html">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="cover text-center">
+        <h1 class="mb-4">Bienvenue sur le site portfolio de Kilian RIVIERE</h1>
+        <p>Découvrez mes projets, compétences et expériences professionnelles.</p>
     </div>
     
     <div class="container mt-5">
-        <p class="text-center text-muted">Recherche de stage en Data Analyst</p>
-        <p class="text-center">Email: <a href="mailto:kilianriviere.pro@gmail.com">kilianriviere.pro@gmail.com</a> | Téléphone: +33 6 75 40 52 06 | <a href="https://www.linkedin.com/in/kilian-riviere/">LinkedIn</a></p>
-        
-        <div class="social-buttons">
-            <a href="https://www.linkedin.com/in/kilian-riviere/" target="_blank"><i class="fab fa-linkedin"></i></a>
-            <a href="https://github.com/" target="_blank"><i class="fab fa-github"></i></a>
-            <a href="https://twitter.com/" target="_blank"><i class="fab fa-twitter"></i></a>
+        <div class="news-card card">
+            <div class="card-body">
+                <h5 class="card-title">Actuellement</h5>
+                <p class="card-text text-muted">En recherche de stage dès que possible pour une durée de trois mois minimum.</p>
+            </div>
         </div>
+        <br></br>
         
         <div class="section mb-4">
+            <h2 class="border-bottom pb-2">Éducation</h2>
+            <ul>
+                <li><strong>Master Economic and Business Analyst</strong> - Université Savoie Mont-Blanc (2024 - en cours)</li>
+                <li><strong>Licence Économie-Gestion - Informatique, Numérique</strong> - Université Savoie Mont-Blanc (2021 - 2023)</li>
+                <li><strong>Diplôme de Comptabilité et de Gestion</strong> - Lycée Gabriel Faure (2019 - 2021)</li>
+            </ul>
+            <a href="#" target="_blank" class="btn btn-primary me-2">
+                <i class="fab">En savoir plus ></i> 
+            </a>
+        </div>
+
+        <div class="section mb-4">
+
             <h2 class="border-bottom pb-2">Expérience professionnelle</h2>
             <ul>
                 <li><strong>Stage de fin de cursus</strong> - Laboratoire Symme (mai - juillet 2024)<br>
@@ -35,32 +74,98 @@
                 <li><strong>Équipier polyvalent</strong> - McDonald's ANNECY (juin - août 2023)<br>
                     Service client, entretien, gestion des stocks.</li>
             </ul>
-        </div>
-        
-        <div class="section mb-4">
-            <h2 class="border-bottom pb-2">Éducation</h2>
-            <ul>
-                <li><strong>Master Economic and Business Analyst</strong> - Université Savoie Mont-Blanc (2024 - en cours)</li>
-                <li><strong>Licence Économie-Gestion - Informatique, Numérique</strong> - Université Savoie Mont-Blanc (2021 - 2023)</li>
-                <li><strong>Diplôme de Comptabilité et de Gestion</strong> - Lycée Gabriel Faure (2019 - 2021)</li>
-            </ul>
+            <a href="#" target="_blank" class="btn btn-primary me-2">
+                <i class="fab">En savoir plus ></i> 
+            </a>
         </div>
         
         <div class="section mb-4">
             <h2 class="border-bottom pb-2">Compétences</h2>
-            <ul class="list-group">
-                <li class="list-group-item">Analyse statistique et économétrie</li>
-                <li class="list-group-item">Programmation (Python, SQL, HTML/CSS/JS)</li>
-                <li class="list-group-item">Gestion de projet et méthodes agiles</li>
-                <li class="list-group-item">Économie et finance</li>
-            </ul>
+            <div id="accordion">
+                <div class="card">
+                    <div class="card-header" id="headingOne">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                Outils analytiques et gestion des données
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">Préparation des données : nettoyage, transformation, formatage pour l’analyse.</li>
+                                <li class="list-group-item">Data Analysis : Python (Pandas, NumPy, Matplotlib), R (pastecs, ggplot2, tidyr), Excel/Google Sheets (avancé avec utilisations de macros complexes), SphinxDéclic, Google Form.</li>
+                                <li class="list-group-item">Data Visualization : Excel/Google Sheets, Power BI, Matplotlib.</li>
+                                <li class="list-group-item">Bases de données : SQL, MySQL, PostgreSQL.</li>
+                                <li class="list-group-item">Modélisation et Statistiques : Économétrie, prévision, analyse bivariée et multivariée, segmentation client et clustering de données (k-means, etc.).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" id="headingTwo">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Technologies complémentaires et développement
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">Web : HTML/CSS/JavaScript avec Bootstrap, React.js.</li>
+                                <li class="list-group-item">ERP/PGI : SAP (extraction et manipulation de données).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" id="headingThree">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Économie et Finance
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">Microéconomie, macroéconomie, économie internationale.</li>
+                                <li class="list-group-item">Analyse financière, prévisions économiques et gestion des risques, étude de la conjoncture.</li>
+                                <li class="list-group-item">Marchés financiers, politiques économiques, finance d’entreprise.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" id="headingFour">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                Management et Gestion
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">Organisation et pilotage de projets, Méthodes agiles (Scrum, Kanban), management stratégique.</li>
+                                <li class="list-group-item">Comptabilité de gestion et contrôle de gestion analytique.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="section mb-4">
             <h2 class="border-bottom pb-2">Langues</h2>
             <ul>
                 <li>Français - Langue maternelle</li>
-                <li>Anglais - Professionnel (TOEIC 750/990)</li>
+                <li>Anglais - Professionnel (B1/B2 - TOEIC 750/990)</li>
                 <li>Espagnol - Débutant (A1)</li>
                 <li>Japonais - Débutant (A1)</li>
             </ul>
@@ -68,28 +173,28 @@
 
         <div class="section mb-4">
             <h2 class="border-bottom pb-2">Centres d'intérêts et Loisirs</h2>
-            <p>Bénévolat pour des événements jeux-vidéos, encadrement, création d'outils numériques.<br>
-               Engagement citoyen en tant qu'assesseur de bureau de vote.<br>
-               Passionné d'histoire, géographie, jeux de stratégie, veille technologique et légale.</p>
-        </div>
-
-        <div class="social-buttons">
-            <a href="https://www.linkedin.com/in/votreprofil" target="_blank" class="btn btn-primary me-2">
-                <i class="fab fa-linkedin"></i> LinkedIn
-            </a>
-            <a href="https://github.com/votreprofil" target="_blank" class="btn btn-dark me-2">
-                <i class="fab fa-github"></i> GitHub
-            </a>
-            <a href="https://twitter.com/votreprofil" target="_blank" class="btn btn-info me-2">
-                <i class="fab fa-twitter"></i> Twitter
-            </a>
-            <!-- Ajoutez d'autres boutons selon vos besoins -->
-        </div>
-        
+            <li><strong>Bénévolat sur des événements jeux-vidéos :</strong></li>
+                <ul><li>Encadrement des participants et des spectateurs</li>
+                    <li>Création d'outils pour le bon déroulement (Excel, Site Web).</li></ul>
+            <li><strong>Engagement citoyen en tant qu'assesseur de bureau de vote.</strong></li>
+            <li><strong>Loisirs :</strong> Passionné d'histoire, géographie, jeux-video de stratégie, veille technologique et légale. </li>
+        </div>        
+        <div class="container">
+            <div class="section mb-4">
+                <h2 class="border-bottom pb-2">Contacts</h2>
+                <a href="https://prostrelezian.github.io/contact.html" target="_blank" class="btn btn-primary me-2">
+                    <i class="fab"></i> En savoir plus >
+                </a>
+            </div>
+        </div>    
     </div>
     
     <footer>
         © 2025 Kilian RIVIERE - Tous droits réservés
     </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
