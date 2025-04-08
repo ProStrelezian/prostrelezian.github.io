@@ -24,10 +24,6 @@ body {
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
-.social-buttons {
-    text-align: center;
-    margin-top: 20px;
-}
 footer {
     margin-top: 40px;
     text-align: center;
@@ -35,23 +31,6 @@ footer {
     background-color: #343a40;
     color: white;
     border-radius: 10px;
-}
-.news-card {
-    margin-top: 20px;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-.news-card .card-body {
-    padding: 1.25rem;
-}
-.news-card .card-title {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-.news-card .card-text {
-    font-size: 1rem;
-    color: #6c757d;
 }
 .section {
     margin-bottom: 4rem;
@@ -72,36 +51,7 @@ footer {
 .section .btn i {
     margin-right: 0.5rem;
 }
-.card-header .btn-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-.card-header .btn-link i {
-    transition: transform 0.3s;
-}
-.card-header .btn-link[aria-expanded="true"] i {
-    transform: rotate(180deg);
-}
-.card-header .btn-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    text-decoration: none;
-    color: inherit;
-}
-.card-header .btn-link:hover {
-    text-decoration: none;
-    color: inherit;
-}
-.card-header .btn-link i {
-    transition: transform 0.3s;
-}
-.card-header .btn-link[aria-expanded="true"] i {
-    transform: rotate(180deg);
-}
+
 #backToTopBtn {
     position: fixed;
     bottom: 20px;
