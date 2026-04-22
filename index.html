@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="description" content="Dashboard en direct pour suivre les résultats et le classement du tournoi ZLAN 2026.">
+    <title>ZLAN 2026 - Dashboard Complet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pixel-red: #e53935;
+            --pixel-green: #64ffda;
+            --pixel-blue: #5865F2;
+            --pixel-dark: #09090b;
+            --pixel-gray: #18181b;
+        }
+
+        body {
+            background-color: var(--pixel-dark);
+            color: #fff;
+            font-family: 'VT323', monospace;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.03) 1px, transparent 2px),
+                radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.03) 1px, transparent 2px),
+                radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.03) 1px, transparent 2px),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100px 100px, 150px 150px, 80px 80px, 20px 20px, 20px 20px;
+        }
+
+        .font-pixel {
+            font-family: 'Silkscreen', cursive;
+            text-transform: uppercase;
+        }
+        
+        .font-text {
+            font-family: 'VT323', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pixel-card {
+            background: var(--pixel-gray);
+            border: 2px solid #27272a;
+            position: relative;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
+        }
+
+        .pixel-card::before {
+            content: '+';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 24px;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .pixel-header-red {
+            background: linear-gradient(135deg, rgba(229, 57, 53, 0.15) 0%, transparent 100%);
+            border-bottom: 2px solid var(--pixel-red);
+        }
+        
+        .pixel-header-green {
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.15) 0%, transparent 100%);
+            border-bottom: 2px solid var(--pixel-green);
+        }
+        
+        .pixel-header-blue {
+            background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, transparent 100%);
+            border-bottom: 2px solid var(--pixel-blue);
+        }
+
+    </style>
+</head>
+
+<body class="min-h-screen pb-20 overflow-x-hidden">
+
+    <header class="p-4 border-b-2 border-[#27272a] mb-12 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-4 h-8 bg-[var(--pixel-green)]" aria-hidden="true"></div>
+                <h1 class="text-3xl md:text-4xl font-pixel text-white mt-1">ZLAN <span style="color: var(--pixel-red)">2026</span></h1>
+            </div>
+            <div id="status" class="font-text text-2xl text-slate-500 flex items-center gap-3 mt-1" aria-live="polite">
+                <span class="w-3 h-3 bg-[var(--pixel-red)] animate-pulse" aria-hidden="true"></span> INIT...
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pb-12" id="dashboard-container">
+        <div class="text-center py-32 animate-pulse font-pixel text-3xl md:text-5xl tracking-widest" style="color: var(--pixel-green)" role="status">
+            CHARGEMENT DES SERVEURS...
+        </div>
+    </main>
+
+    <script>
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWSNjiYm4E4g0spokjb58TApgU0PU9Ob8ZaMyYxXVtGTQeNQEbffyhb9OABti5dcjD-jAth4RgRlrV/pub?gid=0&single=true&output=csv';
+        let isFetching = false;
+
+        async function init() {
+            if (isFetching) return;
+            isFetching = true;
+            try {
+                // Le paramètre URL suffit à contourner le cache sans déclencher la sécurité CORS de Google
+                const urlAvecAntiCache = SHEET_URL + "&timestamp=" + Date.now() + "&rnd=" + Math.random();
+                const response = await fetch(urlAvecAntiCache, { 
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    throw new Error("HTTP error " + response.status);
+                }
+
+                const csvData = await response.text();
+                
+                Papa.parse(csvData, {
+                    skipEmptyLines: false,
+                    complete: function(results) {
+                        if (results && results.data) {
+                            buildDashboard(results.data);
+                        }
+                        isFetching = false;
+                        // Relance exactement 30s APRÈS la fin du traitement
+                        setTimeout(init, 30000);
+                    },
+                    error: function(err) {
+                        console.error(err);
+                        document.getElementById('status').innerHTML = `<span class="w-3 h-3 bg-[var(--pixel-red)] shadow-[0_0_10px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)">ERREUR PARSE</span>`;
+                        isFetching = false;
+                        // On réessaye dans 30s si erreur
+                        setTimeout(init, 30000);
+                    }
+                });
+            } catch (error) {
+                console.error("Erreur de chargement :", error);
+                document.getElementById('status').innerHTML = `<span class="w-3 h-3 bg-[var(--pixel-red)] shadow-[0_0_10px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)">HORS LIGNE</span>`;
+                isFetching = false;
+                // En cas de perte de connexion, on retente dans 30s
+                setTimeout(init, 30000);
+            }
+        }
+
+        function buildDashboard(data) {
+            if (!data || data.length === 0) return;
+
+            function has(cell, text) {
+                return cell != null && String(cell).toUpperCase().includes(text.toUpperCase());
+            }
+
+            let teamNameHtml = "";
+            let seedingHtml = "";
+            let knockoutHtml = "";
+            let groupCardsHtml = "";
+            let finalRankHtml = "";
+            
+            let seedingFinished = false;
+            let knockoutFinished = false;
+
+            for (let i = 0; i < data.length; i++) {
+                const row = data[i];
+                const r0 = String(row[0] || "");
+
+                if (row.some(c => has(c, "TEAM :") || has(c, "TEAM:"))) {
+                    let teamText = row.find(c => has(c, "TEAM :") || has(c, "TEAM:")) || "";
+                    if (teamText) {
+                        let cleanTeam = teamText.replace(/TEAM\s*:/i, '').trim();
+                        teamNameHtml = `
+                            <section class="mb-16 flex justify-center" aria-labelledby="players-title">
+                                <div class="pixel-card border-b-4" style="border-bottom-color: var(--pixel-green); padding: 2rem 4rem; text-align: center;">
+                                    <h2 id="players-title" class="text-slate-400 font-text text-xl mb-2 tracking-widest">>> JOUEURS ENGAGÉS <<</h2>
+                                    <p class="text-3xl md:text-5xl font-pixel text-white tracking-wider">
+                                        ${cleanTeam}
+                                    </p>
+                                </div>
+                            </section>
+                        `;
+                    }
+                }
+
+                if (has(r0, "TOP ") && has(r0, "ZLAN")) {
+                    if (/\d/.test(r0) && !/[xX\?]/.test(r0)) {
+                        finalRankHtml = `
+                            <section class="mt-16 mb-20 flex justify-center" aria-labelledby="final-rank-title">
+                                <div class="pixel-card border-2" style="border-color: var(--pixel-green); padding: 3rem 5rem; text-align: center; background: rgba(100, 255, 218, 0.05);">
+                                    <h2 id="final-rank-title" class="text-slate-400 font-text text-2xl mb-2 tracking-widest">RÉSULTAT FINAL</h2>
+                                    <p class="text-5xl md:text-7xl font-pixel tracking-widest" style="color: var(--pixel-green); text-shadow: 4px 4px 0px rgba(0,0,0,0.5);">${r0}</p>
+                                </div>
+                            </section>`;
+                    }
+                }
+
+                if (has(r0, "PHASE DE SEEDING")) {
+                    let games = [];
+                    let seedingScore = "";
+                    let j = i + 1;
+                    while (j < data.length && !has(data[j][0], "PHASE DE KNOCKOUT")) {
+                        let subRow = data[j];
+                        if (subRow[0] && !has(subRow[0], "JEUX")) {
+                            games.push({ name: subRow[0], place: subRow[3], heure: subRow[4] || subRow[5] || '' });
+                        }
+                        let seedIdx = subRow.findIndex(c => has(c, ">> SEEDING"));
+                        if (seedIdx !== -1) {
+                            let vals = subRow.slice(seedIdx + 1).filter(v => v.trim() !== "");
+                            seedingScore = vals[0] || "";
+                        }
+                        j++;
+                    }
+                    
+                    if (seedingScore && seedingScore.trim() !== "") {
+                        seedingFinished = true;
+                    }
+
+                    let gamesHtml = games.map((g, idx) => {
+                        let rowBg = idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50";
+                        return `
+                        <div class="grid grid-cols-5 text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${rowBg}">
+                            <div class="col-span-2 font-pixel text-slate-200 text-[10px] md:text-sm uppercase py-4 px-2 flex items-center justify-center">${g.name}</div>
+                            <div class="col-span-2 font-text text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-4 px-2 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
+                            <time class="col-span-1 font-pixel text-xs md:text-sm text-slate-400 py-4 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>
+                        </div>
+                    `}).join('');
+
+                    seedingHtml = `
+                        <section class="pixel-card mt-8" aria-labelledby="seeding-title">
+                            <header class="pixel-header-green p-6 flex flex-col justify-center items-center text-center relative">
+                                <div class="text-slate-300 font-text text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
+                                <h2 id="seeding-title" class="font-pixel text-3xl md:text-4xl tracking-widest" style="color: var(--pixel-green);">PHASE DE SEEDING</h2>
+                            </header>
+                            <div class="grid grid-cols-5 font-pixel text-[10px] md:text-sm text-slate-500 p-4 text-center bg-[#09090b] border-b border-[#27272a]">
+                                <div class="col-span-2">JEUX</div>
+                                <div class="col-span-2">PLACE</div>
+                                <div class="col-span-1">HEURE</div>
+                            </div>
+                            <div class="bg-[#0f0f13]">${gamesHtml}</div>
+                            ${seedingScore ? `
+                            <div class="flex border-t-4 border-[#27272a] mt-auto flex-col md:flex-row">
+                                <div class="bg-[#18181b] flex-1 p-4 flex items-center justify-center">
+                                    <span class="font-text text-2xl text-slate-400">SCORE SEEDING</span>
+                                </div>
+                                <div class="flex-1 p-4 flex items-center justify-center md:border-l-4 border-t-4 md:border-t-0 border-[#27272a]" style="background: rgba(100, 255, 218, 0.1);">
+                                    <span class="font-pixel text-4xl" style="color: var(--pixel-green);">${seedingScore}</span>
+                                </div>
+                            </div>` : ''}
+                        </section>
+                    `;
+                    i = j - 1;
+                }
+
+                else if (has(r0, "PHASE DE KNOCKOUT")) {
+                    if (!seedingFinished) {
+                        let j = i + 1;
+                        while (j < data.length && !has(data[j][0], "PHASE DE GROUPE") && !(has(data[j][0], "TOP ") && has(data[j][0], "ZLAN"))) { j++; }
+                        i = j - 1;
+                        continue;
+                    }
+
+                    let games = [];
+                    let qualifKnockout = "";
+                    let qualifKnockoutScore = "";
+                    let j = i + 1;
+
+                    while (j < data.length && !has(data[j][0], "PHASE DE GROUPE") && !(has(data[j][0], "TOP ") && has(data[j][0], "ZLAN"))) {
+                        let subRow = data[j];
+                        
+                        let qualifIdx = subRow.findIndex(c => has(c, "QUALIFIÉ"));
+                        if (qualifIdx !== -1) {
+                            let vals = subRow.slice(qualifIdx + 1).filter(v => v.trim() !== "");
+                            qualifKnockout = vals[0] || "";
+                            qualifKnockoutScore = vals[1] || "";
+                        } else if (subRow[0] && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
+                            games.push({
+                                name: subRow[0],
+                                choix: subRow[3] || '',
+                                contre: subRow[4] || '',
+                                score: [subRow[6] || ''],
+                                resultat: subRow[7] || '',
+                                vies: subRow[8] || '',
+                                heure: subRow[9] || ''
+                            });
+                        } else if (!subRow[0] && (subRow[6] || subRow[5]) && games.length > 0) {
+                            games[games.length - 1].score.push(subRow[6] || subRow[5]);
+                        }
+                        j++;
+                    }
+                    
+                    if (qualifKnockout && qualifKnockout.trim() !== "") {
+                        knockoutFinished = true;
+                    }
+
+                    let gamesHtml = games.map((g, idx) => {
+                        let resColor = "text-slate-500";
+                        if (has(g.resultat, "GAGNÉ") || has(g.resultat, "VICTOIRE")) {
+                            resColor = "text-[var(--pixel-green)]";
+                        } else if (has(g.resultat, "PERDU") || has(g.resultat, "DÉFAITE") || has(g.resultat, "NON")) {
+                            resColor = "text-[var(--pixel-red)]";
+                        } else if (has(g.resultat, "TOP")) {
+                            resColor = "text-white";
+                        }
+
+                        let scoresHtml = g.score.map(s => `<div>${s}</div>`).join('');
+                        let rowBg = idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50";
+
+                        let viesDisplay = g.vies;
+                        let numVies = parseInt(g.vies);
+                        if (!isNaN(numVies) && numVies > 0 && numVies <= 10) {
+                            let hearts = [];
+                            for(let h=0; h<numVies; h++) {
+                                hearts.push(`<span style="color: var(--pixel-red);">♥</span>`);
+                            }
+                            viesDisplay = `<div class="flex gap-1 justify-center flex-wrap font-text text-xl md:text-2xl" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.8);">${hearts.join('')}</div>`;
+                        } else if (numVies === 0) {
+                            viesDisplay = `<span class="font-pixel text-slate-600 text-lg">X</span>`;
+                        } else if (!g.vies || g.vies.trim() === "") {
+                            viesDisplay = `<span class="text-slate-700">-</span>`;
+                        }
+
+                        let choixColor = "text-slate-500";
+                        let choixText = (g.choix || "").toUpperCase();
+                        if (choixText === "OUI" || choixText.includes("CHOISI")) choixColor = "text-[var(--pixel-green)]";
+                        else if (choixText === "NON" || choixText.includes("BAN")) choixColor = "text-[var(--pixel-red)]";
+                        else if (choixText !== "") choixColor = "text-white";
+
+                        return `
+                        <div class="grid grid-cols-12 text-sm text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${rowBg}">
+                            <div class="col-span-2 font-pixel text-slate-100 text-[10px] md:text-xs px-2 py-4 flex items-center justify-center uppercase">${g.name}</div>
+                            <div class="col-span-2 font-text text-xl ${choixColor} px-1 py-4 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>
+                            <div class="col-span-3 font-text text-xl text-slate-400 px-2 py-4 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>
+                            <div class="col-span-1 font-text text-2xl text-white px-1 py-4 flex flex-col justify-center gap-1 border-l border-[#27272a]/50">${scoresHtml}</div>
+                            <div class="col-span-2 font-pixel text-[10px] md:text-sm ${resColor} px-1 py-4 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>
+                            <div class="col-span-1 py-4 flex justify-center items-center border-l border-[#27272a]">${viesDisplay}</div>
+                            <time class="col-span-1 font-pixel text-slate-400 text-[10px] md:text-sm px-1 py-4 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>
+                        </div>
+                        `;
+                    }).join('');
+
+                    let qualifHtml = "";
+                    if (qualifKnockout) {
+                        let isOui = qualifKnockout === "OUI";
+                        let bgRight = isOui ? "rgba(100, 255, 218, 0.1)" : "rgba(229, 57, 53, 0.1)";
+                        let textRight = isOui ? "var(--pixel-green)" : "var(--pixel-red)";
+                        qualifHtml = `
+                            <div class="flex border-t-4 border-[#27272a] mt-auto flex-col md:flex-row">
+                                <div class="bg-[#18181b] flex-1 p-4 flex items-center justify-center">
+                                    <span class="font-text text-2xl text-slate-400">QUALIFIÉ ?</span>
+                                </div>
+                                <div class="flex-1 p-4 flex items-center justify-center md:border-l-4 border-t-4 md:border-t-0 border-[#27272a]" style="background: ${bgRight};">
+                                    <span class="font-pixel text-4xl" style="color: ${textRight};">${qualifKnockout}</span>
+                                </div>
+                                ${qualifKnockoutScore ? `
+                                <div class="bg-[#09090b] w-full md:w-[30%] p-4 flex items-center justify-center border-t-4 md:border-t-0 md:border-l-4 border-[#27272a]">
+                                    <span class="font-pixel text-2xl text-white">${qualifKnockoutScore}</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+
+                    knockoutHtml = `
+                        <section class="pixel-card mt-12" aria-labelledby="knockout-title">
+                            <header class="pixel-header-red p-6 flex flex-col justify-center items-center text-center relative">
+                                <div class="text-slate-300 font-text text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
+                                <h2 id="knockout-title" class="font-pixel text-3xl md:text-4xl tracking-widest" style="color: var(--pixel-red);">PHASE DE KNOCKOUT</h2>
+                            </header>
+                            <div class="grid grid-cols-12 font-pixel text-[10px] md:text-xs text-slate-500 p-4 text-center bg-[#09090b] border-b border-[#27272a]">
+                                <div class="col-span-2">JEUX</div>
+                                <div class="col-span-2">JEU CHOISI OU NON ?</div>
+                                <div class="col-span-3">CONTRE QUI ?</div>
+                                <div class="col-span-1">SCORE</div>
+                                <div class="col-span-2">RÉSULTATS</div>
+                                <div class="col-span-1">VIES</div>
+                                <div class="col-span-1">HEURE</div>
+                            </div>
+                            <div class="bg-[#0f0f13]">${gamesHtml}</div>
+                            ${qualifHtml}
+                        </section>
+                    `;
+                    i = j - 1;
+                }
+
+                else if (has(r0, "PHASE DE GROUPE")) {
+                    if (!knockoutFinished) {
+                        let j = i + 1;
+                        while (j < data.length && !has(data[j][0], "PHASE DE GROUPE") && !(has(data[j][0], "TOP ") && has(data[j][0], "ZLAN"))) { j++; }
+                        i = j - 1;
+                        continue;
+                    }
+
+                    let groupTitle = row[0];
+                    let teamsTitle = "";
+                    let teams = "";
+                    let games = [];
+                    let qualifStatus = "";
+
+                    let j = i + 1;
+                    while (j < data.length && !has(data[j][0], "PHASE DE GROUPE") && !(has(data[j][0], "TOP ") && has(data[j][0], "ZLAN"))) {
+                        let subRow = data[j];
+                        
+                        let qualifIdx = subRow.findIndex(c => has(c, "QUALIFIÉ"));
+                        if (qualifIdx !== -1) {
+                            let vals = subRow.slice(qualifIdx + 1).filter(v => v.trim() !== "");
+                            qualifStatus = vals[0] || "";
+                        } else if (has(subRow[0], "TEAMS PRÉSENTES")) {
+                            teamsTitle = subRow[0];
+                            let k = j + 1;
+                            while (k < data.length && !data[k][0]) k++;
+                            if (k < data.length) {
+                                teams = data[k][0];
+                                j = k;
+                            }
+                        } else if (subRow[0] && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
+                            games.push({
+                                name: subRow[0],
+                                placeJeu: subRow[4] || subRow[3] || '',
+                                place: subRow[7] || subRow[6] || '',
+                                heure: subRow[8] || subRow[9] || ''
+                            });
+                        }
+                        j++;
+                    }
+
+                    let gamesHtml = games.map((g, idx) => {
+                        let rowBg = idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50";
+                        return `
+                        <div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${rowBg}">
+                            <div class="col-span-5 font-pixel text-slate-100 text-[10px] md:text-xs uppercase px-2 py-4 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                            <div class="col-span-3 font-text text-2xl text-slate-400 py-4 px-2 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
+                            <div class="col-span-3 font-pixel text-xl py-4 px-2 flex items-center justify-center border-l border-[#27272a]" style="color: var(--pixel-blue);">${g.place}</div>
+                            <time class="col-span-1 font-pixel text-[10px] md:text-sm text-slate-400 py-4 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
+                        </div>
+                    `}).join('');
+
+                    let qualifHtml = "";
+                    if (qualifStatus) {
+                        let isOui = qualifStatus === "OUI";
+                        let bgRight = isOui ? "rgba(100, 255, 218, 0.1)" : "rgba(229, 57, 53, 0.1)";
+                        let textRight = isOui ? "var(--pixel-green)" : "var(--pixel-red)";
+                        qualifHtml = `
+                            <div class="flex border-t-4 border-[#27272a] mt-auto flex-col md:flex-row">
+                                <div class="bg-[#18181b] flex-1 p-4 flex items-center justify-center">
+                                    <span class="font-text text-2xl text-slate-400">QUALIFIÉ ?</span>
+                                </div>
+                                <div class="flex-1 p-4 flex items-center justify-center md:border-l-4 border-t-4 md:border-t-0 border-[#27272a]" style="background: ${bgRight};">
+                                    <span class="font-pixel text-4xl" style="color: ${textRight};">${qualifStatus}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    let headerBlock = "";
+                    if (teamsTitle) {
+                        headerBlock = `
+                            <div class="bg-[#18181b] p-3 text-center font-text text-xl text-slate-300 border-b border-[#27272a]">
+                                ${teamsTitle}
+                            </div>
+                            <div class="bg-[#09090b] p-4 text-center font-text text-lg text-slate-500 border-b-2 border-[#27272a]">
+                                ${teams}
+                            </div>
+                        `;
+                    }
+
+                    groupCardsHtml += `
+                        <article class="pixel-card mt-12 flex flex-col h-full" aria-labelledby="group-title-${i}">
+                            <header class="pixel-header-blue p-6 flex flex-col justify-center items-center text-center relative">
+                                <div class="text-slate-300 font-text text-lg mb-1 tracking-widest">RÉSULTATS DU</div>
+                                <h2 id="group-title-${i}" class="font-pixel text-2xl md:text-3xl tracking-widest" style="color: var(--pixel-blue);">${groupTitle}</h2>
+                            </header>
+                            ${headerBlock}
+                            <div class="flex-grow bg-[#0f0f13]">
+                                <div class="grid grid-cols-12 gap-0 font-pixel text-[10px] text-slate-500 p-3 text-center bg-[#09090b] border-b border-[#27272a]">
+                                    <div class="col-span-5">JEUX</div>
+                                    <div class="col-span-3">PLACE SUR LE JEU</div>
+                                    <div class="col-span-3">PLACE</div>
+                                    <div class="col-span-1">HEURE</div>
+                                </div>
+                                ${gamesHtml || '<div class="p-10 text-center text-slate-600 font-text text-3xl pt-12">EN ATTENTE...</div>'}
+                            </div>
+                            ${qualifHtml}
+                        </article>
+                    `;
+
+                    i = j - 1;
+                }
+            }
+
+            let fullHtml = teamNameHtml + seedingHtml + knockoutHtml;
+            if (groupCardsHtml) {
+                fullHtml += `<div class="grid grid-cols-1 md:grid-cols-2 gap-8">${groupCardsHtml}</div>`;
+            }
+            if (finalRankHtml) {
+                fullHtml += finalRankHtml;
+            }
+
+            const container = document.getElementById('dashboard-container');
+            // Optimisation : On ne remplace le HTML que s'il y a eu des modifications
+            if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
+                container.innerHTML = fullHtml;
+            }
+
+            const status = document.getElementById('status');
+            status.innerHTML = `<span class="w-3 h-3 bg-[var(--pixel-green)] shadow-[0_0_10px_rgba(100,255,218,1)]"></span> <span style="color: var(--pixel-green)">SYNC OK</span>`;
+            status.className = "font-text text-2xl flex items-center gap-3 mt-1";
+        }
+
+        init(); // Lancement de la première boucle d'actualisation
+    </script>
+</body>
+
+</html>
