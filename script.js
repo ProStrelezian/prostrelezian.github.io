@@ -91,7 +91,7 @@ function buildDashboard(data) {
                 teamNameHtml = `
                     <section class="mb-6 md:mb-12 flex justify-center w-full px-2 md:px-0" aria-labelledby="players-title">
                         <div class="pixel-card border-b-4 px-4 py-5 md:px-8 md:p-10 w-full max-w-[920px]" style="border-bottom-color: var(--pixel-orange); text-align: center;">
-                            <h1 id="players-title" class="text-[var(--pixel-orange)] font-text text-base md:text-2xl mb-1.5 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1>
+                            <h1 id="players-title" class="text-[var(--pixel-orange)] font-text text-lg md:text-2xl mb-1.5 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1>
                             <div class="flex justify-center mb-5">
                                 <img src="https://yt3.ggpht.com/zs8gmrzyEG1Sn_iUIFnS7usvq-1BTT3lYt5YsbH_Br-Jjs4Xhpr21suv5hZuaXnpkujlT6eWFT0R6Q" alt="Avatar" class="h-[80px] md:h-[160px] lg:h-[240px] w-auto max-w-full border-[3px] border-[var(--pixel-orange)] shadow-[6px_6px_0px_rgba(0,0,0,0.8)]">
                             </div>
@@ -121,7 +121,7 @@ function buildDashboard(data) {
                 finalRankHtml = `
                     <section class="mt-6 md:mt-12 mb-10 md:mb-16 flex justify-center w-full px-2 md:px-0" aria-labelledby="final-rank-title">
                         <div class="pixel-card border-2 px-4 py-5 md:px-10 md:p-13 w-full max-w-[720px]" style="border-color: ${colorVar}; text-align: center; background: ${bgColor};">
-                            <h2 id="final-rank-title" class="text-slate-400 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTAT FINAL</h2>
+                            <h2 id="final-rank-title" class="text-slate-400 font-text text-lg md:text-3xl mb-1 tracking-widest">RÉSULTAT FINAL</h2>
                             <p class="text-2xl md:text-6xl font-pixel tracking-widest" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.5);">${finalRankText}</p>
                         </div>
                     </section>`;
@@ -167,7 +167,7 @@ function buildDashboard(data) {
                 <section class="pixel-card mt-6 mx-2 md:mx-0" aria-labelledby="seeding-title">
                     <header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative">
                         <div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
-                        <h2 id="seeding-title" class="font-pixel text-lg md:text-4xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
+                        <h2 id="seeding-title" class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
                     </header>
                     <div class="p-2 md:p-0">
                         <p class="md:hidden text-center text-slate-500 font-text text-sm mb-2 animate-pulse mt-2">👉 Glissez pour voir plus</p>
@@ -323,8 +323,8 @@ function buildDashboard(data) {
             knockoutHtml = `
                 <section class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0" aria-labelledby="knockout-title">
                     <header class="pixel-header-green px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
-                        <div class="text-slate-300 font-text text-base md:text-2xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
-                        <h2 id="knockout-title" class="font-pixel text-xl md:text-5xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2>
+                        <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
+                        <h2 id="knockout-title" class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2>
                     </header>
                     <div class="p-2 md:p-0">
                         <p class="md:hidden text-center text-slate-500 font-text text-sm mb-2 animate-pulse mt-2">👉 Glissez pour voir plus</p>
@@ -389,8 +389,11 @@ function buildDashboard(data) {
                         tournamentOver = true;
                     }
 
-                } else if (has(subRow[0], "TEAMS PRÉSENTES")) {
-                    teamsTitle = subRow[0];
+                } else if (subRow.some(c => has(c, "TEAMS PRÉSENTES"))) {
+                    teamsTitle = subRow.find(c => has(c, "TEAMS PRÉSENTES"));
+                    // On cherche si les teams sont sur la même ligne
+                    let potentialTeams = subRow.find(c => c.trim() !== "" && !has(c, "TEAMS PRÉSENTES"));
+                    if (potentialTeams) teams = potentialTeams;
                 } else if (subRow[0] && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
                     if (games.length === 0 && !teams) {
                         teams = subRow[0];
@@ -478,12 +481,12 @@ function buildDashboard(data) {
             if (teamsTitle || teams) {
                 headerBlock = `
                     ${teamsTitle ? `
-                    <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-lg md:text-3xl text-slate-300 border-b border-[#27272a]">
+                    <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">
                         ${teamsTitle}
                     </div>
                     ` : ''}
                     ${teams ? `
-                    <div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-base md:text-2xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">
+                    <div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">
                         ${teams}
                     </div>
                     ` : ''}
@@ -493,8 +496,8 @@ function buildDashboard(data) {
             groupCardsHtml += `
                 <article class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0" aria-labelledby="group-title-${i}">
                     <header class="${headerClass} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
-                        <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DU</div>
-                        <h2 id="group-title-${i}" class="font-pixel text-xl md:text-4xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
+                        <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
+                        <h2 id="group-title-${i}" class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
                     </header>
                     ${headerBlock}
                     <div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0">
@@ -508,7 +511,7 @@ function buildDashboard(data) {
                                     <div class="col-span-2">LIVE</div>
                                     ` : `
                                     <div class="col-span-4">JEUX</div>
-                                    <div class="col-span-3">PLACE SUR LE JEU</div>
+                                    <div class="col-span-3">RÉSULTATS DU JEU</div>
                                     <div class="col-span-3">PLACE</div>
                                     <div class="col-span-2">LIVE</div>
                                     `}
