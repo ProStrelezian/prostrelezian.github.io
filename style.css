@@ -18,7 +18,7 @@ body {
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 20px 20px, 20px 20px;
+    background-size: 16px 16px, 16px 16px;
 }
 
 body::before {
@@ -33,7 +33,7 @@ body::before {
         radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.06) 1.5px, transparent 2px),
         radial-gradient(circle at 25% 15%, rgba(229, 57, 53, 0.15) 1.5px, transparent 2.5px),
         radial-gradient(circle at 75% 85%, rgba(255, 255, 255, 0.03) 1px, transparent 2px);
-    background-size: 100px 100px, 150px 150px, 80px 80px, 120px 120px, 90px 90px;
+    background-size: 80px 80px, 120px 120px, 64px 64px, 96px 96px, 72px 72px;
     animation: twinkle 3s ease-in-out infinite alternate;
 }
 
@@ -57,7 +57,7 @@ body::before {
     background: var(--pixel-gray);
     border: 2px solid #27272a;
     position: relative;
-    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.8);
 }
 
 .pixel-card::before {

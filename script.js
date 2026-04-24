@@ -28,14 +28,14 @@ async function init() {
             },
             error: function (err) {
                 console.error(err);
-                document.getElementById('status').innerHTML = `<span class="w-3 h-3 bg-[var(--pixel-red)] shadow-[0_0_10px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)">ERREUR PARSE</span>`;
+                document.getElementById('status').innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-red)] shadow-[0_0_8px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)">ERREUR PARSE</span>`;
                 isFetching = false;
                 setTimeout(init, 30000);
             }
         });
     } catch (error) {
         console.error("Erreur de chargement :", error);
-        document.getElementById('status').innerHTML = `<span class="w-3 h-3 bg-[var(--pixel-red)] shadow-[0_0_10px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)">HORS LIGNE</span>`;
+        document.getElementById('status').innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-red)] shadow-[0_0_8px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)">HORS LIGNE</span>`;
         isFetching = false;
         setTimeout(init, 30000);
     }
@@ -89,13 +89,13 @@ function buildDashboard(data) {
             if (teamText) {
                 let cleanTeam = teamText.replace(/TEAM\s*:/i, '').trim();
                 teamNameHtml = `
-                    <section class="mb-8 md:mb-16 flex justify-center w-full px-2 md:px-0" aria-labelledby="players-title">
-                        <div class="pixel-card border-b-4 p-6 md:p-12 w-full max-w-6xl" style="border-bottom-color: var(--pixel-orange); text-align: center;">
-                            <h1 id="players-title" class="text-[var(--pixel-orange)] font-text text-lg md:text-3xl mb-2 tracking-widest drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1>
-                            <div class="flex justify-center mb-6">
-                                <img src="https://yt3.ggpht.com/zs8gmrzyEG1Sn_iUIFnS7usvq-1BTT3lYt5YsbH_Br-Jjs4Xhpr21suv5hZuaXnpkujlT6eWFT0R6Q" alt="Avatar" class="h-[100px] md:h-[200px] lg:h-[300px] w-auto max-w-full border-4 border-[var(--pixel-orange)] shadow-[8px_8px_0px_rgba(0,0,0,0.8)]">
+                    <section class="mb-6 md:mb-12 flex justify-center w-full px-2 md:px-0" aria-labelledby="players-title">
+                        <div class="pixel-card border-b-4 px-4 py-5 md:px-8 md:p-10 w-full max-w-[920px]" style="border-bottom-color: var(--pixel-orange); text-align: center;">
+                            <h1 id="players-title" class="text-[var(--pixel-orange)] font-text text-base md:text-2xl mb-1.5 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1>
+                            <div class="flex justify-center mb-5">
+                                <img src="https://yt3.ggpht.com/zs8gmrzyEG1Sn_iUIFnS7usvq-1BTT3lYt5YsbH_Br-Jjs4Xhpr21suv5hZuaXnpkujlT6eWFT0R6Q" alt="Avatar" class="h-[80px] md:h-[160px] lg:h-[240px] w-auto max-w-full border-[3px] border-[var(--pixel-orange)] shadow-[6px_6px_0px_rgba(0,0,0,0.8)]">
                             </div>
-                            <p class="text-xl md:text-5xl font-pixel text-white tracking-wider">
+                            <p class="text-lg md:text-4xl font-pixel text-white tracking-wider">
                                 ${cleanTeam}
                             </p>
                         </div>
@@ -119,10 +119,10 @@ function buildDashboard(data) {
                 }
 
                 finalRankHtml = `
-                    <section class="mt-8 md:mt-16 mb-12 md:mb-20 flex justify-center w-full px-2 md:px-0" aria-labelledby="final-rank-title">
-                        <div class="pixel-card border-2 p-6 md:p-16 w-full max-w-4xl" style="border-color: ${colorVar}; text-align: center; background: ${bgColor};">
-                            <h2 id="final-rank-title" class="text-slate-400 font-text text-lg md:text-2xl mb-1 tracking-widest">RÉSULTAT FINAL</h2>
-                            <p class="text-3xl md:text-7xl font-pixel tracking-widest" style="color: ${colorVar}; text-shadow: 4px 4px 0px rgba(0,0,0,0.5);">${finalRankText}</p>
+                    <section class="mt-6 md:mt-12 mb-10 md:mb-16 flex justify-center w-full px-2 md:px-0" aria-labelledby="final-rank-title">
+                        <div class="pixel-card border-2 px-4 py-5 md:px-10 md:p-13 w-full max-w-[720px]" style="border-color: ${colorVar}; text-align: center; background: ${bgColor};">
+                            <h2 id="final-rank-title" class="text-slate-400 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTAT FINAL</h2>
+                            <p class="text-2xl md:text-6xl font-pixel tracking-widest" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.5);">${finalRankText}</p>
                         </div>
                     </section>`;
             }
@@ -157,23 +157,23 @@ function buildDashboard(data) {
                 let rowBg = idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50";
                 return `
                 <div class="grid grid-cols-6 text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${rowBg}">
-                    <div class="col-span-2 font-pixel text-slate-200 text-sm md:text-2xl lg:text-4xl uppercase py-2 md:py-4 px-1 flex items-center justify-center">${g.name}</div>
-                    <div class="col-span-2 font-text text-lg md:text-3xl lg:text-4xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-2 md:py-4 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
-                    <time class="col-span-2 font-pixel italic text-[10px] md:text-base lg:text-xl text-slate-400 py-2 md:py-4 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>
+                    <div class="col-span-2 font-pixel text-slate-200 text-xs md:text-xl lg:text-3xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center">${g.name}</div>
+                    <div class="col-span-2 font-text text-base md:text-2xl lg:text-3xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
+                    <time class="col-span-2 font-pixel italic text-[8px] md:text-sm lg:text-lg text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>
                 </div>
             `}).join('');
 
             seedingHtml = `
-                <section class="pixel-card mt-8 mx-2 md:mx-0" aria-labelledby="seeding-title">
-                    <header class="pixel-header-orange p-4 md:p-6 flex flex-col justify-center items-center text-center relative">
-                        <div class="text-slate-300 font-text text-base md:text-2xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
-                        <h2 id="seeding-title" class="font-pixel text-xl md:text-5xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
+                <section class="pixel-card mt-6 mx-2 md:mx-0" aria-labelledby="seeding-title">
+                    <header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative">
+                        <div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
+                        <h2 id="seeding-title" class="font-pixel text-lg md:text-4xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
                     </header>
                     <div class="p-2 md:p-0">
                         <p class="md:hidden text-center text-slate-500 font-text text-sm mb-2 animate-pulse mt-2">👉 Glissez pour voir plus</p>
                         <div class="w-full overflow-x-auto pb-2">
                             <div class="min-w-[500px]">
-                                <div class="grid grid-cols-6 font-pixel text-xs md:text-base text-slate-500 p-2 md:p-4 text-center bg-[#09090b] border-b border-[#27272a]">
+                                <div class="grid grid-cols-6 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
                                     <div class="col-span-2">JEUX</div>
                                     <div class="col-span-2">PLACE</div>
                                     <div class="col-span-2">LIVE</div>
@@ -183,12 +183,12 @@ function buildDashboard(data) {
                         </div>
                     </div>
                     ${seedingScore ? `
-                    <div class="flex border-t-4 border-[#27272a] mt-auto flex-col md:flex-row">
-                        <div class="bg-[#18181b] flex-1 p-3 md:p-4 flex items-center justify-center">
-                            <span class="font-text text-lg md:text-3xl text-slate-400">SEED FINALE</span>
+                    <div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row">
+                        <div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center">
+                            <span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span>
                         </div>
-                        <div class="flex-1 p-3 md:p-4 flex items-center justify-center md:border-l-4 border-t-4 md:border-t-0 border-[#27272a]" style="background: ${seedingScore.toUpperCase().includes('EN ATTENTE') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};">
-                            <span class="font-pixel text-2xl md:text-6xl" style="color: ${seedingScore.toUpperCase().includes('EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${seedingScore}</span>
+                        <div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${seedingScore.toUpperCase().includes('EN ATTENTE') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};">
+                            <span class="font-pixel text-xl md:text-5xl" style="color: ${seedingScore.toUpperCase().includes('EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${seedingScore}</span>
                         </div>
                     </div>` : ''}
                 </section>
@@ -269,7 +269,7 @@ function buildDashboard(data) {
                     for (let h = 0; h < numVies; h++) {
                         hearts.push(`<span style="color: var(--pixel-red);">♥</span>`);
                     }
-                    viesDisplay = `<div class="flex gap-1 justify-center flex-wrap font-text text-sm md:text-2xl" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.8);">${hearts.join('')}</div>`;
+                    viesDisplay = `<div class="flex gap-1 justify-center flex-wrap font-text text-xs md:text-xl" style="text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.8);">${hearts.join('')}</div>`;
                 } else if (numVies === 0) {
                     viesDisplay = `<span class="font-pixel text-slate-600 text-sm md:text-lg">X</span>`;
                 } else if (!g.vies || g.vies.trim() === "") {
@@ -283,14 +283,14 @@ function buildDashboard(data) {
                 else if (choixText !== "") choixColor = "text-white";
 
                 return `
-                <div class="grid grid-cols-12 text-sm text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${rowBg}">
-                    <div class="col-span-2 font-pixel text-slate-100 text-xs md:text-2xl lg:text-4xl px-1 py-2 md:py-4 flex items-center justify-center uppercase">${g.name}</div>
-                    <div class="col-span-2 font-text text-sm md:text-2xl lg:text-3xl ${choixColor} px-1 py-2 md:py-4 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>
-                    <div class="col-span-2 font-text text-sm md:text-2xl lg:text-3xl text-slate-400 px-1 py-2 md:py-4 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>
-                    <div class="col-span-2 font-text text-sm md:text-3xl lg:text-4xl text-white px-1 py-2 md:py-4 flex flex-col justify-center gap-1 border-l border-[#27272a]/50">${scoresHtml}</div>
-                    <div class="col-span-2 font-pixel text-[10px] md:text-lg lg:text-2xl ${resColor} px-1 py-2 md:py-4 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>
-                    <div class="col-span-1 py-2 md:py-4 flex justify-center items-center border-l border-[#27272a]">${viesDisplay}</div>
-                    <time class="col-span-2 font-pixel italic text-[10px] md:text-base lg:text-xl text-slate-400 px-1 py-2 md:py-4 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>
+                <div class="grid grid-cols-12 text-xs text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${rowBg}">
+                    <div class="col-span-2 font-pixel text-slate-100 text-[10px] md:text-xl lg:text-3xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase">${g.name}</div>
+                    <div class="col-span-2 font-text text-xs md:text-xl lg:text-2xl ${choixColor} px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>
+                    <div class="col-span-2 font-text text-xs md:text-xl lg:text-2xl text-slate-400 px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>
+                    <div class="col-span-2 font-text text-xs md:text-2xl lg:text-3xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${scoresHtml}</div>
+                    <div class="col-span-2 font-pixel text-[8px] md:text-base lg:text-xl ${resColor} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>
+                    <div class="col-span-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]">${viesDisplay}</div>
+                    <time class="col-span-2 font-pixel italic text-[8px] md:text-sm lg:text-lg text-slate-400 px-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>
                 </div>
                 `;
             }).join('');
@@ -304,16 +304,16 @@ function buildDashboard(data) {
                 let bgRight = isOui ? "rgba(100, 255, 218, 0.1)" : (isAttente ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)");
                 let textRight = isOui ? "var(--pixel-green)" : (isAttente ? "#94a3b8" : "var(--pixel-red)");
                 qualifHtml = `
-                    <div class="flex border-t-4 border-[#27272a] mt-auto flex-col md:flex-row">
-                        <div class="bg-[#18181b] flex-1 p-3 md:p-4 flex items-center justify-center">
-                            <span class="font-text text-lg md:text-3xl text-slate-400">QUALIFIÉ ?</span>
+                    <div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row">
+                        <div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center">
+                            <span class="font-text text-base md:text-2xl text-slate-400">QUALIFIÉ ?</span>
                         </div>
-                        <div class="flex-1 p-3 md:p-4 flex items-center justify-center md:border-l-4 border-t-4 md:border-t-0 border-[#27272a]" style="background: ${bgRight};">
-                            <span class="font-pixel text-2xl md:text-6xl" style="color: ${textRight};">${qualifKnockout}</span>
+                        <div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bgRight};">
+                            <span class="font-pixel text-xl md:text-5xl" style="color: ${textRight};">${qualifKnockout}</span>
                         </div>
                         ${qualifKnockoutScore ? `
-                        <div class="bg-[#09090b] w-full md:w-[30%] p-3 md:p-4 flex items-center justify-center border-t-4 md:border-t-0 md:border-l-4 border-[#27272a]">
-                            <span class="font-pixel text-lg md:text-3xl" style="color: var(--pixel-green);">${qualifKnockoutScore}</span>
+                        <div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]">
+                            <span class="font-pixel text-base md:text-2xl" style="color: var(--pixel-green);">${qualifKnockoutScore}</span>
                         </div>
                         ` : ''}
                     </div>
@@ -321,8 +321,8 @@ function buildDashboard(data) {
             }
 
             knockoutHtml = `
-                <section class="pixel-card mt-8 md:mt-12 mx-2 md:mx-0" aria-labelledby="knockout-title">
-                    <header class="pixel-header-green p-4 md:p-6 flex flex-col justify-center items-center text-center relative">
+                <section class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0" aria-labelledby="knockout-title">
+                    <header class="pixel-header-green px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
                         <div class="text-slate-300 font-text text-base md:text-2xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
                         <h2 id="knockout-title" class="font-pixel text-xl md:text-5xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2>
                     </header>
@@ -330,7 +330,7 @@ function buildDashboard(data) {
                         <p class="md:hidden text-center text-slate-500 font-text text-sm mb-2 animate-pulse mt-2">👉 Glissez pour voir plus</p>
                         <div class="w-full overflow-x-auto pb-2">
                             <div class="min-w-[800px]">
-                                <div class="grid grid-cols-12 font-pixel text-xs md:text-base text-slate-500 p-2 md:p-4 text-center bg-[#09090b] border-b border-[#27272a]">
+                                <div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
                                     <div class="col-span-2">JEUX</div>
                                     <div class="col-span-2">JEU CHOISI OU NON ?</div>
                                     <div class="col-span-2">CONTRE QUI ?</div>
@@ -431,18 +431,18 @@ function buildDashboard(data) {
                 if (isFinale) {
                     return `
                     <div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${rowBg}">
-                        <div class="col-span-7 font-pixel text-slate-100 text-sm md:text-2xl lg:text-4xl uppercase px-1 py-2 md:py-4 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
-                        <div class="col-span-3 font-pixel text-base md:text-3xl py-2 md:py-4 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
-                        <time class="col-span-2 font-pixel italic text-[10px] md:text-base lg:text-xl text-slate-400 py-2 md:py-4 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
+                        <div class="col-span-7 font-pixel text-slate-100 text-xs md:text-xl lg:text-3xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                        <div class="col-span-3 font-pixel text-sm md:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
+                        <time class="col-span-2 font-pixel italic text-[8px] md:text-sm lg:text-lg text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
                     </div>
                     `;
                 } else {
                     return `
                     <div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${rowBg}">
-                        <div class="col-span-4 font-pixel text-slate-100 text-sm md:text-2xl lg:text-4xl uppercase px-1 py-2 md:py-4 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
-                        <div class="col-span-3 font-text text-base md:text-3xl lg:text-4xl text-slate-400 py-2 md:py-4 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
-                        <div class="col-span-3 font-pixel text-base md:text-3xl py-2 md:py-4 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
-                        <time class="col-span-2 font-pixel italic text-[10px] md:text-base lg:text-xl text-slate-400 py-2 md:py-4 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
+                        <div class="col-span-4 font-pixel text-slate-100 text-xs md:text-xl lg:text-3xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                        <div class="col-span-3 font-text text-sm md:text-2xl lg:text-3xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
+                        <div class="col-span-3 font-pixel text-sm md:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
+                        <time class="col-span-2 font-pixel italic text-[8px] md:text-sm lg:text-lg text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
                     </div>
                     `;
                 }
@@ -458,16 +458,16 @@ function buildDashboard(data) {
                 let textRight = isOui ? "var(--pixel-green)" : (isAttente ? "#94a3b8" : "var(--pixel-red)");
                 let qualifLabel = has(groupTitle, "PHASE FINALE") ? "WIN ?" : "QUALIFIÉ ?";
                 qualifHtml = `
-                    <div class="flex border-t-4 border-[#27272a] mt-auto flex-col md:flex-row">
-                        <div class="bg-[#18181b] flex-1 p-3 md:p-4 flex items-center justify-center">
-                            <span class="font-text text-lg md:text-3xl text-slate-400">${qualifLabel}</span>
+                    <div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row">
+                        <div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center">
+                            <span class="font-text text-base md:text-2xl text-slate-400">${qualifLabel}</span>
                         </div>
-                        <div class="flex-1 p-3 md:p-4 flex items-center justify-center md:border-l-4 border-t-4 md:border-t-0 border-[#27272a]" style="background: ${bgRight};">
-                            <span class="font-pixel text-2xl md:text-6xl" style="color: ${textRight};">${qualifStatus}</span>
+                        <div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bgRight};">
+                            <span class="font-pixel text-xl md:text-5xl" style="color: ${textRight};">${qualifStatus}</span>
                         </div>
                         ${qualifStatusScore ? `
-                        <div class="bg-[#09090b] w-full md:w-[30%] p-3 md:p-4 flex items-center justify-center border-t-4 md:border-t-0 md:border-l-4 border-[#27272a]">
-                            <span class="font-pixel text-lg md:text-3xl" style="color: ${titleColor};">${qualifStatusScore}</span>
+                        <div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]">
+                            <span class="font-pixel text-base md:text-2xl" style="color: ${titleColor};">${qualifStatusScore}</span>
                         </div>
                         ` : ''}
                     </div>
@@ -491,8 +491,8 @@ function buildDashboard(data) {
             }
 
             groupCardsHtml += `
-                <article class="pixel-card mt-8 md:mt-12 flex flex-col h-full mx-2 md:mx-0" aria-labelledby="group-title-${i}">
-                    <header class="${headerClass} p-4 md:p-6 flex flex-col justify-center items-center text-center relative">
+                <article class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0" aria-labelledby="group-title-${i}">
+                    <header class="${headerClass} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
                         <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DU</div>
                         <h2 id="group-title-${i}" class="font-pixel text-xl md:text-4xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
                     </header>
@@ -501,7 +501,7 @@ function buildDashboard(data) {
                         <p class="md:hidden text-center text-slate-500 font-text text-sm mb-2 animate-pulse mt-2">👉 Glissez pour voir plus</p>
                         <div class="w-full overflow-x-auto pb-2">
                             <div class="min-w-[600px]">
-                                <div class="grid grid-cols-12 gap-0 font-pixel text-xs md:text-base text-slate-500 p-2 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
+                                <div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">
                                     ${isFinale ? `
                                     <div class="col-span-7">JEUX</div>
                                     <div class="col-span-3">RÉSULTATS</div>
@@ -513,7 +513,7 @@ function buildDashboard(data) {
                                     <div class="col-span-2">LIVE</div>
                                     `}
                                 </div>
-                                ${gamesHtml || '<div class="p-8 md:p-10 text-center text-slate-600 font-text text-xl md:text-3xl pt-10 md:pt-12">EN ATTENTE...</div>'}
+                                ${gamesHtml || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}
                             </div>
                         </div>
                     </div>
@@ -545,8 +545,8 @@ function buildDashboard(data) {
     }
 
     const status = document.getElementById('status');
-    status.innerHTML = `<span class="w-3 h-3 bg-[var(--pixel-green)] shadow-[0_0_10px_rgba(100,255,218,1)]"></span> <span style="color: var(--pixel-green)">SYNC OK</span>`;
-    status.className = "font-text text-xl md:text-2xl flex items-center justify-center gap-3 mt-1 md:mt-0 w-full md:w-auto";
+    status.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-green)] shadow-[0_0_8px_rgba(100,255,218,1)]"></span> <span style="color: var(--pixel-green)">SYNC OK</span>`;
+    status.className = "font-text text-lg md:text-xl flex items-center justify-center gap-2 mt-1 md:mt-0 w-full md:w-auto";
 }
 
 setTimeout(init, 2000);
