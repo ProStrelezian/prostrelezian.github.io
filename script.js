@@ -157,9 +157,9 @@ function buildDashboard(data) {
                 let rowBg = idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50";
                 return `
                 <div class="grid grid-cols-6 text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${rowBg}">
-                    <div class="col-span-2 font-pixel text-slate-200 text-xs md:text-xl lg:text-3xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center">${g.name}</div>
-                    <div class="col-span-2 font-text text-base md:text-2xl lg:text-3xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
-                    <time class="col-span-2 font-pixel italic text-[8px] md:text-sm lg:text-lg text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>
+                    <div class="col-span-2 font-pixel text-slate-200 text-[10px] md:text-lg lg:text-2xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center">${g.name}</div>
+                    <div class="col-span-2 font-text text-sm md:text-xl lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
+                    <time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>
                 </div>
             `}).join('');
 
@@ -283,14 +283,14 @@ function buildDashboard(data) {
                 else if (choixText !== "") choixColor = "text-white";
 
                 return `
-                <div class="grid grid-cols-12 text-xs text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${rowBg}">
-                    <div class="col-span-2 font-pixel text-slate-100 text-[10px] md:text-xl lg:text-3xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase">${g.name}</div>
-                    <div class="col-span-2 font-text text-xs md:text-xl lg:text-2xl ${choixColor} px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>
-                    <div class="col-span-2 font-text text-xs md:text-xl lg:text-2xl text-slate-400 px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>
-                    <div class="col-span-2 font-text text-xs md:text-2xl lg:text-3xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${scoresHtml}</div>
-                    <div class="col-span-2 font-pixel text-[8px] md:text-base lg:text-xl ${resColor} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>
+                <div class="grid grid-cols-12 text-[10px] text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${rowBg}">
+                    <div class="col-span-2 font-pixel text-slate-100 text-[9px] md:text-lg lg:text-2xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase">${g.name}</div>
+                    <div class="col-span-2 font-text text-[10px] md:text-lg lg:text-xl ${choixColor} px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>
+                    <div class="col-span-2 font-text text-[10px] md:text-lg lg:text-xl text-slate-400 px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>
+                    <div class="col-span-2 font-text text-[10px] md:text-xl lg:text-2xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${scoresHtml}</div>
+                    <div class="col-span-2 font-pixel text-[7px] md:text-sm lg:text-lg ${resColor} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>
                     <div class="col-span-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]">${viesDisplay}</div>
-                    <time class="col-span-2 font-pixel italic text-[8px] md:text-sm lg:text-lg text-slate-400 px-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>
+                    <time class="col-span-1 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 px-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>
                 </div>
                 `;
             }).join('');
@@ -334,10 +334,10 @@ function buildDashboard(data) {
                                     <div class="col-span-2">JEUX</div>
                                     <div class="col-span-2">JEU CHOISI OU NON ?</div>
                                     <div class="col-span-2">CONTRE QUI ?</div>
-                                    <div class="col-span-1">SCORE</div>
+                                    <div class="col-span-2">SCORE</div>
                                     <div class="col-span-2">RÉSULTATS</div>
                                     <div class="col-span-1">VIES</div>
-                                    <div class="col-span-2">LIVE</div>
+                                    <div class="col-span-1">LIVE</div>
                                 </div>
                                 <div class="bg-[#0f0f13]">${gamesHtml}</div>
                             </div>
@@ -431,18 +431,18 @@ function buildDashboard(data) {
                 if (isFinale) {
                     return `
                     <div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${rowBg}">
-                        <div class="col-span-7 font-pixel text-slate-100 text-xs md:text-xl lg:text-3xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
-                        <div class="col-span-3 font-pixel text-sm md:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
-                        <time class="col-span-2 font-pixel italic text-[8px] md:text-sm lg:text-lg text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
+                        <div class="col-span-7 font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                        <div class="col-span-3 font-pixel text-[10px] md:text-lg lg:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
+                        <time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
                     </div>
                     `;
                 } else {
                     return `
                     <div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${rowBg}">
-                        <div class="col-span-4 font-pixel text-slate-100 text-xs md:text-xl lg:text-3xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
-                        <div class="col-span-3 font-text text-sm md:text-2xl lg:text-3xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
-                        <div class="col-span-3 font-pixel text-sm md:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
-                        <time class="col-span-2 font-pixel italic text-[8px] md:text-sm lg:text-lg text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
+                        <div class="col-span-4 font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                        <div class="col-span-3 font-text text-[10px] md:text-lg lg:text-xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
+                        <div class="col-span-3 font-pixel text-[10px] md:text-lg lg:text-xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
+                        <time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
                     </div>
                     `;
                 }
