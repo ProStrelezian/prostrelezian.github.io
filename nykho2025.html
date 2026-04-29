@@ -28,8 +28,10 @@
                     <img src="./logozlan.png" alt="ZLAN 2025" class="h-10 md:h-20 w-auto object-contain">
                 </h1>
                 <nav class="flex gap-4 font-pixel text-[10px] md:text-sm mt-1">
-                    <a href="./guill2025.html" class="text-slate-500 hover:text-white transition-colors" title="Archive Guill 2025">GUILL 2025</a>
-                    <a href="./nykho2025.html" class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)]" title="Archive Nykho 2025">NYKHO 2025</a>
+                    <a href="./guill2025.html" class="text-slate-500 hover:text-white transition-colors"
+                        title="Archive Guill 2025">GUILL 2025</a>
+                    <a href="./nykho2025.html" class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)]"
+                        title="Archive Nykho 2025">NYKHO 2025</a>
                     <a href="./index.html" class="text-slate-500 hover:text-white transition-colors">2026</a>
                 </nav>
             </div>
@@ -43,7 +45,9 @@
                             fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12h20"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                            </path>
                         </svg>
                         <span>ZLAN.FR</span>
                     </a>
@@ -58,6 +62,13 @@
                                 d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
                         </svg>
                         <span>THEGUILL84</span>
+                        <!-- Ajout du badge Live caché -->
+                        <span id="live-theguill84"
+                            class="hidden flex items-center gap-1.5 bg-[#18181b] border border-[var(--pixel-red)] text-[var(--pixel-red)] text-[8px] md:text-[10px] font-pixel px-1.5 py-0.5 rounded-sm shadow-[0_0_8px_rgba(229,57,53,0.3)] tracking-widest ml-1">
+                            <span
+                                class="w-1.5 h-1.5 bg-[var(--pixel-red)] rounded-full animate-pulse shadow-[0_0_4px_rgba(229,57,53,1)]"></span>
+                            LIVE
+                        </span>
                     </a>
 
                     <a href="https://twitch.tv/nykho" target="_blank" rel="noopener noreferrer" id="link-nykho"
@@ -69,6 +80,13 @@
                                 d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
                         </svg>
                         <span>NYKHO</span>
+                        <!-- Ajout du badge Live caché -->
+                        <span id="live-nykho"
+                            class="hidden flex items-center gap-1.5 bg-[#18181b] border border-[var(--pixel-red)] text-[var(--pixel-red)] text-[8px] md:text-[10px] font-pixel px-1.5 py-0.5 rounded-sm shadow-[0_0_8px_rgba(229,57,53,0.3)] tracking-widest ml-1">
+                            <span
+                                class="w-1.5 h-1.5 bg-[var(--pixel-red)] rounded-full animate-pulse shadow-[0_0_4px_rgba(229,57,53,1)]"></span>
+                            LIVE
+                        </span>
                     </a>
                 </div>
 
@@ -95,7 +113,11 @@
         <p>@2025 Strelezian - Archive ZLAN 2025. Ceci n'est pas un site officiel de la ZLAN.</p>
     </footer>
 
-    <script src="./nykho2025.js"></script>
+    <script src="./dashboard.js"></script>
+    <script>
+        // On passe l'URL encodée de Nykho, et false car c'est une archive (pas de Twitch en direct)
+        new ZlanDashboard('aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMUVOeHdVOTVJLXJyZ1AwS3BtNkgzVHRyMzRPWEZoblFfYUNscXNNa3BuOTAvZXhwb3J0P2Zvcm1hdD1jc3YmZ2lkPTA=', true);
+    </script>
 </body>
 
 </html>
