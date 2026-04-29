@@ -12,9 +12,11 @@ const isGroupPhase = (row) => {
 };
 
 class ZlanDashboard {
-    constructor(encodedUrl, enableTwitchLive = false) {
+    constructor(encodedUrl, enableTwitchLive = false, avatarUrl = null) {
         this.sheetUrl = atob(encodedUrl);
         this.enableTwitchLive = enableTwitchLive;
+        this.avatarUrl = avatarUrl;
+        this.is2026 = enableTwitchLive; // On se sert de ça pour savoir si on affiche les colonnes "Choix" et "Live"
         this.isFetching = false;
 
         this.init();
@@ -75,10 +77,17 @@ class ZlanDashboard {
             let teamText = row.find(c => has(c, "TEAM :") || has(c, "TEAM:"));
             if (teamText) {
                 let cleanTeam = teamText.replace(/TEAM\s*:/i, '').trim();
+                let avatarHtml = this.avatarUrl ? `
+                    <div class="flex justify-center mb-5 md:mb-8 mt-4">
+                        <img src="${this.avatarUrl}" alt="Avatar" class="h-[80px] md:h-[160px] lg:h-[240px] w-auto max-w-full border-[3px] border-[var(--pixel-orange)] shadow-[6px_6px_0px_rgba(0,0,0,0.8)] object-cover">
+                    </div>
+                ` : '<div class="mt-4"></div>';
+
                 htmlChunks.team = `
                     <section class="mb-6 md:mb-12 flex justify-center w-full px-2 md:px-0">
                         <div class="pixel-card border-b-4 px-4 py-5 md:px-8 md:p-10 w-full max-w-[920px]" style="border-bottom-color: var(--pixel-orange); text-align: center;">
                             <h1 class="text-[var(--pixel-orange)] font-text text-lg md:text-2xl mb-1.5 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1>
+                            ${avatarHtml}
                             <p class="text-lg md:text-4xl font-pixel text-white tracking-wider">${cleanTeam}</p>
                         </div>
                     </section>`;
@@ -124,10 +133,10 @@ class ZlanDashboard {
                 if (seedingScore && !has(seedingScore, "EN ATTENTE")) state.seedingFinished = true;
 
                 let gamesHtml = games.map((g, idx) => `
-                    <div class="grid grid-cols-6 text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
+                    <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
                         <div class="col-span-2 font-pixel text-slate-200 text-[10px] md:text-lg lg:text-2xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center">${g.name}</div>
                         <div class="col-span-2 font-text text-sm md:text-xl lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
-                        <time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>
+                        ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>` : ''}
                     </div>
                 `).join('');
 
@@ -140,10 +149,10 @@ class ZlanDashboard {
                         <div class="p-2 md:p-0">
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[500px]">
-                                    <div class="grid grid-cols-6 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
+                                    <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
                                         <div class="col-span-2">JEUX</div>
                                         <div class="col-span-2">PLACE</div>
-                                        <div class="col-span-2">LIVE / HEURE</div>
+                                        ${this.is2026 ? `<div class="col-span-2">LIVE / HEURE</div>` : ''}
                                     </div>
                                     <div class="bg-[#0f0f13]">${gamesHtml}</div>
                                 </div>
@@ -182,9 +191,7 @@ class ZlanDashboard {
                             state.tournamentOver = true;
                         }
                     } else if (subRow[0] && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
-                        // Supporte à la fois les formats 2025 (sans 'choix') et 2026 (avec 'choix')
-                        let is2026 = subRow.length > 8 && (subRow[9] !== undefined || subRow[3].toLowerCase() === 'oui' || subRow[3].toLowerCase() === 'non');
-                        if (is2026) {
+                        if (this.is2026) {
                             games.push({ name: subRow[0], choix: subRow[3] || '', contre: subRow[4] || '', score: [subRow[6] || ''], resultat: subRow[7] || '', vies: subRow[8] || '', heure: subRow[9] || '' });
                         } else {
                             games.push({ name: subRow[0], choix: '', contre: subRow[3] || '', score: [subRow[5] || ''], resultat: subRow[6] || '', vies: subRow[7] || '', heure: '' });
@@ -200,32 +207,40 @@ class ZlanDashboard {
                 let gamesHtml = games.map((g, idx) => {
                     let resColor = has(g.resultat, "GAGNÉ") || has(g.resultat, "VICTOIRE") ? "text-[var(--pixel-green)]" : (has(g.resultat, "PERDU") || has(g.resultat, "DÉFAITE") || has(g.resultat, "NON") ? "text-[var(--pixel-red)]" : "text-white");
                     let scoresHtml = g.score.map(s => `<div>${s}</div>`).join('');
-
                     let numVies = parseInt(g.vies);
                     let viesDisplay = !isNaN(numVies) && numVies > 0 ? `<div class="flex gap-1 justify-center flex-wrap" style="text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.8);">${Array(numVies).fill('<span style="color: var(--pixel-red);">♥</span>').join('')}</div>` : (numVies === 0 ? `<span class="font-pixel text-slate-600">X</span>` : `<span class="text-slate-700">-</span>`);
 
+                    let colJeux = this.is2026 ? 'col-span-2' : 'col-span-3';
+                    let colContre = this.is2026 ? 'col-span-2' : 'col-span-3';
+                    let colScore = this.is2026 ? 'col-span-2' : 'col-span-3';
+
                     let htmlRow = `<div class="grid grid-cols-12 text-[10px] text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">`;
-                    htmlRow += `<div class="col-span-2 font-pixel text-slate-100 text-[9px] md:text-lg lg:text-2xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase">${g.name}</div>`;
-                    if (g.choix !== '') {
+                    htmlRow += `<div class="${colJeux} font-pixel text-slate-100 text-[9px] md:text-lg lg:text-2xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase">${g.name}</div>`;
+
+                    if (this.is2026) {
                         let choixColor = has(g.choix, "OUI") || has(g.choix, "CHOISI") ? "text-[var(--pixel-green)]" : (has(g.choix, "NON") || has(g.choix, "BAN") ? "text-[var(--pixel-red)]" : "text-white");
                         htmlRow += `<div class="col-span-2 font-text text-[10px] md:text-lg lg:text-xl ${choixColor} px-1 py-1.5 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>`;
                     }
-                    let colSpanContre = g.choix === '' ? 'col-span-3' : 'col-span-2';
-                    let colSpanScore = g.choix === '' ? 'col-span-3' : 'col-span-2';
 
-                    htmlRow += `
-                        <div class="${colSpanContre} font-text text-[10px] md:text-lg lg:text-xl text-slate-400 px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>
-                        <div class="${colSpanScore} font-text text-[10px] md:text-xl lg:text-2xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${scoresHtml}</div>
-                        <div class="col-span-2 font-pixel text-[7px] md:text-sm lg:text-lg ${resColor} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>
-                        <div class="col-span-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]">${viesDisplay}</div>
-                        <time class="col-span-1 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 px-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>
-                    </div>`;
+                    htmlRow += `<div class="${colContre} font-text text-[10px] md:text-lg lg:text-xl text-slate-400 px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>`;
+                    htmlRow += `<div class="${colScore} font-text text-[10px] md:text-xl lg:text-2xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${scoresHtml}</div>`;
+                    htmlRow += `<div class="col-span-2 font-pixel text-[7px] md:text-sm lg:text-lg ${resColor} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>`;
+                    htmlRow += `<div class="col-span-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]">${viesDisplay}</div>`;
+
+                    if (this.is2026) {
+                        htmlRow += `<time class="col-span-1 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 px-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>`;
+                    }
+                    htmlRow += `</div>`;
                     return htmlRow;
                 }).join('');
 
                 let isOui = has(qualifKnockout, "OUI") || has(qualifKnockout, "WIN");
                 let bgRight = isOui ? "rgba(100, 255, 218, 0.1)" : (has(qualifKnockout, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)");
                 let textRight = isOui ? "var(--pixel-green)" : (has(qualifKnockout, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)");
+
+                let headerHtml = this.is2026
+                    ? `<div class="col-span-2">JEUX</div><div class="col-span-2">CHOIX</div><div class="col-span-2">CONTRE QUI</div><div class="col-span-2">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div><div class="col-span-1">LIVE</div>`
+                    : `<div class="col-span-3">JEUX</div><div class="col-span-3">CONTRE QUI ?</div><div class="col-span-3">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div>`;
 
                 htmlChunks.knockout = `
                     <section class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0">
@@ -237,13 +252,7 @@ class ZlanDashboard {
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[800px]">
                                     <div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
-                                        <div class="col-span-2">JEUX</div>
-                                        <div class="col-span-2">CHOIX</div>
-                                        <div class="col-span-2">CONTRE QUI</div>
-                                        <div class="col-span-2">SCORE</div>
-                                        <div class="col-span-2">RÉSULTATS</div>
-                                        <div class="col-span-1">VIES</div>
-                                        <div class="col-span-1">LIVE</div>
+                                        ${headerHtml}
                                     </div>
                                     <div class="bg-[#0f0f13]">${gamesHtml}</div>
                                 </div>
@@ -307,20 +316,35 @@ class ZlanDashboard {
                     let placeColor = has(resultText, "EN ATTENTE") ? "#94a3b8" : (has(resultText, "GAGNÉ") || has(resultText, "VICTOIRE") ? "var(--pixel-green)" : (has(resultText, "PERDU") || has(resultText, "DÉFAITE") ? "var(--pixel-red)" : titleColor));
 
                     if (isFinale) {
+                        let colJeux = this.is2026 ? 'col-span-7' : 'col-span-8';
+                        let colRes = this.is2026 ? 'col-span-3' : 'col-span-4';
                         return `<div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
-                                    <div class="col-span-7 font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
-                                    <div class="col-span-3 font-pixel text-[10px] md:text-lg lg:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
-                                    <time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
+                                    <div class="${colJeux} font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                                    <div class="${colRes} font-pixel text-[10px] md:text-lg lg:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
+                                    ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
                                 </div>`;
                     } else {
+                        let colResJeu = this.is2026 ? 'col-span-3' : 'col-span-4';
+                        let colPlace = this.is2026 ? 'col-span-3' : 'col-span-4';
                         return `<div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
                                     <div class="col-span-4 font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
-                                    <div class="col-span-3 font-text text-[10px] md:text-lg lg:text-xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
-                                    <div class="col-span-3 font-pixel text-[10px] md:text-lg lg:text-xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
-                                    <time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>
+                                    <div class="${colResJeu} font-text text-[10px] md:text-lg lg:text-xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
+                                    <div class="${colPlace} font-pixel text-[10px] md:text-lg lg:text-xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
+                                    ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
                                 </div>`;
                     }
                 }).join('');
+
+                let groupHeaderHtml = '';
+                if (isFinale) {
+                    groupHeaderHtml = this.is2026
+                        ? `<div class="col-span-7">JEUX</div><div class="col-span-3">RÉSULTATS</div><div class="col-span-2">LIVE</div>`
+                        : `<div class="col-span-8">JEUX</div><div class="col-span-4">RÉSULTATS</div>`;
+                } else {
+                    groupHeaderHtml = this.is2026
+                        ? `<div class="col-span-4">JEUX</div><div class="col-span-3">RÉSULTATS DU JEU</div><div class="col-span-3">PLACE</div><div class="col-span-2">LIVE</div>`
+                        : `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS DU JEU</div><div class="col-span-4">PLACE</div>`;
+                }
 
                 let qualifHtml = "";
                 if (qualifStatus) {
@@ -349,7 +373,7 @@ class ZlanDashboard {
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[600px]">
                                     <div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">
-                                        ${isFinale ? `<div class="col-span-7">JEUX</div><div class="col-span-3">RÉSULTATS</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-4">JEUX</div><div class="col-span-3">RÉSULTATS DU JEU</div><div class="col-span-3">PLACE</div><div class="col-span-2">LIVE</div>`}
+                                        ${groupHeaderHtml}
                                     </div>
                                     ${gamesHtml || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}
                                 </div>
