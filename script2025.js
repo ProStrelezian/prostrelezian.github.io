@@ -542,44 +542,4 @@ function buildDashboard(data) {
 
 setTimeout(init, 2000);
 
-async function checkTwitchLive() {
-    const streamers = ["theguill84", "nykho"];
-
-    for (const streamer of streamers) {
-        try {
-            const response = await fetch(`https://decapi.me/twitch/uptime/${streamer}`);
-            const text = await response.text();
-
-            const liveBadge = document.getElementById(`live-${streamer}`);
-            const linkElement = document.getElementById(`link-${streamer}`);
-
-            if (liveBadge && linkElement) {
-                if (!text.includes("offline") && !text.includes("Error") && !text.includes("User not found")) {
-                    liveBadge.classList.remove('hidden');
-
-                    if (streamer === "theguill84") {
-                        linkElement.classList.remove('text-slate-400');
-                        linkElement.classList.add('text-[var(--pixel-orange)]');
-                    } else if (streamer === "nykho") {
-                        linkElement.classList.remove('text-slate-400');
-                        linkElement.classList.add('text-[#9146FF]');
-                    }
-                } else {
-                    liveBadge.classList.add('hidden');
-                    if (streamer === "theguill84") {
-                        linkElement.classList.add('text-slate-400');
-                        linkElement.classList.remove('text-[var(--pixel-orange)]');
-                    } else if (streamer === "nykho") {
-                        linkElement.classList.add('text-slate-400');
-                        linkElement.classList.remove('text-[#9146FF]');
-                    }
-                }
-            }
-        } catch (e) {
-            console.error(`Erreur vérification Twitch ${streamer}:`, e);
-        }
-    }
-}
-
-setInterval(checkTwitchLive, 120000);
-setTimeout(checkTwitchLive, 1000);
+// La vérification Twitch Live a été désactivée pour la page d'archive.
