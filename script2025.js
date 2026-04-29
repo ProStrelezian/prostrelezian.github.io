@@ -228,12 +228,10 @@ function buildDashboard(data) {
                 } else if (subRow[0] && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
                     games.push({
                         name: subRow[0],
-                        choix: subRow[3] || '',
-                        contre: subRow[4] || '',
-                        score: [subRow[6] || ''],
-                        resultat: subRow[7] || '',
-                        vies: subRow[8] || '',
-                        heure: subRow[9] || ''
+                        contre: subRow[3] || '',
+                        score: [subRow[5] || ''],
+                        resultat: subRow[6] || '',
+                        vies: subRow[7] || '',
                     });
                 } else if (!subRow[0] && (subRow[6] || subRow[5]) && games.length > 0) {
                     games[games.length - 1].score.push(subRow[6] || subRow[5]);
