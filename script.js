@@ -45,7 +45,11 @@ function has(cell, text) {
     return cell != null && String(cell).toUpperCase().includes(text.toUpperCase());
 }
 
-const isGroupPhase = (text) => text && (text.includes("PHASE DE GROUPE") || text.includes("PHASE À") || text.includes("PHASE FINALE"));
+const isGroupPhase = (text) => {
+    if (!text) return false;
+    const t = String(text).toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Supprime les accents pour la comparaison
+    return t.includes("PHASE DE GROUPE") || t.includes("PHASE A") || t.includes("PHASE FINALE");
+};
 
 function buildDashboard(data) {
     if (!data || data.length === 0) return;
@@ -398,11 +402,12 @@ function buildDashboard(data) {
                     if (games.length === 0 && !teams) {
                         teams = subRow[0];
                     } else {
-                        // SÉCURITÉ : On n'ajoute que si la ligne contient des résultats ou n'est pas une liste de noms (contient " - ")
+                        // SÉCURITÉ : On n'ajoute que si la ligne contient des résultats ou n'est pas une liste de noms
                         let hasResult = (subRow[4] && subRow[4].trim() !== "") || (subRow[7] && subRow[7].trim() !== "");
-                        let isTeamList = subRow[0].includes(" - ");
-                        
-                        if (hasResult || !isTeamList) {
+                        // Une ligne est considérée comme une liste d'équipes si elle contient des séparateurs et qu'elle est longue
+                        let isTeamList = (subRow[0].includes(" - ") || subRow[0].includes(" & ")) && subRow[0].length > 20;
+
+                        if (hasResult || (!isTeamList && subRow[0].length < 50)) {
                             games.push({
                                 name: subRow[0],
                                 placeJeu: subRow[4] || subRow[3] || '',
