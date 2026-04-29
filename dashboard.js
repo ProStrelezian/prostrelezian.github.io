@@ -12,13 +12,12 @@ const isGroupPhase = (row) => {
 };
 
 class ZlanDashboard {
-    constructor(encodedUrl, enableTwitchLive = false, avatarUrl = null) {
+    // Ajout du paramètre is2026Format (par défaut sur false)
+    constructor(encodedUrl, enableTwitchLive = false, avatarUrl = null, is2026Format = false) {
         this.sheetUrl = atob(encodedUrl);
         this.enableTwitchLive = enableTwitchLive;
         this.avatarUrl = avatarUrl;
-
-        // CORRECTION : On détecte si c'est la ZLAN 2026 grâce à l'ID unique de son Google Sheet
-        this.is2026 = this.sheetUrl.includes('1lTQIxr1ralLQFOzGsY8b_3o5FF7cudDcuDpN1XD2c4');
+        this.is2026 = is2026Format;
         this.isFetching = false;
 
         this.init();
@@ -196,6 +195,7 @@ class ZlanDashboard {
                         if (this.is2026) {
                             games.push({ name: subRow[0], choix: subRow[3] || '', contre: subRow[4] || '', score: [subRow[6] || ''], resultat: subRow[7] || '', vies: subRow[8] || '', heure: subRow[9] || '' });
                         } else {
+                            // Format 2025 strict
                             games.push({ name: subRow[0], choix: '', contre: subRow[3] || '', score: [subRow[5] || ''], resultat: subRow[6] || '', vies: subRow[7] || '', heure: '' });
                         }
                     } else if (!subRow[0] && (subRow[6] || subRow[5]) && games.length > 0) {
@@ -212,6 +212,7 @@ class ZlanDashboard {
                     let numVies = parseInt(g.vies);
                     let viesDisplay = !isNaN(numVies) && numVies > 0 ? `<div class="flex gap-1 justify-center flex-wrap" style="text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.8);">${Array(numVies).fill('<span style="color: var(--pixel-red);">♥</span>').join('')}</div>` : (numVies === 0 ? `<span class="font-pixel text-slate-600">X</span>` : `<span class="text-slate-700">-</span>`);
 
+                    // Tailles de colonnes adaptées 2025 vs 2026
                     let colJeux = this.is2026 ? 'col-span-2' : 'col-span-3';
                     let colContre = this.is2026 ? 'col-span-2' : 'col-span-3';
                     let colScore = this.is2026 ? 'col-span-2' : 'col-span-3';
@@ -240,6 +241,7 @@ class ZlanDashboard {
                 let bgRight = isOui ? "rgba(100, 255, 218, 0.1)" : (has(qualifKnockout, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)");
                 let textRight = isOui ? "var(--pixel-green)" : (has(qualifKnockout, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)");
 
+                // Header strict 2025 vs 2026
                 let headerHtml = this.is2026
                     ? `<div class="col-span-2">JEUX</div><div class="col-span-2">CHOIX</div><div class="col-span-2">CONTRE QUI</div><div class="col-span-2">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div><div class="col-span-1">LIVE</div>`
                     : `<div class="col-span-3">JEUX</div><div class="col-span-3">CONTRE QUI ?</div><div class="col-span-3">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div>`;
