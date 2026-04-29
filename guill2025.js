@@ -388,12 +388,18 @@ function buildDashboard(data) {
                     if (games.length === 0 && !teams) {
                         teams = subRow[0];
                     } else {
-                        games.push({
-                            name: subRow[0],
-                            placeJeu: subRow[4] || subRow[3] || '',
-                            place: subRow[7] || subRow[6] || '',
-                            heure: subRow[8] || subRow[9] || ''
-                        });
+                        // SÉCURITÉ : On n'ajoute que si la ligne contient des résultats ou n'est pas une liste de noms (contient " - ")
+                        let hasResult = (subRow[4] && subRow[4].trim() !== "") || (subRow[7] && subRow[7].trim() !== "");
+                        let isTeamList = subRow[0].includes(" - ");
+                        
+                        if (hasResult || !isTeamList) {
+                            games.push({
+                                name: subRow[0],
+                                placeJeu: subRow[4] || subRow[3] || '',
+                                place: subRow[7] || subRow[6] || '',
+                                heure: subRow[8] || subRow[9] || ''
+                            });
+                        }
                     }
                 }
                 j++;
