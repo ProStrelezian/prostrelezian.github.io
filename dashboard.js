@@ -16,7 +16,9 @@ class ZlanDashboard {
         this.sheetUrl = atob(encodedUrl);
         this.enableTwitchLive = enableTwitchLive;
         this.avatarUrl = avatarUrl;
-        this.is2026 = enableTwitchLive; // On se sert de ça pour savoir si on affiche les colonnes "Choix" et "Live"
+
+        // CORRECTION : On détecte si c'est la ZLAN 2026 grâce à l'ID unique de son Google Sheet
+        this.is2026 = this.sheetUrl.includes('1lTQIxr1ralLQFOzGsY8b_3o5FF7cudDcuDpN1XD2c4');
         this.isFetching = false;
 
         this.init();
