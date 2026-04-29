@@ -46,10 +46,15 @@ function has(cell, text) {
     return cell != null && String(cell).toUpperCase().includes(text.toUpperCase());
 }
 
-const isGroupPhase = (text) => {
-    if (!text) return false;
-    const t = String(text).toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Supprime les accents pour la comparaison
-    return t.includes("PHASE DE GROUPE") || t.includes("PHASE A") || t.includes("PHASE FINALE");
+const isGroupPhase = (row) => {
+    if (!row) return false;
+    // On vérifie les 3 premières colonnes au cas où le titre serait décalé par une fusion de cellules
+    const cells = Array.isArray(row) ? row.slice(0, 3) : [row];
+    return cells.some(cell => {
+        if (!cell) return false;
+        const t = String(cell).toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return t.includes("PHASE DE GROUPE") || t.includes("PHASE A") || t.includes("PHASE FINALE");
+    });
 };
 
 function buildDashboard(data) {
@@ -344,15 +349,15 @@ function buildDashboard(data) {
         }
 
         // --- GROUPES & FINALES ---
-        else if (isGroupPhase(r0)) {
+        else if (isGroupPhase(row)) {
             if (!knockoutFinished || !groupFinished) {
                 let j = i + 1;
-                while (j < data.length && !isGroupPhase(String(data[j][0]))) { j++; }
+                while (j < data.length && !isGroupPhase(data[j])) { j++; }
                 i = j - 1;
                 continue;
             }
 
-            let groupTitle = row[0];
+            let groupTitle = row.find(c => isGroupPhase(c)) || row[0];
             let teamsTitle = "";
             let teams = "";
             let games = [];
@@ -360,7 +365,7 @@ function buildDashboard(data) {
             let qualifStatusScore = "";
 
             let j = i + 1;
-            while (j < data.length && !isGroupPhase(String(data[j][0]))) {
+            while (j < data.length && !isGroupPhase(data[j])) {
                 // SÉCURITÉ : Ne jamais lire la dernière ligne comme faisant partie de la phase
                 if (j === lastValidRowIndex) break;
 
