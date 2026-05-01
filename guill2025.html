@@ -7,9 +7,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="description"
         content="Dashboard d'archive pour suivre les résultats et le classement du tournoi ZLAN 2025.">
-    <title>Guill - ZLAN 2025 - Dashboard Archive</title>
+    <title>Guill - ZLAN 2025 - Le Récap</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -104,13 +105,18 @@
 
     <section class="w-[80%] mx-auto px-2 md:px-3 mb-8 md:mb-12 flex flex-col items-center">
         <div class="pixel-card w-full max-w-[920px] bg-[#0f0f13]" style="border: 3px solid var(--pixel-orange);">
-            <header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative">
+            <header
+                class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative">
                 <div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">REVIVEZ L'ÉVÉNEMENT</div>
-                <h2 class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest" style="color: var(--pixel-orange);">LE BEST-OF DE GUILL</h2>
+                <h2 class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest"
+                    style="color: var(--pixel-orange);">LE BEST-OF DE GUILL</h2>
             </header>
             <div class="p-2 md:p-4 bg-[#18181b]">
                 <div class="aspect-video w-full border-2 border-[#27272a] shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/KsYEBAoYjEM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/KsYEBAoYjEM"
+                        title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
             </div>
         </div>
