@@ -153,7 +153,7 @@ class ZlanDashboard {
                                     <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
                                         <div class="col-span-2">JEUX</div>
                                         <div class="col-span-2">PLACE</div>
-                                        ${this.is2026 ? `<div class="col-span-2">LIVE / HEURE</div>` : ''}
+                                        ${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}
                                     </div>
                                     <div class="bg-[#0f0f13]">${gamesHtml}</div>
                                 </div>
@@ -447,7 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 isScrolling = true;
             }
         }, { passive: true });
-        
+
         scrollTopBtn.addEventListener("click", () => {
             window.scrollTo({ top: 0, behavior: "smooth" });
         });

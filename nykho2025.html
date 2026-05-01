@@ -30,7 +30,8 @@
                 <nav class="flex gap-4 font-pixel text-[10px] md:text-sm mt-1">
                     <a href="./guill2025.html" class="text-slate-500 hover:text-white transition-colors"
                         title="Archive Guill 2025">GUILL 2025</a>
-                    <a href="./nykho2025.html" class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)] drop-shadow-[0_0_8px_var(--pixel-green)]"
+                    <a href="./nykho2025.html"
+                        class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)] drop-shadow-[0_0_8px_var(--pixel-green)]"
                         title="Archive Nykho 2025">NYKHO 2025</a>
                     <a href="./index.html" class="text-slate-500 hover:text-white transition-colors">2026</a>
                 </nav>
@@ -103,14 +104,16 @@
 
     <main class="w-[80%] mx-auto px-0 md:px-3 pb-12" id="dashboard-container">
         <div class="flex flex-col items-center justify-center py-12 md:py-24 px-3 md:px-0" role="status">
-            <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest mb-6 text-center drop-shadow-[0_0_8px_var(--pixel-green)]" style="color: var(--pixel-green)">
+            <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest mb-6 text-center drop-shadow-[0_0_8px_var(--pixel-green)]"
+                style="color: var(--pixel-green)">
                 CHARGEMENT DES ARCHIVES...
             </div>
-            <div class="w-64 md:w-96 h-6 md:h-8 border-4 border-[#27272a] bg-[#09090b] relative overflow-hidden pixel-card p-1">
+            <div
+                class="w-64 md:w-96 h-6 md:h-8 border-4 border-[#27272a] bg-[#09090b] relative overflow-hidden pixel-card p-1">
                 <div class="h-full bg-[var(--pixel-green)] pixel-loader text-[var(--pixel-green)]"></div>
             </div>
             <div class="mt-4 font-text text-sm md:text-xl text-slate-500 animate-pulse text-center">
-                DÉPOUSSIÉRAGE DES DONNÉES DE 2025...
+                DÉPOUSSIÉRAGE DES DONNÉES DE 2025... (et du trophée aussi...)
             </div>
         </div>
     </main>
@@ -120,8 +123,12 @@
         <p>@2025 Strelezian - Archive ZLAN 2025. Ceci n'est pas un site officiel de la ZLAN.</p>
     </footer>
 
-    <button id="scrollTopBtn" class="fixed bottom-6 right-6 w-12 h-12 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-green)] text-[var(--pixel-green)] flex justify-center items-center rounded-none shadow-[4px_4px_0px_rgba(0,0,0,0.8)] hover:-translate-y-1 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 z-50 opacity-0 pointer-events-none" aria-label="Retour en haut">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"></path></svg>
+    <button id="scrollTopBtn"
+        class="fixed bottom-6 right-6 w-12 h-12 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-green)] text-[var(--pixel-green)] flex justify-center items-center rounded-none shadow-[4px_4px_0px_rgba(0,0,0,0.8)] hover:-translate-y-1 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 z-50 opacity-0 pointer-events-none"
+        aria-label="Retour en haut">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"></path>
+        </svg>
     </button>
 
     <script src="./dashboard.js" defer></script>

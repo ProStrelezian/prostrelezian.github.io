@@ -28,7 +28,8 @@
                     <img src="./logozlan.png" alt="ZLAN 2025" class="h-10 md:h-20 w-auto object-contain">
                 </h1>
                 <nav class="flex gap-4 font-pixel text-[10px] md:text-sm mt-1">
-                    <a href="./guill2025.html" class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)] drop-shadow-[0_0_8px_var(--pixel-green)]"
+                    <a href="./guill2025.html"
+                        class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)] drop-shadow-[0_0_8px_var(--pixel-green)]"
                         title="Archive Guill 2025">GUILL 2025</a>
                     <a href="./nykho2025.html" class="text-slate-500 hover:text-white transition-colors"
                         title="Archive Nykho 2025">NYKHO 2025</a>
@@ -101,16 +102,32 @@
         </div>
     </header>
 
+    <section class="w-[80%] mx-auto px-2 md:px-3 mb-8 md:mb-12 flex flex-col items-center">
+        <div class="pixel-card w-full max-w-[920px] bg-[#0f0f13]" style="border: 3px solid var(--pixel-orange);">
+            <header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative">
+                <div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">REVIVEZ L'ÉVÉNEMENT</div>
+                <h2 class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest" style="color: var(--pixel-orange);">LE BEST-OF DE GUILL</h2>
+            </header>
+            <div class="p-2 md:p-4 bg-[#18181b]">
+                <div class="aspect-video w-full border-2 border-[#27272a] shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/KsYEBAoYjEM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <main class="w-[80%] mx-auto px-0 md:px-3 pb-12" id="dashboard-container">
         <div class="flex flex-col items-center justify-center py-12 md:py-24 px-3 md:px-0" role="status">
-            <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest mb-6 text-center drop-shadow-[0_0_8px_var(--pixel-green)]" style="color: var(--pixel-green)">
+            <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest mb-6 text-center drop-shadow-[0_0_8px_var(--pixel-green)]"
+                style="color: var(--pixel-green)">
                 CHARGEMENT DES ARCHIVES...
             </div>
-            <div class="w-64 md:w-96 h-6 md:h-8 border-4 border-[#27272a] bg-[#09090b] relative overflow-hidden pixel-card p-1">
+            <div
+                class="w-64 md:w-96 h-6 md:h-8 border-4 border-[#27272a] bg-[#09090b] relative overflow-hidden pixel-card p-1">
                 <div class="h-full bg-[var(--pixel-green)] pixel-loader text-[var(--pixel-green)]"></div>
             </div>
             <div class="mt-4 font-text text-sm md:text-xl text-slate-500 animate-pulse text-center">
-                DÉPOUSSIÉRAGE DES DONNÉES DE 2025...
+                DÉPOUSSIÉRAGE DES DONNÉES DE 2025... (et de la 5ème place sur Mini Royale...)
             </div>
         </div>
     </main>
@@ -120,8 +137,12 @@
         <p>@2025 Strelezian - Archive ZLAN 2025. Ceci n'est pas un site officiel de la ZLAN.</p>
     </footer>
 
-    <button id="scrollTopBtn" class="fixed bottom-6 right-6 w-12 h-12 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-green)] text-[var(--pixel-green)] flex justify-center items-center rounded-none shadow-[4px_4px_0px_rgba(0,0,0,0.8)] hover:-translate-y-1 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 z-50 opacity-0 pointer-events-none" aria-label="Retour en haut">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"></path></svg>
+    <button id="scrollTopBtn"
+        class="fixed bottom-6 right-6 w-12 h-12 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-green)] text-[var(--pixel-green)] flex justify-center items-center rounded-none shadow-[4px_4px_0px_rgba(0,0,0,0.8)] hover:-translate-y-1 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 z-50 opacity-0 pointer-events-none"
+        aria-label="Retour en haut">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"></path>
+        </svg>
     </button>
 
     <script src="./dashboard.js" defer></script>
