@@ -405,7 +405,7 @@ class ZlanDashboard {
 
     async checkTwitchLive() {
         const streamers = ["theguill84", "nykho"];
-        for (const streamer of streamers) {
+        await Promise.all(streamers.map(async (streamer) => {
             try {
                 const response = await fetch(`https://decapi.me/twitch/uptime/${streamer}`);
                 const text = await response.text();
@@ -423,6 +423,33 @@ class ZlanDashboard {
             } catch (e) {
                 console.error(`Erreur Twitch ${streamer}:`, e);
             }
-        }
+        }));
     }
 }
+
+// Gestion du bouton de retour en haut
+document.addEventListener("DOMContentLoaded", () => {
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+    if (scrollTopBtn) {
+        let isScrolling = false;
+        window.addEventListener("scroll", () => {
+            if (!isScrolling) {
+                window.requestAnimationFrame(() => {
+                    if (window.scrollY > 300) {
+                        scrollTopBtn.classList.remove("opacity-0", "pointer-events-none");
+                        scrollTopBtn.classList.add("opacity-100", "pointer-events-auto");
+                    } else {
+                        scrollTopBtn.classList.remove("opacity-100", "pointer-events-auto");
+                        scrollTopBtn.classList.add("opacity-0", "pointer-events-none");
+                    }
+                    isScrolling = false;
+                });
+                isScrolling = true;
+            }
+        }, { passive: true });
+        
+        scrollTopBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    }
+});

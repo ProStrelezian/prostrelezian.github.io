@@ -11,7 +11,7 @@
         content="Dashboard d'archive pour suivre les résultats et le classement du tournoi ZLAN 2025.">
     <title>Guill - ZLAN 2025 - Dashboard Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
                     <img src="./logozlan.png" alt="ZLAN 2025" class="h-10 md:h-20 w-auto object-contain">
                 </h1>
                 <nav class="flex gap-4 font-pixel text-[10px] md:text-sm mt-1">
-                    <a href="./guill2025.html" class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)]"
+                    <a href="./guill2025.html" class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)] drop-shadow-[0_0_8px_var(--pixel-green)]"
                         title="Archive Guill 2025">GUILL 2025</a>
                     <a href="./nykho2025.html" class="text-slate-500 hover:text-white transition-colors"
                         title="Archive Nykho 2025">NYKHO 2025</a>
@@ -39,7 +39,7 @@
             <div class="flex flex-col md:flex-row items-center gap-2 md:gap-5 w-full md:w-auto">
                 <div class="flex flex-wrap justify-center items-center gap-3 md:gap-5 font-text text-base md:text-xl">
                     <a href="https://zlan.fr" target="_blank" rel="noopener noreferrer"
-                        class="flex items-center gap-2 text-slate-400 hover:text-[var(--pixel-green)] transition-colors group"
+                        class="flex items-center gap-2 text-slate-400 hover:text-[var(--pixel-green)] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 group"
                         title="Site Officiel ZLAN">
                         <svg class="w-4 h-4 md:w-5 md:h-5 group-hover:text-[var(--pixel-green)] transition-colors"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -54,7 +54,7 @@
 
                     <a href="https://twitch.tv/theguill84" target="_blank" rel="noopener noreferrer"
                         id="link-theguill84"
-                        class="flex items-center gap-2 text-slate-400 hover:text-[var(--pixel-orange)] transition-colors group"
+                        class="flex items-center gap-2 text-slate-400 hover:text-[var(--pixel-orange)] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_var(--pixel-orange)] transition-all duration-300 group"
                         title="Twitch TheGuill84">
                         <svg class="w-4 h-4 md:w-5 md:h-5 fill-current group-hover:text-[var(--pixel-orange)] transition-colors"
                             viewBox="0 0 24 24">
@@ -72,7 +72,7 @@
                     </a>
 
                     <a href="https://twitch.tv/nykho" target="_blank" rel="noopener noreferrer" id="link-nykho"
-                        class="flex items-center gap-2 text-slate-400 hover:text-[#9146FF] transition-colors group"
+                        class="flex items-center gap-2 text-slate-400 hover:text-[#9146FF] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_#9146FF] transition-all duration-300 group"
                         title="Twitch Nykho">
                         <svg class="w-4 h-4 md:w-5 md:h-5 fill-current group-hover:text-[#9146FF] transition-colors"
                             viewBox="0 0 24 24">
@@ -102,9 +102,16 @@
     </header>
 
     <main class="w-[80%] mx-auto px-0 md:px-3 pb-12" id="dashboard-container">
-        <div class="text-center py-12 md:py-24 animate-pulse font-pixel text-lg md:text-2xl lg:text-3xl leading-relaxed tracking-widest px-3 md:px-0"
-            style="color: var(--pixel-green)" role="status">
-            CHARGEMENT DES ARCHIVES 2025...
+        <div class="flex flex-col items-center justify-center py-12 md:py-24 px-3 md:px-0" role="status">
+            <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest mb-6 text-center drop-shadow-[0_0_8px_var(--pixel-green)]" style="color: var(--pixel-green)">
+                CHARGEMENT DES ARCHIVES...
+            </div>
+            <div class="w-64 md:w-96 h-6 md:h-8 border-4 border-[#27272a] bg-[#09090b] relative overflow-hidden pixel-card p-1">
+                <div class="h-full bg-[var(--pixel-green)] pixel-loader text-[var(--pixel-green)]"></div>
+            </div>
+            <div class="mt-4 font-text text-sm md:text-xl text-slate-500 animate-pulse text-center">
+                DÉPOUSSIÉRAGE DES DONNÉES DE 2025...
+            </div>
         </div>
     </main>
 
@@ -113,10 +120,16 @@
         <p>@2025 Strelezian - Archive ZLAN 2025. Ceci n'est pas un site officiel de la ZLAN.</p>
     </footer>
 
-    <script src="./dashboard.js"></script>
+    <button id="scrollTopBtn" class="fixed bottom-6 right-6 w-12 h-12 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-green)] text-[var(--pixel-green)] flex justify-center items-center rounded-none shadow-[4px_4px_0px_rgba(0,0,0,0.8)] hover:-translate-y-1 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 z-50 opacity-0 pointer-events-none" aria-label="Retour en haut">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"></path></svg>
+    </button>
+
+    <script src="./dashboard.js" defer></script>
     <script>
-        // On passe l'URL encodée, et false car c'est une archive (pas de Twitch)
-        new ZlanDashboard('aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMVFfVUNrV0hsWFVMZjdyU3RncjlJR0lGdE1YZUM0VVdRS3h5N05lVnd3bDQvZXhwb3J0P2Zvcm1hdD1jc3YmZ2lkPTA=', true);
+        document.addEventListener('DOMContentLoaded', () => {
+            // On passe l'URL encodée, et false car c'est une archive (pas de Twitch)
+            new ZlanDashboard('aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMVFfVUNrV0hsWFVMZjdyU3RncjlJR0lGdE1YZUM0VVdRS3h5N05lVnd3bDQvZXhwb3J0P2Zvcm1hdD1jc3YmZ2lkPTA=', false);
+        });
     </script>
 </body>
 

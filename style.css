@@ -96,3 +96,14 @@ body::before {
     background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, transparent 100%);
     border-bottom: 2px solid var(--pixel-violet);
 }
+
+.pixel-loader {
+    width: 0%;
+    animation: fillLoader 1.5s ease-out infinite alternate;
+    box-shadow: 0 0 10px currentColor;
+}
+
+@keyframes fillLoader {
+    0% { width: 5%; }
+    100% { width: 100%; }
+}
