@@ -254,6 +254,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            if (typeof tmi === 'undefined') {
+                const loading = document.getElementById('chat-loading');
+                if (loading) loading.innerHTML = 'Erreur : Impossible de charger tmi.js (bloqueur de pub ?)';
+                return;
+            }
+
             const client = new tmi.Client({
                 connection: {
                     secure: true,
@@ -262,10 +268,16 @@
                 channels: ['theguill84', 'nykho', 'zerator']
             });
 
-            client.connect().then(() => {
+            client.connect().catch(err => {
+                console.error('Erreur TMI:', err);
+                const loading = document.getElementById('chat-loading');
+                if (loading) loading.innerHTML = 'Échec de la connexion (bloqué par le navigateur ?)';
+            });
+
+            client.on('connected', () => {
                 const loading = document.getElementById('chat-loading');
                 if (loading) loading.style.display = 'none';
-            }).catch(console.error);
+            });
 
             const chatContainer = document.getElementById('merged-chat');
             let isAutoScroll = true;
@@ -275,6 +287,9 @@
             });
 
             client.on('message', (channel, tags, message, self) => {
+                const loading = document.getElementById('chat-loading');
+                if (loading && loading.style.display !== 'none') loading.style.display = 'none';
+
                 const channelName = channel.replace('#', '');
 
                 const msgEl = document.createElement('div');
