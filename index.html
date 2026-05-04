@@ -19,10 +19,10 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 
-<body class="min-h-screen pb-20 overflow-x-hidden">
+<body class="min-h-screen pb-20 overflow-x-clip">
 
-    <header
-        class="p-2.5 md:p-3 border-b-2 border-[#27272a] mb-6 md:mb-10 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50">
+    <header id="main-header"
+        class="p-2.5 md:p-3 border-b-2 border-[#27272a] mb-6 md:mb-10 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 transition-transform duration-1500 ease-in-out">
         <div class="w-[80%] mx-auto flex flex-col md:flex-row justify-between items-center px-2 md:px-3 gap-4 md:gap-0">
             <div class="flex items-center gap-6">
                 <h1 class="mt-1 flex items-center">
@@ -141,6 +141,29 @@
                 'https://yt3.ggpht.com/zs8gmrzyEG1Sn_iUIFnS7usvq-1BTT3lYt5YsbH_Br-Jjs4Xhpr21suv5hZuaXnpkujlT6eWFT0R6Q',
                 true
             );
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let lastScroll = 0;
+            const header = document.getElementById('main-header');
+            if (header) {
+                window.addEventListener('scroll', () => {
+                    const currentScroll = window.pageYOffset;
+                    if (currentScroll <= 0) {
+                        header.classList.remove('-translate-y-[150%]');
+                        return;
+                    }
+                    if (Math.abs(currentScroll - lastScroll) < 10) return;
+
+                    if (currentScroll > lastScroll && currentScroll > 100) {
+                        header.classList.add('-translate-y-[150%]');
+                    } else if (currentScroll < lastScroll) {
+                        header.classList.remove('-translate-y-[150%]');
+                    }
+                    lastScroll = currentScroll;
+                });
+            }
         });
     </script>
 </body>

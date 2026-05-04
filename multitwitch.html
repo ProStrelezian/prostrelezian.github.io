@@ -17,13 +17,119 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <style>
+        html.is-fullscreen, 
+        body.is-fullscreen {
+            overflow: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            height: 100vh !important;
+            width: 100vw !important;
+        }
+
+        body.is-fullscreen #main-header,
+        body.is-fullscreen #mt-title,
+        body.is-fullscreen footer {
+            display: none !important;
+        }
+
+        body.is-fullscreen main {
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: 100vh !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+        }
+
+        body.is-fullscreen #mt-layout {
+            flex-direction: row !important;
+            gap: 0 !important;
+            height: 100vh !important;
+            align-items: stretch !important;
+        }
+
+        body.is-fullscreen #mt-videos {
+            width: 85vw !important;
+            gap: 0 !important;
+            height: 100vh !important;
+            margin: 0 !important;
+        }
+
+        body.is-fullscreen #mt-videos > div:first-child {
+            height: 60vh !important;
+            flex: none !important;
+        }
+
+        body.is-fullscreen #mt-videos > div.grid {
+            height: 40vh !important;
+            flex: none !important;
+            gap: 0 !important;
+        }
+
+        body.is-fullscreen #mt-chat {
+            width: 15vw !important;
+            height: 100vh !important;
+            border: none !important;
+            margin: 0 !important;
+            position: static !important;
+        }
+
+        body.is-fullscreen .pixel-card {
+            border: none !important;
+            border-radius: 0 !important;
+            background-color: #000000 !important;
+        }
+
+        body.is-fullscreen .pixel-card > div {
+            background-color: #000000 !important;
+            padding: 0 !important;
+        }
+
+        body.is-fullscreen .pixel-card::before,
+        body.is-fullscreen .pixel-card::after,
+        body.is-fullscreen .pixel-card > div::before,
+        body.is-fullscreen .pixel-card > div::after {
+            display: none !important;
+        }
+
+        body.is-fullscreen .grid {
+            gap: 0 !important;
+        }
+
+        body.is-fullscreen .pixel-card > header {
+            display: none !important;
+        }
+
+        body.is-fullscreen iframe {
+            box-shadow: none !important;
+            aspect-ratio: auto !important;
+            height: 100% !important;
+            background-color: #000000 !important;
+        }
+        
+        body.is-fullscreen #mt-chat {
+            background-color: #0f0f13 !important;
+        }
+
+        body.is-fullscreen #mt-chat > div {
+            background-color: transparent !important;
+        }
+
+        body.is-fullscreen #merged-chat {
+            padding: 1rem !important;
+            border: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
+    </style>
 </head>
 
-<body class="min-h-screen pb-20 overflow-x-hidden">
+<body class="min-h-screen pb-20 overflow-x-clip">
 
-    <header
-        class="p-2.5 md:p-3 border-b-2 border-[#27272a] mb-6 md:mb-10 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50">
-        <div class="w-[80%] mx-auto flex flex-col md:flex-row justify-between items-center px-2 md:px-3 gap-4 md:gap-0">
+    <header id="main-header"
+        class="p-2.5 md:p-3 border-b-2 border-[#27272a] mb-6 md:mb-10 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 transition-transform duration-1500 ease-in-out">
+        <div class="w-full xl:px-6 2xl:px-8 mx-auto flex flex-col md:flex-row justify-between items-center px-2 md:px-3 gap-4 md:gap-0">
             <div class="flex items-center gap-6">
                 <h1 class="mt-1 flex items-center">
                     <img src="./logozlan.png" alt="ZLAN 2026" class="h-10 md:h-20 w-auto object-contain">
@@ -60,8 +166,8 @@
         </div>
     </header>
 
-    <main class="w-[95%] lg:w-[80%] mx-auto px-0 md:px-3 pb-12">
-        <div class="flex flex-col items-center justify-center mb-10 px-3 md:px-0">
+    <main class="w-[98%] 2xl:w-[95%] mx-auto px-0 md:px-3 pb-12">
+        <div id="mt-title" class="flex flex-col items-center justify-center mb-10 px-3 md:px-0">
             <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest text-center drop-shadow-[0_0_8px_var(--pixel-violet)]"
                 style="color: var(--pixel-violet)">
                 MULTITWITCH ZLAN
@@ -69,52 +175,71 @@
             <div class="mt-4 font-text text-sm md:text-xl text-slate-500 text-center max-w-2xl">
                 Suivez simultanément les streams de TheGuill84, Nykho et Zerator en direct !
             </div>
+            <button id="fullscreen-btn" class="mt-6 px-6 py-2 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] font-pixel text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.8)]">
+                📺 PLEIN ÉCRAN
+            </button>
         </div>
 
-        <div class="flex flex-col xl:flex-row gap-6 items-start">
+        <div id="mt-layout" class="flex flex-col xl:flex-row gap-2 md:gap-3 items-start">
             <!-- Videos Container -->
-            <div class="flex-grow flex flex-col gap-6 w-full xl:w-3/4">
+            <div id="mt-videos" class="flex-grow flex flex-col gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)]">
                 <!-- Stream TheGuill84 -->
-                <div class="pixel-card bg-[#0f0f13] flex flex-col" style="border: 3px solid var(--pixel-orange);">
-                    <header class="pixel-header-orange px-2 py-2 flex justify-center items-center">
-                        <h2 class="font-pixel text-base md:text-lg tracking-widest" style="color: var(--pixel-orange);">THEGUILL84</h2>
+                <div class="pixel-card bg-[#0f0f13] flex flex-col xl:flex-[5] min-h-0" style="border: 2px solid var(--pixel-orange);">
+                    <header class="pixel-header-orange px-2 py-1 flex justify-center items-center shrink-0">
+                        <h2 class="font-pixel text-xs md:text-sm tracking-widest" style="color: var(--pixel-orange);">
+                            THEGUILL84</h2>
                     </header>
-                    <div class="w-full p-2 bg-[#18181b]">
-                        <iframe src="https://player.twitch.tv/?channel=theguill84&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full h-[250px] md:h-[400px] lg:h-[500px] xl:h-[600px] border-2 border-[#27272a] shadow-[0_0_15px_rgba(245,158,11,0.2)]"></iframe>
+                    <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0">
+                        <iframe
+                            src="https://player.twitch.tv/?channel=theguill84&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv"
+                            frameborder="0" allowfullscreen="true" scrolling="no"
+                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.2)]"></iframe>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 xl:flex-[4] min-h-0">
                     <!-- Stream Nykho -->
-                    <div class="pixel-card bg-[#0f0f13] flex flex-col" style="border: 3px solid #9146FF;">
-                        <header class="px-2 py-2 flex justify-center items-center border-b-2 border-[#9146FF]" style="background: linear-gradient(135deg, rgba(145, 70, 255, 0.15) 0%, transparent 100%);">
-                            <h2 class="font-pixel text-base md:text-lg tracking-widest text-[#9146FF]">NYKHO</h2>
+                    <div class="pixel-card bg-[#0f0f13] flex flex-col min-h-0" style="border: 2px solid #9146FF;">
+                        <header class="px-2 py-1 flex justify-center items-center shrink-0 border-b-2 border-[#9146FF]"
+                            style="background: linear-gradient(135deg, rgba(145, 70, 255, 0.15) 0%, transparent 100%);">
+                            <h2 class="font-pixel text-xs md:text-sm tracking-widest text-[#9146FF]">NYKHO</h2>
                         </header>
-                        <div class="w-full p-2 bg-[#18181b]">
-                            <iframe src="https://player.twitch.tv/?channel=nykho&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full h-[250px] md:h-[300px] xl:h-[350px] border-2 border-[#27272a] shadow-[0_0_15px_rgba(145,70,255,0.2)]"></iframe>
+                        <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0">
+                            <iframe
+                                src="https://player.twitch.tv/?channel=nykho&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv"
+                                frameborder="0" allowfullscreen="true" scrolling="no"
+                                class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.2)]"></iframe>
                         </div>
                     </div>
 
                     <!-- Stream Zerator -->
-                    <div class="pixel-card bg-[#0f0f13] flex flex-col" style="border: 3px solid var(--pixel-green);">
-                        <header class="pixel-header-green px-2 py-2 flex justify-center items-center">
-                            <h2 class="font-pixel text-base md:text-lg tracking-widest" style="color: var(--pixel-green);">ZERATOR</h2>
+                    <div class="pixel-card bg-[#0f0f13] flex flex-col min-h-0" style="border: 2px solid var(--pixel-green);">
+                        <header class="pixel-header-green px-2 py-1 flex justify-center items-center shrink-0">
+                            <h2 class="font-pixel text-xs md:text-sm tracking-widest"
+                                style="color: var(--pixel-green);">ZERATOR</h2>
                         </header>
-                        <div class="w-full p-2 bg-[#18181b]">
-                            <iframe src="https://player.twitch.tv/?channel=zerator&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full h-[250px] md:h-[300px] xl:h-[350px] border-2 border-[#27272a] shadow-[0_0_15px_rgba(100,255,218,0.2)]"></iframe>
+                        <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0">
+                            <iframe
+                                src="https://player.twitch.tv/?channel=zerator&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv"
+                                frameborder="0" allowfullscreen="true" scrolling="no"
+                                class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.2)]"></iframe>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Merged Chat Container -->
-            <div class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)] xl:sticky xl:top-[100px]" style="border: 3px solid var(--pixel-violet);">
-                <header class="pixel-header-violet px-2 py-2 flex justify-center items-center shrink-0">
-                    <h2 class="font-pixel text-base md:text-lg tracking-widest text-[var(--pixel-violet)]">TCHAT FUSIONNÉ</h2>
+            <div id="mt-chat" class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)] xl:sticky xl:top-[100px]"
+                style="border: 2px solid var(--pixel-violet);">
+                <header class="pixel-header-violet px-2 py-1 flex justify-center items-center shrink-0">
+                    <h2 class="font-pixel text-xs md:text-sm tracking-widest text-[var(--pixel-violet)]">TCHAT
+                        FUSIONNÉ</h2>
                 </header>
-                <div class="flex-grow w-full p-2 bg-[#18181b] overflow-hidden flex flex-col">
-                    <div id="merged-chat" class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-sm md:text-base flex flex-col gap-1 pr-2 pb-2 border-2 border-[#27272a] shadow-[0_0_15px_rgba(139,92,246,0.2)] p-2">
-                        <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-sm">Connexion aux tchats...</div>
+                <div class="flex-grow w-full bg-[#18181b] overflow-hidden flex flex-col">
+                    <div id="merged-chat"
+                        class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1">
+                        <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-xs">
+                            Connexion aux tchats...</div>
                     </div>
                 </div>
             </div>
@@ -127,58 +252,113 @@
             Tous droits réservés.</p>
     </footer>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const client = new tmi.Client({
-            channels: [ 'theguill84', 'nykho', 'zerator' ]
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const client = new tmi.Client({
+                connection: {
+                    secure: true,
+                    reconnect: true
+                },
+                channels: ['theguill84', 'nykho', 'zerator']
+            });
+
+            client.connect().then(() => {
+                const loading = document.getElementById('chat-loading');
+                if (loading) loading.style.display = 'none';
+            }).catch(console.error);
+
+            const chatContainer = document.getElementById('merged-chat');
+            let isAutoScroll = true;
+
+            chatContainer.addEventListener('scroll', () => {
+                isAutoScroll = chatContainer.scrollHeight - chatContainer.scrollTop <= chatContainer.clientHeight + 50;
+            });
+
+            client.on('message', (channel, tags, message, self) => {
+                const channelName = channel.replace('#', '');
+
+                const msgEl = document.createElement('div');
+                msgEl.className = 'leading-tight mb-1';
+
+                let badgeColor = '#ffffff';
+                let badgeText = channelName.toUpperCase();
+                if (channelName === 'theguill84') badgeColor = 'var(--pixel-orange)';
+                else if (channelName === 'nykho') badgeColor = '#9146FF';
+                else if (channelName === 'zerator') badgeColor = 'var(--pixel-green)';
+
+                const badgeHtml = `<span class="inline-block px-1 rounded-sm text-[#09090b] text-[10px] mr-1 align-middle font-pixel tracking-tighter" style="background-color: ${badgeColor};">${badgeText}</span>`;
+
+                const userColor = tags.color || '#cccccc';
+                const userName = tags['display-name'] || tags.username;
+                const userHtml = `<span class="font-bold mr-1" style="color: ${userColor};">${userName}:</span>`;
+
+                const safeMessage = message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                msgEl.innerHTML = `${badgeHtml}${userHtml}<span class="text-slate-300">${safeMessage}</span>`;
+
+                chatContainer.appendChild(msgEl);
+
+                if (chatContainer.children.length > 150) {
+                    chatContainer.removeChild(chatContainer.firstChild);
+                }
+
+                if (isAutoScroll) {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            });
         });
-        
-        client.connect().then(() => {
-            const loading = document.getElementById('chat-loading');
-            if(loading) loading.style.display = 'none';
-        }).catch(console.error);
-        
-        const chatContainer = document.getElementById('merged-chat');
-        let isAutoScroll = true;
-        
-        chatContainer.addEventListener('scroll', () => {
-            isAutoScroll = chatContainer.scrollHeight - chatContainer.scrollTop <= chatContainer.clientHeight + 50;
-        });
-        
-        client.on('message', (channel, tags, message, self) => {
-            const channelName = channel.replace('#', '');
-            
-            const msgEl = document.createElement('div');
-            msgEl.className = 'leading-tight mb-1';
-            
-            let badgeColor = '#ffffff';
-            let badgeText = channelName.toUpperCase();
-            if (channelName === 'theguill84') badgeColor = 'var(--pixel-orange)';
-            else if (channelName === 'nykho') badgeColor = '#9146FF';
-            else if (channelName === 'zerator') badgeColor = 'var(--pixel-green)';
-            
-            const badgeHtml = `<span class="inline-block px-1 rounded-sm text-[#09090b] text-[10px] mr-1 align-middle font-pixel tracking-tighter" style="background-color: ${badgeColor};">${badgeText}</span>`;
-            
-            const userColor = tags.color || '#cccccc';
-            const userName = tags['display-name'] || tags.username;
-            const userHtml = `<span class="font-bold mr-1" style="color: ${userColor};">${userName}:</span>`;
-            
-            const safeMessage = message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            
-            msgEl.innerHTML = `${badgeHtml}${userHtml}<span class="text-slate-300">${safeMessage}</span>`;
-            
-            chatContainer.appendChild(msgEl);
-            
-            if (chatContainer.children.length > 150) {
-                chatContainer.removeChild(chatContainer.firstChild);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let lastScroll = 0;
+            const header = document.getElementById('main-header');
+            if (header) {
+                window.addEventListener('scroll', () => {
+                    const currentScroll = window.pageYOffset;
+                    if (currentScroll <= 0) {
+                        header.classList.remove('-translate-y-[150%]');
+                        return;
+                    }
+                    if (Math.abs(currentScroll - lastScroll) < 10) return;
+
+                    if (currentScroll > lastScroll && currentScroll > 100) {
+                        header.classList.add('-translate-y-[150%]');
+                    } else if (currentScroll < lastScroll) {
+                        header.classList.remove('-translate-y-[150%]');
+                    }
+                    lastScroll = currentScroll;
+                });
             }
-            
-            if (isAutoScroll) {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
         });
-    });
-</script>
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fsBtn = document.getElementById('fullscreen-btn');
+            if(fsBtn) {
+                fsBtn.addEventListener('click', () => {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(err => {
+                            console.error(`Erreur d'activation du plein écran : ${err.message}`);
+                        });
+                    } else {
+                        document.exitFullscreen();
+                    }
+                });
+            }
+
+            document.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement) {
+                    document.body.classList.add('is-fullscreen');
+                    document.documentElement.classList.add('is-fullscreen');
+                    if(fsBtn) fsBtn.innerHTML = '❌ QUITTER PLEIN ÉCRAN';
+                } else {
+                    document.body.classList.remove('is-fullscreen');
+                    document.documentElement.classList.remove('is-fullscreen');
+                    if(fsBtn) fsBtn.innerHTML = '📺 PLEIN ÉCRAN';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
