@@ -51,19 +51,11 @@
 
         body.is-fullscreen #mt-videos {
             width: 85vw !important;
-            gap: 0 !important;
             height: 100vh !important;
             margin: 0 !important;
-        }
-
-        body.is-fullscreen #mt-videos > div:first-child {
-            height: 60vh !important;
-            flex: none !important;
-        }
-
-        body.is-fullscreen #mt-videos > div.grid {
-            height: 40vh !important;
-            flex: none !important;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
             gap: 0 !important;
         }
 
@@ -182,48 +174,52 @@
 
         <div id="mt-layout" class="flex flex-col xl:flex-row gap-2 md:gap-3 items-start">
             <!-- Videos Container -->
-            <div id="mt-videos" class="flex-grow flex flex-col gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)]">
-                <!-- Stream TheGuill84 -->
-                <div class="pixel-card bg-[#0f0f13] flex flex-col xl:flex-[5] min-h-0" style="border: 2px solid var(--pixel-orange);">
-                    <header class="pixel-header-orange px-2 py-1 flex justify-center items-center shrink-0">
-                        <h2 class="font-pixel text-xs md:text-sm tracking-widest" style="color: var(--pixel-orange);">
-                            THEGUILL84</h2>
+            <div id="mt-videos" class="flex-grow grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)]">
+                <!-- Stream 1 -->
+                <div class="pixel-card bg-[#0f0f13] flex flex-col min-h-0" style="border: 2px solid var(--pixel-orange);">
+                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[var(--pixel-orange)] bg-black/50">
+                        <input type="text" id="input-stream-1" class="bg-transparent text-[var(--pixel-orange)] font-pixel text-xs w-28 md:w-40 outline-none uppercase" value="theguill84" placeholder="Chaîne..." onkeypress="if(event.key==='Enter') updateStream(1)">
+                        <button onclick="updateStream(1)" class="text-[10px] text-gray-500 hover:text-[var(--pixel-orange)] font-pixel">OK</button>
                     </header>
-                    <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0">
-                        <iframe
-                            src="https://player.twitch.tv/?channel=theguill84&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv"
-                            frameborder="0" allowfullscreen="true" scrolling="no"
-                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.2)]"></iframe>
+                    <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="placeholder-stream-1" class="text-slate-600 font-pixel text-sm absolute" style="display:none;">AJOUTER STREAM</div>
+                        <iframe id="iframe-stream-1" src="https://player.twitch.tv/?channel=theguill84&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10"></iframe>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 xl:flex-[4] min-h-0">
-                    <!-- Stream Nykho -->
-                    <div class="pixel-card bg-[#0f0f13] flex flex-col min-h-0" style="border: 2px solid #9146FF;">
-                        <header class="px-2 py-1 flex justify-center items-center shrink-0 border-b-2 border-[#9146FF]"
-                            style="background: linear-gradient(135deg, rgba(145, 70, 255, 0.15) 0%, transparent 100%);">
-                            <h2 class="font-pixel text-xs md:text-sm tracking-widest text-[#9146FF]">NYKHO</h2>
-                        </header>
-                        <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0">
-                            <iframe
-                                src="https://player.twitch.tv/?channel=nykho&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv"
-                                frameborder="0" allowfullscreen="true" scrolling="no"
-                                class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.2)]"></iframe>
-                        </div>
+                <!-- Stream 2 -->
+                <div class="pixel-card bg-[#0f0f13] flex flex-col min-h-0" style="border: 2px solid #9146FF;">
+                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#9146FF] bg-black/50">
+                        <input type="text" id="input-stream-2" class="bg-transparent text-[#9146FF] font-pixel text-xs w-28 md:w-40 outline-none uppercase" value="nykho" placeholder="Chaîne..." onkeypress="if(event.key==='Enter') updateStream(2)">
+                        <button onclick="updateStream(2)" class="text-[10px] text-gray-500 hover:text-[#9146FF] font-pixel">OK</button>
+                    </header>
+                    <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="placeholder-stream-2" class="text-slate-600 font-pixel text-sm absolute" style="display:none;">AJOUTER STREAM</div>
+                        <iframe id="iframe-stream-2" src="https://player.twitch.tv/?channel=nykho&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10"></iframe>
                     </div>
+                </div>
 
-                    <!-- Stream Zerator -->
-                    <div class="pixel-card bg-[#0f0f13] flex flex-col min-h-0" style="border: 2px solid var(--pixel-green);">
-                        <header class="pixel-header-green px-2 py-1 flex justify-center items-center shrink-0">
-                            <h2 class="font-pixel text-xs md:text-sm tracking-widest"
-                                style="color: var(--pixel-green);">ZERATOR</h2>
-                        </header>
-                        <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0">
-                            <iframe
-                                src="https://player.twitch.tv/?channel=zerator&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv"
-                                frameborder="0" allowfullscreen="true" scrolling="no"
-                                class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.2)]"></iframe>
-                        </div>
+                <!-- Stream 3 -->
+                <div class="pixel-card bg-[#0f0f13] flex flex-col min-h-0" style="border: 2px solid var(--pixel-green);">
+                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[var(--pixel-green)] bg-black/50">
+                        <input type="text" id="input-stream-3" class="bg-transparent text-[var(--pixel-green)] font-pixel text-xs w-28 md:w-40 outline-none uppercase" value="zerator" placeholder="Chaîne..." onkeypress="if(event.key==='Enter') updateStream(3)">
+                        <button onclick="updateStream(3)" class="text-[10px] text-gray-500 hover:text-[var(--pixel-green)] font-pixel">OK</button>
+                    </header>
+                    <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="placeholder-stream-3" class="text-slate-600 font-pixel text-sm absolute" style="display:none;">AJOUTER STREAM</div>
+                        <iframe id="iframe-stream-3" src="https://player.twitch.tv/?channel=zerator&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.1)] z-10"></iframe>
+                    </div>
+                </div>
+
+                <!-- Stream 4 -->
+                <div class="pixel-card bg-[#0f0f13] flex flex-col min-h-0" style="border: 2px solid #3b82f6;">
+                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#3b82f6] bg-black/50">
+                        <input type="text" id="input-stream-4" class="bg-transparent text-[#3b82f6] font-pixel text-xs w-28 md:w-40 outline-none uppercase" value="" placeholder="Nom Chaîne..." onkeypress="if(event.key==='Enter') updateStream(4)">
+                        <button onclick="updateStream(4)" class="text-[10px] text-gray-500 hover:text-[#3b82f6] font-pixel">OK</button>
+                    </header>
+                    <div class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="placeholder-stream-4" class="text-slate-600 font-pixel text-sm absolute">AJOUTER STREAM</div>
+                        <iframe id="iframe-stream-4" src="" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10"></iframe>
                     </div>
                 </div>
             </div>
@@ -231,9 +227,12 @@
             <!-- Merged Chat Container -->
             <div id="mt-chat" class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)] xl:sticky xl:top-[100px]"
                 style="border: 2px solid var(--pixel-violet);">
-                <header class="pixel-header-violet px-2 py-1 flex justify-center items-center shrink-0">
-                    <h2 class="font-pixel text-xs md:text-sm tracking-widest text-[var(--pixel-violet)]">TCHAT
-                        FUSIONNÉ</h2>
+                <header class="pixel-header-violet px-1 py-1 flex justify-around items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#0f0f13]">
+                    <button onclick="switchChat('merged')" id="btn-chat-merged" class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 transition-colors" style="color: var(--pixel-violet);">ALL</button>
+                    <button onclick="switchChat(1)" id="btn-chat-1" class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors">GUILL</button>
+                    <button onclick="switchChat(2)" id="btn-chat-2" class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors">NYKHO</button>
+                    <button onclick="switchChat(3)" id="btn-chat-3" class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors">ZERA</button>
+                    <button onclick="switchChat(4)" id="btn-chat-4" class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors hidden">STRM4</button>
                 </header>
                 <div class="flex-grow w-full bg-[#18181b] overflow-hidden flex flex-col">
                     <div id="merged-chat"
@@ -241,6 +240,11 @@
                         <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-xs">
                             Connexion aux tchats...</div>
                     </div>
+                    <!-- Iframes individuels cachés par défaut -->
+                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src="https://www.twitch.tv/embed/theguill84/chat?parent=localhost&parent=strelezian.github.io&parent=zlan.guill.tv&darkpopout" frameborder="0"></iframe>
+                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src="https://www.twitch.tv/embed/nykho/chat?parent=localhost&parent=strelezian.github.io&parent=zlan.guill.tv&darkpopout" frameborder="0"></iframe>
+                    <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src="https://www.twitch.tv/embed/zerator/chat?parent=localhost&parent=strelezian.github.io&parent=zlan.guill.tv&darkpopout" frameborder="0"></iframe>
+                    <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src="" frameborder="0"></iframe>
                 </div>
             </div>
         </div>
@@ -267,6 +271,7 @@
                 },
                 channels: ['theguill84', 'nykho', 'zerator']
             });
+            window.mtClient = client;
 
             client.connect().catch(err => {
                 console.error('Erreur TMI:', err);
@@ -373,6 +378,89 @@
                 }
             });
         });
+
+        // Variables globales pour gérer les canaux dynamiques
+        window.currentChannels = {
+            1: 'theguill84',
+            2: 'nykho',
+            3: 'zerator',
+            4: ''
+        };
+
+        // Fonction pour mettre à jour un stream
+        window.updateStream = function(slot) {
+            const input = document.getElementById(`input-stream-${slot}`);
+            const newChannel = input.value.trim().toLowerCase();
+            const oldChannel = window.currentChannels[slot];
+            
+            if (newChannel === oldChannel) return;
+
+            const iframe = document.getElementById(`iframe-stream-${slot}`);
+            const chatIframe = document.getElementById(`iframe-chat-${slot}`);
+            const chatBtn = document.getElementById(`btn-chat-${slot}`);
+            
+            if (newChannel) {
+                iframe.src = `https://player.twitch.tv/?channel=${newChannel}&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv`;
+                iframe.classList.remove('invisible');
+                if(document.getElementById(`placeholder-stream-${slot}`)) {
+                    document.getElementById(`placeholder-stream-${slot}`).style.display = 'none';
+                }
+
+                chatIframe.src = `https://www.twitch.tv/embed/${newChannel}/chat?parent=localhost&parent=strelezian.github.io&parent=zlan.guill.tv&darkpopout`;
+                chatBtn.textContent = newChannel.substring(0, 5).toUpperCase();
+                chatBtn.classList.remove('hidden');
+
+                if(window.mtClient) {
+                    if(oldChannel) window.mtClient.part(oldChannel).catch(console.error);
+                    window.mtClient.join(newChannel).catch(console.error);
+                }
+            } else {
+                iframe.src = '';
+                iframe.classList.add('invisible');
+                chatIframe.src = '';
+                chatBtn.classList.add('hidden');
+                if(document.getElementById(`placeholder-stream-${slot}`)) {
+                    document.getElementById(`placeholder-stream-${slot}`).style.display = 'block';
+                }
+
+                if(window.mtClient && oldChannel) {
+                    window.mtClient.part(oldChannel).catch(console.error);
+                }
+                
+                // Si on a caché cet onglet de tchat, on retourne au tchat fusionné
+                if (chatBtn.style.color === 'var(--pixel-violet)') {
+                    switchChat('merged');
+                }
+            }
+            
+            window.currentChannels[slot] = newChannel;
+        };
+
+        // Fonction pour changer d'onglet de tchat
+        window.switchChat = function(target) {
+            // Cacher tous les contenus
+            document.getElementById('merged-chat').style.display = 'none';
+            [1, 2, 3, 4].forEach(i => {
+                if(document.getElementById(`iframe-chat-${i}`)) {
+                    document.getElementById(`iframe-chat-${i}`).style.display = 'none';
+                }
+            });
+
+            // Afficher le contenu ciblé
+            if(target === 'merged') {
+                document.getElementById('merged-chat').style.display = 'flex';
+            } else {
+                document.getElementById(`iframe-chat-${target}`).style.display = 'block';
+            }
+
+            // Réinitialiser les couleurs des boutons
+            document.querySelectorAll('.chat-tab-btn').forEach(btn => {
+                btn.style.color = '#64748b'; // text-slate-500
+            });
+            
+            // Activer le bouton cliqué
+            document.getElementById(`btn-chat-${target}`).style.color = 'var(--pixel-violet)';
+        };
     </script>
 </body>
 
