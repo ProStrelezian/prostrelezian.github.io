@@ -8,10 +8,10 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <meta name="description"
-        content="Multitwitch en direct pour suivre TheGuill84 et Nykho pendant la ZLAN 2026.">
-    <title>ZLAN 2026 - Multitwitch</title>
+    <meta name="description" content="Multitwitch en direct pour suivre TheGuill84 et Nykho pendant la ZLAN 2026.">
+    <title>Zultitwitch</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
     <script src="./tmi.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,37 +119,129 @@
             display: none !important;
         }
 
+        body.chat-hidden #mt-chat {
+            display: none !important;
+        }
+
+        body.chat-hidden #mt-videos {
+            width: 100% !important;
+        }
+
         /* Dynamic Grid Layouts */
-        .layout-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
-        .layout-2 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+        .layout-1 {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+        }
+
+        .layout-2 {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
         @media (min-width: 1280px) {
-            .layout-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
-            .layout-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-            .layout-3 > .stream-card:not([style*="display: none"]):first-of-type { grid-column: span 2; }
-            .layout-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-            .layout-5 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
-            .layout-6 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
+            .layout-2 {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr;
+            }
+
+            .layout-3 {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .layout-3>.stream-card:not([style*="display: none"]):first-of-type {
+                grid-column: span 2;
+            }
+
+            .layout-4 {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .layout-5 {
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .layout-6 {
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
         }
+
         @media (max-width: 1279px) {
-            .layout-3 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr 1fr; }
-            .layout-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-            .layout-5 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
-            .layout-6 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+            .layout-3 {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr 1fr;
+            }
+
+            .layout-4 {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .layout-5 {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr 1fr;
+            }
+
+            .layout-6 {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr 1fr;
+            }
         }
+
         @media (max-width: 767px) {
-            .layout-4 { grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr); }
-            .layout-5 { grid-template-columns: 1fr; grid-template-rows: repeat(5, 1fr); }
-            .layout-6 { grid-template-columns: 1fr; grid-template-rows: repeat(6, 1fr); }
+            .layout-4 {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr);
+            }
+
+            .layout-5 {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(5, 1fr);
+            }
+
+            .layout-6 {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(6, 1fr);
+            }
         }
 
         /* Fullscreen Layout Overrides */
-        body.is-fullscreen #mt-videos.layout-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
-        body.is-fullscreen #mt-videos.layout-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr !important; }
-        body.is-fullscreen #mt-videos.layout-3 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
-        body.is-fullscreen #mt-videos.layout-3 > .stream-card:not([style*="display: none"]):first-of-type { grid-column: span 2 !important; }
-        body.is-fullscreen #mt-videos.layout-4 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
-        body.is-fullscreen #mt-videos.layout-5 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
-        body.is-fullscreen #mt-videos.layout-6 { grid-template-columns: 1fr 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
+        body.is-fullscreen #mt-videos.layout-1 {
+            grid-template-columns: 1fr !important;
+            grid-template-rows: 1fr !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-2 {
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1fr !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-3 {
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-3>.stream-card:not([style*="display: none"]):first-of-type {
+            grid-column: span 2 !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-4 {
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-5 {
+            grid-template-columns: 1fr 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-6 {
+            grid-template-columns: 1fr 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
+        }
     </style>
 </head>
 
@@ -176,12 +268,15 @@
                 <a href="./multitwitch.html"
                     class="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-[var(--pixel-violet)] text-white font-pixel text-[10px] md:text-xs hover:bg-white hover:text-[var(--pixel-violet)] border-2 border-[var(--pixel-violet)] transition-colors duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.8)]"
                     title="Multitwitch">
-                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                        </path>
                     </svg>
                     <span>MULTITWITCH</span>
                 </a>
-                
+
                 <div class="flex flex-wrap justify-center items-center font-text text-base md:text-xl">
                     <a href="https://zlan.fr" target="_blank" rel="noopener noreferrer"
                         class="flex items-center gap-2 text-slate-400 hover:text-[var(--pixel-green)] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 group"
@@ -205,10 +300,10 @@
         <div id="mt-title" class="flex flex-col items-center justify-center mb-10 px-3 md:px-0">
             <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest text-center drop-shadow-[0_0_8px_var(--pixel-violet)]"
                 style="color: var(--pixel-violet)">
-                MULTITWITCH ZLAN
+                MULTITWITCH
             </div>
             <div class="mt-4 font-text text-sm md:text-xl text-slate-500 text-center max-w-2xl">
-                Suivez simultanément jusqu'à 6 streams de la ZLAN en direct sur une seule page !
+                Suivez simultanément jusqu'à 6 streams en direct sur une seule page !
             </div>
             <button id="fullscreen-btn"
                 class="mt-6 px-6 py-2 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] font-pixel text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.8)]">
@@ -217,79 +312,182 @@
         </div>
 
         <!-- Stream Controls -->
-        <div id="stream-controls" class="flex justify-center items-center mb-6 px-3 md:px-0">
+        <div id="stream-controls"
+            class="flex flex-col sm:flex-row justify-center items-center gap-3 md:gap-4 mb-6 px-3 md:px-0">
             <div class="flex items-center">
-                <input type="text" id="add-stream-input" class="bg-[#0f0f13] border-2 border-r-0 border-[var(--pixel-violet)] text-white font-pixel text-xs md:text-sm px-3 py-1.5 outline-none uppercase w-40 md:w-64" placeholder="CHAÎNE TWITCH..." onkeypress="if(event.key==='Enter') addStream()">
-                <button onclick="addStream()" class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300">AJOUTER</button>
+                <input type="text" id="add-stream-input"
+                    class="bg-[#0f0f13] border-2 border-r-0 border-[var(--pixel-violet)] text-white font-pixel text-xs md:text-sm px-3 py-1.5 outline-none uppercase w-40 md:w-64"
+                    placeholder="CHAÎNE TWITCH..." onkeypress="if(event.key==='Enter') addStream()">
+                <button onclick="addStream()"
+                    class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300">AJOUTER</button>
             </div>
+            <button onclick="toggleChat()" id="toggle-chat-btn"
+                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                    </path>
+                </svg>
+                <span>SANS TCHAT</span>
+            </button>
+            <button onclick="shareLayout()" id="share-btn"
+                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                    </path>
+                </svg>
+                <span>PARTAGER</span>
+            </button>
         </div>
 
         <div id="mt-layout" class="flex flex-col xl:flex-row gap-2 md:gap-3 items-start">
             <!-- Videos Container -->
             <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)]">
                 <!-- Stream 1 -->
-                <div id="card-stream-1" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card" style="border: 2px solid var(--pixel-orange);">
-                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[var(--pixel-orange)] bg-black/50">
-                        <div id="title-stream-1" class="text-[var(--pixel-orange)] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(1)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                <div id="card-stream-1" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
+                    style="border: 2px solid var(--pixel-orange);" draggable="true"
+                    ondragstart="handleDragStart(event, 1)" ondragover="event.preventDefault()"
+                    ondrop="handleDrop(event, 1)">
+                    <header
+                        class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[var(--pixel-orange)] bg-black/50 cursor-move">
+                        <div id="title-stream-1"
+                            class="text-[var(--pixel-orange)] font-pixel text-xs md:text-sm uppercase truncate pr-2">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="focusAudio(1)" id="btn-audio-1" title="Écouter uniquement ce stream" class="text-slate-500 hover:text-white transition-colors">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h2v4H3V6z M5 5h2v6H5V5z M7 4h2v8H7V4z M11 5h1v1h-1V5z M15 5h1v1h-1V5z M12 6h1v1h-1V6z M14 6h1v1h-1V6z M13 7h1v1h-1V7z M12 8h1v1h-1V8z M14 8h1v1h-1V8z M11 9h1v1h-1V9z M15 9h1v1h-1V9z"/></svg>
+                            </button>
+                            <button onclick="removeStream(1)"
+                                class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        </div>
                     </header>
-                    <div id="container-stream-1" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <iframe id="iframe-stream-1" src="" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible"></iframe>
+                    <div id="container-stream-1"
+                        class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="player-stream-1"
+                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible">
+                        </div>
                     </div>
                 </div>
 
                 <!-- Stream 2 -->
-                <div id="card-stream-2" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card" style="border: 2px solid #9146FF;">
-                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#9146FF] bg-black/50">
-                        <div id="title-stream-2" class="text-[#9146FF] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(2)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                <div id="card-stream-2" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
+                    style="border: 2px solid #9146FF;" draggable="true" ondragstart="handleDragStart(event, 2)"
+                    ondragover="event.preventDefault()" ondrop="handleDrop(event, 2)">
+                    <header
+                        class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#9146FF] bg-black/50 cursor-move">
+                        <div id="title-stream-2"
+                            class="text-[#9146FF] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="focusAudio(2)" id="btn-audio-2" title="Écouter uniquement ce stream" class="text-slate-500 hover:text-white transition-colors">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h2v4H3V6z M5 5h2v6H5V5z M7 4h2v8H7V4z M11 5h1v1h-1V5z M15 5h1v1h-1V5z M12 6h1v1h-1V6z M14 6h1v1h-1V6z M13 7h1v1h-1V7z M12 8h1v1h-1V8z M14 8h1v1h-1V8z M11 9h1v1h-1V9z M15 9h1v1h-1V9z"/></svg>
+                            </button>
+                            <button onclick="removeStream(2)"
+                                class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        </div>
                     </header>
-                    <div id="container-stream-2" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <iframe id="iframe-stream-2" src="" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible"></iframe>
+                    <div id="container-stream-2"
+                        class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="player-stream-2"
+                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible">
+                        </div>
                     </div>
                 </div>
 
                 <!-- Stream 3 -->
-                <div id="card-stream-3" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card" style="border: 2px solid var(--pixel-green);">
-                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[var(--pixel-green)] bg-black/50">
-                        <div id="title-stream-3" class="text-[var(--pixel-green)] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(3)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                <div id="card-stream-3" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
+                    style="border: 2px solid var(--pixel-green);" draggable="true"
+                    ondragstart="handleDragStart(event, 3)" ondragover="event.preventDefault()"
+                    ondrop="handleDrop(event, 3)">
+                    <header
+                        class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[var(--pixel-green)] bg-black/50 cursor-move">
+                        <div id="title-stream-3"
+                            class="text-[var(--pixel-green)] font-pixel text-xs md:text-sm uppercase truncate pr-2">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="focusAudio(3)" id="btn-audio-3" title="Écouter uniquement ce stream" class="text-slate-500 hover:text-white transition-colors">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h2v4H3V6z M5 5h2v6H5V5z M7 4h2v8H7V4z M11 5h1v1h-1V5z M15 5h1v1h-1V5z M12 6h1v1h-1V6z M14 6h1v1h-1V6z M13 7h1v1h-1V7z M12 8h1v1h-1V8z M14 8h1v1h-1V8z M11 9h1v1h-1V9z M15 9h1v1h-1V9z"/></svg>
+                            </button>
+                            <button onclick="removeStream(3)"
+                                class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        </div>
                     </header>
-                    <div id="container-stream-3" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <iframe id="iframe-stream-3" src="" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.1)] invisible z-10"></iframe>
+                    <div id="container-stream-3"
+                        class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="player-stream-3"
+                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.1)] invisible z-10">
+                        </div>
                     </div>
                 </div>
 
                 <!-- Stream 4 -->
-                <div id="card-stream-4" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card" style="border: 2px solid #3b82f6;">
-                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#3b82f6] bg-black/50">
-                        <div id="title-stream-4" class="text-[#3b82f6] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(4)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                <div id="card-stream-4" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
+                    style="border: 2px solid #3b82f6;" draggable="true" ondragstart="handleDragStart(event, 4)"
+                    ondragover="event.preventDefault()" ondrop="handleDrop(event, 4)">
+                    <header
+                        class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#3b82f6] bg-black/50 cursor-move">
+                        <div id="title-stream-4"
+                            class="text-[#3b82f6] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="focusAudio(4)" id="btn-audio-4" title="Écouter uniquement ce stream" class="text-slate-500 hover:text-white transition-colors">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h2v4H3V6z M5 5h2v6H5V5z M7 4h2v8H7V4z M11 5h1v1h-1V5z M15 5h1v1h-1V5z M12 6h1v1h-1V6z M14 6h1v1h-1V6z M13 7h1v1h-1V7z M12 8h1v1h-1V8z M14 8h1v1h-1V8z M11 9h1v1h-1V9z M15 9h1v1h-1V9z"/></svg>
+                            </button>
+                            <button onclick="removeStream(4)"
+                                class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        </div>
                     </header>
-                    <div id="container-stream-4" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <iframe id="iframe-stream-4" src="" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10"></iframe>
+                    <div id="container-stream-4"
+                        class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="player-stream-4" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
+                        </div>
                     </div>
                 </div>
 
                 <!-- Stream 5 -->
-                <div id="card-stream-5" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card" style="border: 2px solid #ef4444;">
-                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#ef4444] bg-black/50">
-                        <div id="title-stream-5" class="text-[#ef4444] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(5)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                <div id="card-stream-5" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
+                    style="border: 2px solid #ef4444;" draggable="true" ondragstart="handleDragStart(event, 5)"
+                    ondragover="event.preventDefault()" ondrop="handleDrop(event, 5)">
+                    <header
+                        class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#ef4444] bg-black/50 cursor-move">
+                        <div id="title-stream-5"
+                            class="text-[#ef4444] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="focusAudio(5)" id="btn-audio-5" title="Écouter uniquement ce stream" class="text-slate-500 hover:text-white transition-colors">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h2v4H3V6z M5 5h2v6H5V5z M7 4h2v8H7V4z M11 5h1v1h-1V5z M15 5h1v1h-1V5z M12 6h1v1h-1V6z M14 6h1v1h-1V6z M13 7h1v1h-1V7z M12 8h1v1h-1V8z M14 8h1v1h-1V8z M11 9h1v1h-1V9z M15 9h1v1h-1V9z"/></svg>
+                            </button>
+                            <button onclick="removeStream(5)"
+                                class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        </div>
                     </header>
-                    <div id="container-stream-5" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <iframe id="iframe-stream-5" src="" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10"></iframe>
+                    <div id="container-stream-5"
+                        class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="player-stream-5" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
+                        </div>
                     </div>
                 </div>
 
                 <!-- Stream 6 -->
-                <div id="card-stream-6" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card" style="border: 2px solid #eab308;">
-                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#eab308] bg-black/50">
-                        <div id="title-stream-6" class="text-[#eab308] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(6)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                <div id="card-stream-6" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
+                    style="border: 2px solid #eab308;" draggable="true" ondragstart="handleDragStart(event, 6)"
+                    ondragover="event.preventDefault()" ondrop="handleDrop(event, 6)">
+                    <header
+                        class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#eab308] bg-black/50 cursor-move">
+                        <div id="title-stream-6"
+                            class="text-[#eab308] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="focusAudio(6)" id="btn-audio-6" title="Écouter uniquement ce stream" class="text-slate-500 hover:text-white transition-colors">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h2v4H3V6z M5 5h2v6H5V5z M7 4h2v8H7V4z M11 5h1v1h-1V5z M15 5h1v1h-1V5z M12 6h1v1h-1V6z M14 6h1v1h-1V6z M13 7h1v1h-1V7z M12 8h1v1h-1V8z M14 8h1v1h-1V8z M11 9h1v1h-1V9z M15 9h1v1h-1V9z"/></svg>
+                            </button>
+                            <button onclick="removeStream(6)"
+                                class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        </div>
                     </header>
-                    <div id="container-stream-6" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <iframe id="iframe-stream-6" src="" frameborder="0" allowfullscreen="true" scrolling="no" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10"></iframe>
+                    <div id="container-stream-6"
+                        class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
+                        <div id="player-stream-6" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -299,22 +497,22 @@
                 class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)] xl:sticky xl:top-[100px]"
                 style="border: 2px solid var(--pixel-violet);">
                 <header
-                    class="pixel-header-violet px-1 py-1 flex justify-around items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#0f0f13]">
+                    class="pixel-header-violet px-1 py-1.5 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#0f0f13] gap-1.5">
                     <button onclick="switchChat('merged')" id="btn-chat-merged"
-                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 transition-colors"
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 transition-colors flex-auto text-center"
                         style="color: var(--pixel-violet);">ALL</button>
                     <button onclick="switchChat(1)" id="btn-chat-1"
-                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors hidden">STRM1</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM1</button>
                     <button onclick="switchChat(2)" id="btn-chat-2"
-                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors hidden">STRM2</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM2</button>
                     <button onclick="switchChat(3)" id="btn-chat-3"
-                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors hidden">STRM3</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM3</button>
                     <button onclick="switchChat(4)" id="btn-chat-4"
-                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors hidden">STRM4</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM4</button>
                     <button onclick="switchChat(5)" id="btn-chat-5"
-                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors hidden">STRM5</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM5</button>
                     <button onclick="switchChat(6)" id="btn-chat-6"
-                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-1 text-slate-500 hover:text-white transition-colors hidden">STRM6</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM6</button>
                 </header>
                 <div class="flex-grow w-full bg-[#18181b] overflow-hidden flex flex-col">
                     <div id="merged-chat"
@@ -323,8 +521,10 @@
                             Connexion aux tchats...</div>
                     </div>
                     <!-- Iframes individuels cachés par défaut -->
-                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src="" frameborder="0"></iframe>
-                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src="" frameborder="0"></iframe>
+                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src=""
+                        frameborder="0"></iframe>
+                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src=""
+                        frameborder="0"></iframe>
                     <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src=""
                         frameborder="0"></iframe>
                     <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src=""
@@ -339,14 +539,24 @@
     </main>
 
     <section class="w-[98%] 2xl:w-[95%] mx-auto px-2 md:px-3 mb-8">
-        <div class="pixel-card w-full max-w-[920px] mx-auto bg-[#0f0f13] p-4 md:p-6 text-center" style="border: 2px solid var(--pixel-violet);">
-            <h2 class="font-pixel text-[var(--pixel-violet)] text-lg md:text-xl mb-3 tracking-wide">Comment utiliser le Multitwitch ?</h2>
+        <div class="pixel-card w-full max-w-[920px] mx-auto bg-[#0f0f13] p-4 md:p-6 text-center"
+            style="border: 2px solid var(--pixel-violet);">
+            <h2 class="font-pixel text-[var(--pixel-violet)] text-lg md:text-xl mb-3 tracking-wide">Comment utiliser le
+                Multitwitch ?</h2>
             <div class="font-text text-sm md:text-base text-slate-300 space-y-2">
-                <p>Bienvenue sur le Multitwitch ! Cette page vous permet de suivre simultanément jusqu'à <span class="text-white font-bold">6 streams</span> différents de la ZLAN.</p>
-                <p>👉 Utilisez la barre <span class="text-[var(--pixel-violet)]">"AJOUTER UN STREAM"</span> en haut pour intégrer la chaîne Twitch de votre choix (tapez juste le pseudo).</p>
-                <p>👉 Le bouton <span class="text-[var(--pixel-violet)]">"PLEIN ÉCRAN"</span> masque toute l'interface pour ne vous laisser que les vidéos ! La mise en page de la grille s'adaptera toujours automatiquement de manière optimale selon le nombre de vidéos actives.</p>
-                <p>👉 Le tchat unifié "ALL" fusionne par défaut les messages de tous les canaux actifs pour ne rien manquer de l'ambiance globale.</p>
-                <p>💾 <span class="text-[var(--pixel-green)] font-bold">Sauvegarde auto :</span> quittez la page et revenez quand vous le souhaitez, vous retrouverez toujours vos streams configurés exactement comme vous les avez laissés !</p>
+                <p>Bienvenue sur le Multitwitch ! Cette page vous permet de suivre simultanément jusqu'à <span
+                        class="text-white font-bold">6 streams</span> différents.</p>
+                <p>👉 Utilisez la barre <span class="text-[var(--pixel-violet)]">"AJOUTER UN STREAM"</span> en haut pour
+                    intégrer la chaîne Twitch de votre choix (tapez juste le pseudo).</p>
+                <p>👉 Le bouton <span class="text-[var(--pixel-violet)]">"PLEIN ÉCRAN"</span> masque toute l'interface
+                    pour ne vous laisser que les vidéos ! La mise en page de la grille s'adaptera toujours
+                    automatiquement de manière optimale selon le nombre de vidéos actives.</p>
+                <p>👉 Le tchat unifié "ALL" fusionne par défaut les messages de tous les canaux actifs pour ne rien
+                    manquer de l'ambiance globale.</p>
+                <p>💾 <span class="text-[var(--pixel-green)] font-bold">Sauvegarde auto :</span> quittez la page et
+                    revenez quand vous le souhaitez, vous retrouverez toujours vos streams configurés exactement comme
+                    vous les avez laissés ! (Jusqu'à ce que les données du navigateur soient effacées (ou que le site
+                    soit dans une nouvelle version)).</p>
             </div>
         </div>
     </section>
@@ -358,118 +568,68 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof tmi === 'undefined') {
-                const loading = document.getElementById('chat-loading');
-                if (loading) loading.innerHTML = 'Erreur : Impossible de charger tmi.js (bloqueur de pub ?)';
-                return;
-            }
+        const mtChat = document.getElementById('merged-chat');
+        window.mtClient = null;
+        let initialChannels = ['theguill84', 'nykho'];
 
-            // Charger les chaînes sauvegardées pour initialiser le tchat
-            const saved = localStorage.getItem('zlan_mt_channels');
-            let initialChannels = ['theguill84', 'nykho'];
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    initialChannels = Object.values(parsed).filter(c => c !== '');
-                } catch(e) {}
-            }
+        const savedForTmi = localStorage.getItem('zlan_mt_channels');
+        if (savedForTmi) {
+            try {
+                const parsed = JSON.parse(savedForTmi);
+                initialChannels = Object.values(parsed).filter(c => c !== '');
+            } catch (e) { }
+        }
 
-            const client = new tmi.Client({
-                connection: {
-                    secure: true,
-                    reconnect: true
-                },
-                channels: initialChannels
-            });
-            window.mtClient = client;
-
-            client.connect().catch(err => {
-                console.error('Erreur TMI:', err);
-                const loading = document.getElementById('chat-loading');
-                if (loading) loading.innerHTML = 'Échec de la connexion (bloqué par le navigateur ?)';
-            });
-
-            client.on('connected', () => {
-                const loading = document.getElementById('chat-loading');
-                if (loading) loading.style.display = 'none';
-            });
-
-            const chatContainer = document.getElementById('merged-chat');
-            let isAutoScroll = true;
-
-            chatContainer.addEventListener('scroll', () => {
-                isAutoScroll = chatContainer.scrollHeight - chatContainer.scrollTop <= chatContainer.clientHeight + 50;
-            });
-
-            client.on('message', (channel, tags, message, self) => {
-                const loading = document.getElementById('chat-loading');
-                if (loading && loading.style.display !== 'none') loading.style.display = 'none';
-
-                const channelName = channel.replace('#', '');
-
-                const msgEl = document.createElement('div');
-                msgEl.className = 'leading-tight mb-1';
-
-                let badgeColor = '#ffffff';
-                let badgeText = channelName.toUpperCase();
-                if (channelName === 'theguill84') badgeColor = 'var(--pixel-orange)';
-                else if (channelName === 'nykho') badgeColor = '#9146FF';
-                else if (channelName === 'zerator') badgeColor = 'var(--pixel-green)';
-
-                const badgeHtml = `<span class="inline-block px-1 rounded-sm text-[#09090b] text-[10px] mr-1 align-middle font-pixel tracking-tighter" style="background-color: ${badgeColor};">${badgeText}</span>`;
-
-                const userColor = tags.color || '#cccccc';
-                const userName = tags['display-name'] || tags.username;
-                const userHtml = `<span class="font-bold mr-1" style="color: ${userColor};">${userName}:</span>`;
-
-                const safeMessage = message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-                msgEl.innerHTML = `${badgeHtml}${userHtml}<span class="text-slate-300">${safeMessage}</span>`;
-
-                chatContainer.appendChild(msgEl);
-
-                if (chatContainer.children.length > 150) {
-                    chatContainer.removeChild(chatContainer.firstChild);
-                }
-
-                if (isAutoScroll) {
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
-            });
+        const client = new tmi.Client({
+            channels: initialChannels
         });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let lastScroll = 0;
-            const header = document.getElementById('main-header');
-            if (header) {
-                window.addEventListener('scroll', () => {
-                    const currentScroll = window.pageYOffset;
-                    if (currentScroll <= 0) {
-                        header.classList.remove('-translate-y-[150%]');
-                        return;
-                    }
-                    if (Math.abs(currentScroll - lastScroll) < 10) return;
 
-                    if (currentScroll > lastScroll && currentScroll > 100) {
-                        header.classList.add('-translate-y-[150%]');
-                    } else if (currentScroll < lastScroll) {
-                        header.classList.remove('-translate-y-[150%]');
-                    }
-                    lastScroll = currentScroll;
-                });
+        client.connect().catch(console.error);
+        window.mtClient = client;
+
+        client.on('message', (channel, tags, message, self) => {
+            const chatLoading = document.getElementById('chat-loading');
+            if (chatLoading) chatLoading.style.display = 'none';
+
+            const channelName = channel.replace('#', '');
+            const color = tags.color || '#a78bfa';
+
+            const msgEl = document.createElement('div');
+            msgEl.className = 'hover:bg-white/5 px-1 rounded transition-colors';
+
+            const channelBadge = document.createElement('span');
+            channelBadge.className = 'text-[9px] bg-white text-black border border-black px-1.5 py-0.5 mr-1.5 font-pixel uppercase inline-block leading-none translate-y-[-1px]';
+            channelBadge.textContent = channelName;
+
+            const nameEl = document.createElement('span');
+            nameEl.style.color = color;
+            nameEl.className = 'font-bold mr-1';
+            nameEl.textContent = tags['display-name'] || channelName;
+
+            const contentEl = document.createElement('span');
+            contentEl.className = 'text-slate-200';
+            contentEl.textContent = `: ${message}`;
+
+            msgEl.appendChild(channelBadge);
+            msgEl.appendChild(nameEl);
+            msgEl.appendChild(contentEl);
+
+            if (mtChat) {
+                mtChat.appendChild(msgEl);
+                if (mtChat.children.length > 150) {
+                    mtChat.removeChild(mtChat.children[0]);
+                }
+                mtChat.scrollTop = mtChat.scrollHeight;
             }
         });
-    </script>
-    <script>
+
         document.addEventListener('DOMContentLoaded', () => {
             const fsBtn = document.getElementById('fullscreen-btn');
             if (fsBtn) {
                 fsBtn.addEventListener('click', () => {
                     if (!document.fullscreenElement) {
                         document.documentElement.requestFullscreen().catch(err => {
-                            console.error(`Erreur d'activation du plein écran : ${err.message}`);
+                            console.error(`Error attempting to enable fullscreen: ${err.message}`);
                         });
                     } else {
                         document.exitFullscreen();
@@ -490,19 +650,18 @@
             });
         });
 
-        // Variables globales pour gérer les canaux dynamiques
         window.currentChannels = {
             1: '', 2: '', 3: '', 4: '', 5: '', 6: ''
         };
 
-        window.saveChannels = function() {
+        window.saveChannels = function () {
             localStorage.setItem('zlan_mt_channels', JSON.stringify(window.currentChannels));
         };
 
-        window.updateLayout = function() {
+        window.updateLayout = function () {
             let activeCount = 0;
             const mtVideos = document.getElementById('mt-videos');
-            
+
             for (let i = 1; i <= 6; i++) {
                 const card = document.getElementById(`card-stream-${i}`);
                 if (window.currentChannels[i]) {
@@ -512,22 +671,22 @@
                     card.style.display = 'none';
                 }
             }
-            
-            mtVideos.className = `flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)] layout-${activeCount}`;
+
+            if (mtVideos) mtVideos.className = `flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)] layout-${activeCount}`;
         };
 
-        window.addStream = function() {
+        window.addStream = function () {
             const input = document.getElementById('add-stream-input');
             const newChannel = input.value.trim().toLowerCase();
             if (!newChannel) return;
-            
+
             for (let i = 1; i <= 6; i++) {
                 if (window.currentChannels[i] === newChannel) {
                     input.value = '';
                     return;
                 }
             }
-            
+
             let emptySlot = -1;
             for (let i = 1; i <= 6; i++) {
                 if (!window.currentChannels[i]) {
@@ -535,7 +694,7 @@
                     break;
                 }
             }
-            
+
             if (emptySlot !== -1) {
                 updateStream(emptySlot, newChannel);
                 input.value = '';
@@ -544,8 +703,121 @@
             }
         };
 
-        window.removeStream = function(slot) {
+        window.removeStream = function (slot) {
             updateStream(slot, '');
+        };
+
+        window.switchChat = function (target) {
+            document.getElementById('merged-chat').style.display = 'none';
+            [1, 2, 3, 4, 5, 6].forEach(i => {
+                if (document.getElementById(`iframe-chat-${i}`)) {
+                    document.getElementById(`iframe-chat-${i}`).style.display = 'none';
+                }
+            });
+
+            if (target === 'merged') {
+                document.getElementById('merged-chat').style.display = 'flex';
+            } else {
+                document.getElementById(`iframe-chat-${target}`).style.display = 'block';
+            }
+
+            document.querySelectorAll('.chat-tab-btn').forEach(btn => {
+                btn.style.color = '#64748b';
+            });
+
+            document.getElementById(`btn-chat-${target}`).style.color = 'var(--pixel-violet)';
+        };
+
+        window.toggleChat = function () {
+            const isHidden = document.body.classList.toggle('chat-hidden');
+            const btn = document.getElementById('toggle-chat-btn');
+            if (isHidden) {
+                if (btn) btn.innerHTML = `<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> <span>AVEC TCHAT</span>`;
+                localStorage.setItem('zlan_mt_chat_hidden', 'true');
+            } else {
+                if (btn) btn.innerHTML = `<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg> <span>SANS TCHAT</span>`;
+                localStorage.setItem('zlan_mt_chat_hidden', 'false');
+            }
+        };
+
+        window.twitchPlayers = {};
+        window.draggedSlot = null;
+
+        window.handleDragStart = function (event, slot) {
+            window.draggedSlot = slot;
+            event.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => {
+                event.target.style.opacity = '0.5';
+            }, 0);
+        };
+
+        window.handleDrop = function (event, targetSlot) {
+            event.preventDefault();
+            const sourceSlot = window.draggedSlot;
+
+            document.querySelectorAll('.stream-card').forEach(c => c.style.opacity = '1');
+
+            if (sourceSlot === targetSlot || !sourceSlot) return;
+
+            const sourceChannel = window.currentChannels[sourceSlot];
+            const targetChannel = window.currentChannels[targetSlot];
+
+            updateStream(sourceSlot, targetChannel);
+            updateStream(targetSlot, sourceChannel);
+        };
+
+        document.addEventListener('dragend', () => {
+            document.querySelectorAll('.stream-card').forEach(c => c.style.opacity = '1');
+        });
+
+        window.focusAudio = function (slot) {
+            const svgMuted = `<svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h2v4H3V6z M5 5h2v6H5V5z M7 4h2v8H7V4z M11 5h1v1h-1V5z M15 5h1v1h-1V5z M12 6h1v1h-1V6z M14 6h1v1h-1V6z M13 7h1v1h-1V7z M12 8h1v1h-1V8z M14 8h1v1h-1V8z M11 9h1v1h-1V9z M15 9h1v1h-1V9z"/></svg>`;
+            const svgUnmuted = `<svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h2v4H3V6z M5 5h2v6H5V5z M7 4h2v8H7V4z M11 6h1v4h-1V6z M13 4h1v8h-1V4z"/></svg>`;
+
+            for (let i = 1; i <= 6; i++) {
+                const btn = document.getElementById(`btn-audio-${i}`);
+                if (window.twitchPlayers[i]) {
+                    if (i === slot) {
+                        window.twitchPlayers[i].setMuted(false);
+                        window.twitchPlayers[i].setVolume(1.0);
+                        if (btn) {
+                            btn.innerHTML = svgUnmuted;
+                            btn.className = "text-[var(--pixel-violet)] hover:scale-110 transition-transform";
+                        }
+                    } else {
+                        window.twitchPlayers[i].setMuted(true);
+                        if (btn) {
+                            btn.innerHTML = svgMuted;
+                            btn.className = "text-slate-500 hover:text-white transition-colors";
+                        }
+                    }
+                } else {
+                    if (btn) {
+                        btn.innerHTML = svgMuted;
+                        btn.className = "text-slate-500 hover:text-white transition-colors";
+                    }
+                }
+            }
+        };
+
+        window.shareLayout = function () {
+            const activeStreams = [];
+            for (let i = 1; i <= 6; i++) {
+                if (window.currentChannels[i]) {
+                    activeStreams.push(window.currentChannels[i]);
+                }
+            }
+            if (activeStreams.length === 0) {
+                alert("Ajoutez au moins un stream avant de partager !");
+                return;
+            }
+            const url = new URL(window.location.href);
+            url.searchParams.set('streams', activeStreams.join(','));
+            navigator.clipboard.writeText(url.toString()).then(() => {
+                alert("Le lien vers votre configuration a été copié dans le presse-papier !");
+            }).catch(err => {
+                alert("Erreur lors de la copie du lien : " + url.toString());
+            });
         };
 
         window.updateStream = function (slot, channelName) {
@@ -554,16 +826,27 @@
 
             if (newChannel === oldChannel) return;
 
-            const iframe = document.getElementById(`iframe-stream-${slot}`);
             const chatIframe = document.getElementById(`iframe-chat-${slot}`);
             const chatBtn = document.getElementById(`btn-chat-${slot}`);
             const titleEl = document.getElementById(`title-stream-${slot}`);
 
             if (newChannel) {
-                iframe.src = `https://player.twitch.tv/?channel=${newChannel}&parent=localhost&parent=127.0.0.1&parent=strelezian.github.io&parent=zlan.guill.tv`;
-                iframe.classList.remove('invisible');
+                if (!window.twitchPlayers[slot]) {
+                    window.twitchPlayers[slot] = new Twitch.Player(`player-stream-${slot}`, {
+                        channel: newChannel,
+                        width: '100%',
+                        height: '100%',
+                        muted: true,
+                        parent: ['localhost', '127.0.0.1', 'strelezian.github.io', 'zlan.guill.tv']
+                    });
+                } else {
+                    window.twitchPlayers[slot].setChannel(newChannel);
+                }
+
+                document.getElementById(`player-stream-${slot}`).classList.remove('invisible');
+
                 chatIframe.src = `https://www.twitch.tv/embed/${newChannel}/chat?parent=localhost&parent=strelezian.github.io&parent=zlan.guill.tv&darkpopout`;
-                chatBtn.textContent = newChannel.substring(0, 5).toUpperCase();
+                chatBtn.textContent = newChannel.toUpperCase();
                 chatBtn.classList.remove('hidden');
                 if (titleEl) titleEl.textContent = newChannel.toUpperCase();
 
@@ -572,8 +855,10 @@
                     window.mtClient.join(newChannel).catch(console.error);
                 }
             } else {
-                iframe.src = '';
-                iframe.classList.add('invisible');
+                document.getElementById(`player-stream-${slot}`).innerHTML = '';
+                document.getElementById(`player-stream-${slot}`).classList.add('invisible');
+                delete window.twitchPlayers[slot];
+
                 chatIframe.src = '';
                 chatBtn.classList.add('hidden');
                 if (titleEl) titleEl.textContent = '';
@@ -592,36 +877,35 @@
             updateLayout();
         };
 
-        window.switchChat = function (target) {
-            document.getElementById('merged-chat').style.display = 'none';
-            [1, 2, 3, 4, 5, 6].forEach(i => {
-                if (document.getElementById(`iframe-chat-${i}`)) {
-                    document.getElementById(`iframe-chat-${i}`).style.display = 'none';
-                }
-            });
-
-            if (target === 'merged') {
-                document.getElementById('merged-chat').style.display = 'flex';
-            } else {
-                document.getElementById(`iframe-chat-${target}`).style.display = 'block';
-            }
-
-            document.querySelectorAll('.chat-tab-btn').forEach(btn => {
-                btn.style.color = '#64748b'; 
-            });
-
-            document.getElementById(`btn-chat-${target}`).style.color = 'var(--pixel-violet)';
-        };
-
         document.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('zlan_mt_channels');
-            let initial = { 1: 'theguill84', 2: 'nykho', 3: '', 4: '', 5: '', 6: '' };
-            if (saved) {
-                try {
-                    initial = JSON.parse(saved);
-                } catch(e) {}
+            const chatHidden = localStorage.getItem('zlan_mt_chat_hidden');
+            if (chatHidden === 'true') {
+                document.body.classList.add('chat-hidden');
+                const btn = document.getElementById('toggle-chat-btn');
+                if (btn) btn.innerHTML = `<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> <span>AVEC TCHAT</span>`;
             }
-            
+
+            const params = new URLSearchParams(window.location.search);
+            const urlStreams = params.get('streams');
+
+            let initial = { 1: 'theguill84', 2: 'nykho', 3: '', 4: '', 5: '', 6: '' };
+
+            if (urlStreams) {
+                const streamsList = urlStreams.split(',');
+                initial = { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '' };
+                streamsList.forEach((ch, idx) => {
+                    if (idx < 6) initial[idx + 1] = ch;
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                const saved = localStorage.getItem('zlan_mt_channels');
+                if (saved) {
+                    try {
+                        initial = JSON.parse(saved);
+                    } catch (e) { }
+                }
+            }
+
             for (let i = 1; i <= 6; i++) {
                 if (initial[i]) {
                     updateStream(i, initial[i]);
