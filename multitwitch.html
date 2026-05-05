@@ -112,6 +112,10 @@
             display: none !important;
         }
 
+        #mt-chat {
+            box-shadow: none !important;
+        }
+
         #merged-chat {
             padding: 1rem !important;
             border: none !important;
@@ -492,24 +496,24 @@
                     <button onclick="switchChat(6)" id="btn-chat-6"
                         class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM6</button>
                 </header>
-                <div class="flex-grow w-full bg-[#18181b] flex flex-col">
+                <div class="flex-grow w-full bg-[#18181b] relative">
                     <div id="merged-chat"
                         class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1">
                         <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-xs">
                             Connexion aux tchats...</div>
                     </div>
                     <!-- Iframes individuels cachés par défaut -->
-                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src=""
+                    <iframe id="iframe-chat-1" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src=""
+                    <iframe id="iframe-chat-2" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src=""
+                    <iframe id="iframe-chat-3" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src=""
+                    <iframe id="iframe-chat-4" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-5" style="display: none;" class="w-full h-full" src=""
+                    <iframe id="iframe-chat-5" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-6" style="display: none;" class="w-full h-full" src=""
+                    <iframe id="iframe-chat-6" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
                         frameborder="0"></iframe>
                 </div>
             </div>
