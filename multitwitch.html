@@ -541,116 +541,105 @@
             Tous droits réservés.</p>
     </footer>
 
-    <script>
+<script>
         const mtChat = document.getElementById('merged-chat');
         window.mtClient = null;
-        let initialChannels = ['theguill84', 'nykho'];
+        window.twitchPlayers = {};
+        window.draggedSlot = null;
+        window.currentChannels = { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '' };
 
-        const savedForTmi = localStorage.getItem('zlan_mt_channels');
-        if (savedForTmi) {
-            try {
-                const parsed = JSON.parse(savedForTmi);
-                initialChannels = Object.values(parsed).filter(c => c !== '');
-            } catch (e) { }
+        // 1. Core Functions
+        function saveChannels() {
+            localStorage.setItem('zlan_mt_channels', JSON.stringify(window.currentChannels));
         }
 
-        const client = new tmi.Client({
-            channels: initialChannels
-        });
-
-        client.connect().catch(console.error);
-        window.mtClient = client;
-
-        client.on('message', (channel, tags, message, self) => {
-            const chatLoading = document.getElementById('chat-loading');
-            if (chatLoading) chatLoading.style.display = 'none';
-
-            const channelName = channel.replace('#', '');
-            const color = tags.color || '#a78bfa';
-
-            const msgEl = document.createElement('div');
-            msgEl.className = 'hover:bg-white/5 px-1 rounded transition-colors';
-
-            const channelBadge = document.createElement('span');
-            channelBadge.className = 'text-[9px] bg-white text-black border border-black px-1.5 py-0.5 mr-1.5 font-pixel uppercase inline-block leading-none translate-y-[-1px]';
-            channelBadge.textContent = channelName;
-
-            const nameEl = document.createElement('span');
-            nameEl.style.color = color;
-            nameEl.className = 'font-bold mr-1';
-            nameEl.textContent = tags['display-name'] || channelName;
-
-            const contentEl = document.createElement('span');
-            contentEl.className = 'text-slate-200';
-            contentEl.textContent = `: ${message}`;
-
-            msgEl.appendChild(channelBadge);
-            msgEl.appendChild(nameEl);
-            msgEl.appendChild(contentEl);
-
-            if (mtChat) {
-                mtChat.appendChild(msgEl);
-                if (mtChat.children.length > 150) {
-                    mtChat.removeChild(mtChat.children[0]);
-                }
-                mtChat.scrollTop = mtChat.scrollHeight;
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const fsBtn = document.getElementById('fullscreen-btn');
-            if (fsBtn) {
-                fsBtn.addEventListener('click', () => {
-                    if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen().catch(err => {
-                            console.error(`Error attempting to enable fullscreen: ${err.message}`);
-                        });
-                    } else {
-                        document.exitFullscreen();
-                    }
-                });
-            }
-
-            document.addEventListener('fullscreenchange', () => {
-                if (document.fullscreenElement) {
-                    document.body.classList.add('is-fullscreen');
-                    document.documentElement.classList.add('is-fullscreen');
-                    if (fsBtn) fsBtn.innerHTML = '❌ QUITTER PLEIN ÉCRAN';
-                } else {
-                    document.body.classList.remove('is-fullscreen');
-                    document.documentElement.classList.remove('is-fullscreen');
-                    if (fsBtn) fsBtn.innerHTML = '📺 PLEIN ÉCRAN';
-                }
-            });
-        });
-
-        window.currentChannels = {
-            1: '', 2: '', 3: '', 4: '', 5: '', 6: ''
-        };
-
-        window.saveChannels = function () {
-            localStorage.setItem('zlan_mt_channels', JSON.stringify(window.currentChannels));
-        };
-
-        window.updateLayout = function () {
+        function updateLayout() {
             let activeCount = 0;
             const mtVideos = document.getElementById('mt-videos');
+            if (!mtVideos) return;
 
             for (let i = 1; i <= 6; i++) {
                 const card = document.getElementById(`card-stream-${i}`);
-                if (window.currentChannels[i]) {
-                    activeCount++;
-                    card.style.display = 'flex';
+                if (card) {
+                    if (window.currentChannels[i]) {
+                        activeCount++;
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            }
+            mtVideos.className = `flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)] layout-${activeCount}`;
+        }
+
+        function updateStream(slot, channelName) {
+            let newChannel = (channelName !== undefined) ? channelName.trim().toLowerCase() : '';
+            const oldChannel = window.currentChannels[slot];
+
+            if (newChannel === oldChannel && window.twitchPlayers[slot]) return;
+
+            const chatIframe = document.getElementById(`iframe-chat-${slot}`);
+            const chatBtn = document.getElementById(`btn-chat-${slot}`);
+            const titleEl = document.getElementById(`title-stream-${slot}`);
+
+            if (newChannel) {
+                if (!window.twitchPlayers[slot]) {
+                    window.twitchPlayers[slot] = new Twitch.Player(`player-stream-${slot}`, {
+                        channel: newChannel,
+                        width: '100%',
+                        height: '100%',
+                        muted: true,
+                        parent: ['localhost', '127.0.0.1', 'strelezian.github.io', 'zlan.guill.tv']
+                    });
                 } else {
-                    card.style.display = 'none';
+                    window.twitchPlayers[slot].setChannel(newChannel);
+                }
+
+                const playerEl = document.getElementById(`player-stream-${slot}`);
+                if (playerEl) playerEl.classList.remove('invisible');
+
+                if (chatIframe) chatIframe.src = `https://www.twitch.tv/embed/${newChannel}/chat?parent=localhost&parent=strelezian.github.io&parent=zlan.guill.tv&darkpopout`;
+                if (chatBtn) {
+                    chatBtn.textContent = newChannel.toUpperCase();
+                    chatBtn.classList.remove('hidden');
+                }
+                if (titleEl) titleEl.textContent = newChannel.toUpperCase();
+
+                if (window.mtClient) {
+                    if (oldChannel) window.mtClient.part(oldChannel).catch(() => {});
+                    window.mtClient.join(newChannel).catch(() => {});
+                }
+            } else {
+                const playerEl = document.getElementById(`player-stream-${slot}`);
+                if (playerEl) {
+                    playerEl.innerHTML = '';
+                    playerEl.classList.add('invisible');
+                }
+                delete window.twitchPlayers[slot];
+
+                if (chatIframe) chatIframe.src = '';
+                if (chatBtn) {
+                    chatBtn.classList.add('hidden');
+                    if (chatBtn.style.color === 'var(--pixel-violet)' || chatBtn.style.color === 'rgb(167, 139, 250)') {
+                        switchChat('merged');
+                    }
+                }
+                if (titleEl) titleEl.textContent = '';
+
+                if (window.mtClient && oldChannel) {
+                    window.mtClient.part(oldChannel).catch(() => {});
                 }
             }
 
-            if (mtVideos) mtVideos.className = `flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)] layout-${activeCount}`;
-        };
+            window.currentChannels[slot] = newChannel;
+            saveChannels();
+            updateLayout();
+        }
 
-        window.addStream = function () {
+        // 2. UI Event Handlers
+        function addStream() {
             const input = document.getElementById('add-stream-input');
+            if (!input) return;
             const newChannel = input.value.trim().toLowerCase();
             if (!newChannel) return;
 
@@ -673,36 +662,38 @@
                 updateStream(emptySlot, newChannel);
                 input.value = '';
             } else {
-                alert("Vous avez déjà 6 streams actifs ! Fermez-en un pour en ajouter un autre.");
+                alert("Vous avez déjà 6 streams actifs !");
             }
-        };
+        }
 
-        window.removeStream = function (slot) {
+        function removeStream(slot) {
             updateStream(slot, '');
-        };
+        }
 
-        window.switchChat = function (target) {
-            document.getElementById('merged-chat').style.display = 'none';
-            [1, 2, 3, 4, 5, 6].forEach(i => {
-                if (document.getElementById(`iframe-chat-${i}`)) {
-                    document.getElementById(`iframe-chat-${i}`).style.display = 'none';
-                }
-            });
+        function switchChat(target) {
+            const merged = document.getElementById('merged-chat');
+            if (merged) merged.style.display = 'none';
+            
+            for (let i = 1; i <= 6; i++) {
+                const iframe = document.getElementById(`iframe-chat-${i}`);
+                if (iframe) iframe.style.display = 'none';
+            }
 
             if (target === 'merged') {
-                document.getElementById('merged-chat').style.display = 'flex';
+                if (merged) merged.style.display = 'flex';
             } else {
-                document.getElementById(`iframe-chat-${target}`).style.display = 'block';
+                const iframe = document.getElementById(`iframe-chat-${target}`);
+                if (iframe) iframe.style.display = 'block';
             }
 
             document.querySelectorAll('.chat-tab-btn').forEach(btn => {
                 btn.style.color = '#64748b';
             });
+            const activeBtn = document.getElementById(`btn-chat-${target}`);
+            if (activeBtn) activeBtn.style.color = 'var(--pixel-violet)';
+        }
 
-            document.getElementById(`btn-chat-${target}`).style.color = 'var(--pixel-violet)';
-        };
-
-        window.toggleChat = function () {
+        function toggleChat() {
             const isHidden = document.body.classList.toggle('chat-hidden');
             const btn = document.getElementById('toggle-chat-btn');
             if (isHidden) {
@@ -712,134 +703,84 @@
                 if (btn) btn.innerHTML = `<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg> <span>SANS TCHAT</span>`;
                 localStorage.setItem('zlan_mt_chat_hidden', 'false');
             }
-        };
+        }
 
-        window.twitchPlayers = {};
-        window.draggedSlot = null;
-
-        window.handleDragStart = function (event, slot) {
+        function handleDragStart(event, slot) {
             window.draggedSlot = slot;
             event.dataTransfer.effectAllowed = 'move';
             setTimeout(() => {
                 event.target.style.opacity = '0.5';
             }, 0);
-        };
+        }
 
-        window.handleDrop = function (event, targetSlot) {
+        function handleDrop(event, targetSlot) {
             event.preventDefault();
             const sourceSlot = window.draggedSlot;
-
             document.querySelectorAll('.stream-card').forEach(c => c.style.opacity = '1');
-
             if (sourceSlot === targetSlot || !sourceSlot) return;
 
             const sourceChannel = window.currentChannels[sourceSlot];
             const targetChannel = window.currentChannels[targetSlot];
-
             updateStream(sourceSlot, targetChannel);
             updateStream(targetSlot, sourceChannel);
-        };
+        }
 
-        document.addEventListener('dragend', () => {
-            document.querySelectorAll('.stream-card').forEach(c => c.style.opacity = '1');
-        });
-
-        window.resetStreams = function () {
+        function resetStreams() {
             if (confirm("Voulez-vous vraiment réinitialiser les streams pour n'afficher que TheGuill84 et Nykho ?")) {
                 const initial = { 1: 'theguill84', 2: 'nykho', 3: '', 4: '', 5: '', 6: '' };
                 for (let i = 1; i <= 6; i++) {
                     updateStream(i, initial[i]);
                 }
             }
-        };
+        }
 
-         else {
-                    if (btn) {
-                        btn.innerHTML = svgMuted;
-                        btn.className = "text-slate-500 hover:text-white transition-colors";
-                    }
-                }
-            }
-        };
-
-        window.shareLayout = function () {
+        function shareLayout() {
             const activeStreams = [];
             for (let i = 1; i <= 6; i++) {
-                if (window.currentChannels[i]) {
-                    activeStreams.push(window.currentChannels[i]);
-                }
+                if (window.currentChannels[i]) activeStreams.push(window.currentChannels[i]);
             }
             if (activeStreams.length === 0) {
-                alert("Ajoutez au moins un stream avant de partager !");
+                alert("Ajoutez au moins un stream !");
                 return;
             }
             const url = new URL(window.location.href);
             url.searchParams.set('streams', activeStreams.join(','));
             navigator.clipboard.writeText(url.toString()).then(() => {
-                alert("Le lien vers votre configuration a été copié dans le presse-papier !");
-            }).catch(err => {
-                alert("Erreur lors de la copie du lien : " + url.toString());
+                alert("Lien copié !");
+            }).catch(() => {
+                alert("Erreur de copie : " + url.toString());
             });
-        };
+        }
 
-        window.updateStream = function (slot, channelName) {
-            let newChannel = (channelName !== undefined) ? channelName.trim().toLowerCase() : '';
-            const oldChannel = window.currentChannels[slot];
-
-            if (newChannel === oldChannel) return;
-
-            const chatIframe = document.getElementById(`iframe-chat-${slot}`);
-            const chatBtn = document.getElementById(`btn-chat-${slot}`);
-            const titleEl = document.getElementById(`title-stream-${slot}`);
-
-            if (newChannel) {
-                if (!window.twitchPlayers[slot]) {
-                    window.twitchPlayers[slot] = new Twitch.Player(`player-stream-${slot}`, {
-                        channel: newChannel,
-                        width: '100%',
-                        height: '100%',
-                        muted: true,
-                        parent: ['localhost', '127.0.0.1', 'strelezian.github.io', 'zlan.guill.tv']
-                    });
-                } else {
-                    window.twitchPlayers[slot].setChannel(newChannel);
-                }
-
-                document.getElementById(`player-stream-${slot}`).classList.remove('invisible');
-
-                chatIframe.src = `https://www.twitch.tv/embed/${newChannel}/chat?parent=localhost&parent=strelezian.github.io&parent=zlan.guill.tv&darkpopout`;
-                chatBtn.textContent = newChannel.toUpperCase();
-                chatBtn.classList.remove('hidden');
-                if (titleEl) titleEl.textContent = newChannel.toUpperCase();
-
-                if (window.mtClient) {
-                    if (oldChannel) window.mtClient.part(oldChannel).catch(console.error);
-                    window.mtClient.join(newChannel).catch(console.error);
-                }
-            } else {
-                document.getElementById(`player-stream-${slot}`).innerHTML = '';
-                document.getElementById(`player-stream-${slot}`).classList.add('invisible');
-                delete window.twitchPlayers[slot];
-
-                chatIframe.src = '';
-                chatBtn.classList.add('hidden');
-                if (titleEl) titleEl.textContent = '';
-
-                if (window.mtClient && oldChannel) {
-                    window.mtClient.part(oldChannel).catch(console.error);
-                }
-
-                if (chatBtn.style.color === 'var(--pixel-violet)') {
-                    switchChat('merged');
-                }
-            }
-
-            window.currentChannels[slot] = newChannel;
-            window.saveChannels();
-            updateLayout();
-        };
-
+        // 3. Initialization
         document.addEventListener('DOMContentLoaded', () => {
+            // Fullscreen setup
+            const fsBtn = document.getElementById('fullscreen-btn');
+            if (fsBtn) {
+                fsBtn.addEventListener('click', () => {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(() => {});
+                    } else {
+                        document.exitFullscreen();
+                    }
+                });
+            }
+            document.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement) {
+                    document.body.classList.add('is-fullscreen');
+                    document.documentElement.classList.add('is-fullscreen');
+                    if (fsBtn) fsBtn.innerHTML = '❌ QUITTER PLEIN ÉCRAN';
+                } else {
+                    document.body.classList.remove('is-fullscreen');
+                    document.documentElement.classList.remove('is-fullscreen');
+                    if (fsBtn) fsBtn.innerHTML = '📺 PLEIN ÉCRAN';
+                }
+            });
+            document.addEventListener('dragend', () => {
+                document.querySelectorAll('.stream-card').forEach(c => c.style.opacity = '1');
+            });
+
+            // Chat setup
             const chatHidden = localStorage.getItem('zlan_mt_chat_hidden');
             if (chatHidden === 'true') {
                 document.body.classList.add('chat-hidden');
@@ -847,31 +788,66 @@
                 if (btn) btn.innerHTML = `<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> <span>AVEC TCHAT</span>`;
             }
 
+            // Streams setup
             const params = new URLSearchParams(window.location.search);
             const urlStreams = params.get('streams');
-
             let initial = { 1: 'theguill84', 2: 'nykho', 3: '', 4: '', 5: '', 6: '' };
 
             if (urlStreams) {
                 const streamsList = urlStreams.split(',');
                 initial = { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '' };
-                streamsList.forEach((ch, idx) => {
-                    if (idx < 6) initial[idx + 1] = ch;
-                });
+                streamsList.forEach((ch, idx) => { if (idx < 6) initial[idx + 1] = ch; });
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else {
                 const saved = localStorage.getItem('zlan_mt_channels');
                 if (saved) {
-                    try {
-                        initial = JSON.parse(saved);
-                    } catch (e) { }
+                    try { initial = JSON.parse(saved); } catch (e) { }
                 }
             }
 
-            for (let i = 1; i <= 6; i++) {
-                if (initial[i]) {
-                    updateStream(i, initial[i]);
+            // Load TMI
+            const tmiChannels = Object.values(initial).filter(c => c !== '');
+            const client = new tmi.Client({ channels: tmiChannels });
+            client.connect().catch(console.error);
+            window.mtClient = client;
+
+            client.on('message', (channel, tags, message) => {
+                const chatLoading = document.getElementById('chat-loading');
+                if (chatLoading) chatLoading.style.display = 'none';
+
+                const channelName = channel.replace('#', '');
+                const color = tags.color || '#a78bfa';
+
+                const msgEl = document.createElement('div');
+                msgEl.className = 'hover:bg-white/5 px-1 rounded transition-colors';
+
+                const channelBadge = document.createElement('span');
+                channelBadge.className = 'text-[9px] bg-white text-black border border-black px-1.5 py-0.5 mr-1.5 font-pixel uppercase inline-block leading-none translate-y-[-1px]';
+                channelBadge.textContent = channelName;
+
+                const nameEl = document.createElement('span');
+                nameEl.style.color = color;
+                nameEl.className = 'font-bold mr-1';
+                nameEl.textContent = tags['display-name'] || channelName;
+
+                const contentEl = document.createElement('span');
+                contentEl.className = 'text-slate-200';
+                contentEl.textContent = `: ${message}`;
+
+                msgEl.appendChild(channelBadge);
+                msgEl.appendChild(nameEl);
+                msgEl.appendChild(contentEl);
+
+                if (mtChat) {
+                    mtChat.appendChild(msgEl);
+                    if (mtChat.children.length > 150) mtChat.removeChild(mtChat.children[0]);
+                    mtChat.scrollTop = mtChat.scrollHeight;
                 }
+            });
+
+            // Initial streams load
+            for (let i = 1; i <= 6; i++) {
+                if (initial[i]) updateStream(i, initial[i]);
             }
             updateLayout();
         });
