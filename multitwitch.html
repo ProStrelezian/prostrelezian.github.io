@@ -108,7 +108,11 @@
             background-color: transparent !important;
         }
 
-        body.is-fullscreen #merged-chat {
+        #mt-chat::before {
+            display: none !important;
+        }
+
+        #merged-chat {
             padding: 1rem !important;
             border: none !important;
             box-shadow: none !important;
@@ -488,7 +492,7 @@
                     <button onclick="switchChat(6)" id="btn-chat-6"
                         class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM6</button>
                 </header>
-                <div class="flex-grow w-full bg-[#18181b] overflow-hidden flex flex-col">
+                <div class="flex-grow w-full bg-[#18181b] flex flex-col">
                     <div id="merged-chat"
                         class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1">
                         <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-xs">
