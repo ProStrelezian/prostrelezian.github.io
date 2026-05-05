@@ -374,7 +374,8 @@
                         <div id="title-stream-1"
                             class="text-[var(--pixel-orange)] font-pixel text-xs md:text-sm uppercase truncate pr-2">
                         </div>
-                        <button onclick="removeStream(1)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        <button onclick="removeStream(1)"
+                            class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
                     </header>
                     <div id="container-stream-1"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
@@ -392,7 +393,8 @@
                         class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#9146FF] bg-black/50 cursor-move">
                         <div id="title-stream-2"
                             class="text-[#9146FF] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(2)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        <button onclick="removeStream(2)"
+                            class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
                     </header>
                     <div id="container-stream-2"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
@@ -412,7 +414,8 @@
                         <div id="title-stream-3"
                             class="text-[var(--pixel-green)] font-pixel text-xs md:text-sm uppercase truncate pr-2">
                         </div>
-                        <button onclick="removeStream(3)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        <button onclick="removeStream(3)"
+                            class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
                     </header>
                     <div id="container-stream-3"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
@@ -430,7 +433,8 @@
                         class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#3b82f6] bg-black/50 cursor-move">
                         <div id="title-stream-4"
                             class="text-[#3b82f6] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(4)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        <button onclick="removeStream(4)"
+                            class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
                     </header>
                     <div id="container-stream-4"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
@@ -447,7 +451,8 @@
                         class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#ef4444] bg-black/50 cursor-move">
                         <div id="title-stream-5"
                             class="text-[#ef4444] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(5)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        <button onclick="removeStream(5)"
+                            class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
                     </header>
                     <div id="container-stream-5"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
@@ -464,7 +469,8 @@
                         class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#eab308] bg-black/50 cursor-move">
                         <div id="title-stream-6"
                             class="text-[#eab308] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
-                        <button onclick="removeStream(6)" class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
+                        <button onclick="removeStream(6)"
+                            class="text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel">X</button>
                     </header>
                     <div id="container-stream-6"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
@@ -496,24 +502,25 @@
                     <button onclick="switchChat(6)" id="btn-chat-6"
                         class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM6</button>
                 </header>
-                <div class="flex-grow w-full bg-[#18181b] relative">
+                <div class="flex-grow w-full bg-[#18181b] relative z-20">
                     <div id="merged-chat"
                         class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1">
                         <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-xs">
                             Connexion aux tchats...</div>
                     </div>
-                    <!-- Iframes individuels cachés par défaut -->
-                    <iframe id="iframe-chat-1" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
+
+                    <!-- Iframes individuels cachés par défaut (Retrait de absolute, inset-0 et z-10) -->
+                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-2" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
+                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-3" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
+                    <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-4" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
+                    <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-5" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
+                    <iframe id="iframe-chat-5" style="display: none;" class="w-full h-full" src=""
                         frameborder="0"></iframe>
-                    <iframe id="iframe-chat-6" style="display: none;" class="absolute inset-0 w-full h-full z-10" src=""
+                    <iframe id="iframe-chat-6" style="display: none;" class="w-full h-full" src=""
                         frameborder="0"></iframe>
                 </div>
             </div>
@@ -549,7 +556,7 @@
             Tous droits réservés.</p>
     </footer>
 
-<script>
+    <script>
         const mtChat = document.getElementById('merged-chat');
         window.mtClient = null;
         window.twitchPlayers = {};
@@ -614,8 +621,8 @@
                 if (titleEl) titleEl.textContent = newChannel.toUpperCase();
 
                 if (window.mtClient) {
-                    if (oldChannel) window.mtClient.part(oldChannel).catch(() => {});
-                    window.mtClient.join(newChannel).catch(() => {});
+                    if (oldChannel) window.mtClient.part(oldChannel).catch(() => { });
+                    window.mtClient.join(newChannel).catch(() => { });
                 }
             } else {
                 const playerEl = document.getElementById(`player-stream-${slot}`);
@@ -635,7 +642,7 @@
                 if (titleEl) titleEl.textContent = '';
 
                 if (window.mtClient && oldChannel) {
-                    window.mtClient.part(oldChannel).catch(() => {});
+                    window.mtClient.part(oldChannel).catch(() => { });
                 }
             }
 
@@ -681,7 +688,7 @@
         function switchChat(target) {
             const merged = document.getElementById('merged-chat');
             if (merged) merged.style.display = 'none';
-            
+
             for (let i = 1; i <= 6; i++) {
                 const iframe = document.getElementById(`iframe-chat-${i}`);
                 if (iframe) iframe.style.display = 'none';
@@ -767,7 +774,7 @@
             if (fsBtn) {
                 fsBtn.addEventListener('click', () => {
                     if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen().catch(() => {});
+                        document.documentElement.requestFullscreen().catch(() => { });
                     } else {
                         document.exitFullscreen();
                     }
