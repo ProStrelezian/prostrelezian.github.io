@@ -11,14 +11,24 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'https://api.counterapi.dev/v1/zlan_strelezian/visits/up';
 
         fetch(url)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Erreur réseau API');
+                return res.json();
+            })
             .then(data => {
-                if(data && data.count) {
-                    countVal.textContent = data.count;
+                // Gère count ou value au cas où l'API change son format
+                const count = data.count !== undefined ? data.count : data.value;
+                if(count !== undefined) {
+                    countVal.textContent = count;
                     localStorage.setItem('zlan_visited', 'true');
+                } else {
+                    countVal.textContent = "N/A";
                 }
             })
-            .catch(err => console.error('Erreur compteur:', err));
+            .catch(err => {
+                console.error('Erreur compteur:', err);
+                countVal.textContent = "ERR";
+            });
 
         secretBtn.addEventListener('click', () => {
             counterSpan.classList.toggle('hidden');
