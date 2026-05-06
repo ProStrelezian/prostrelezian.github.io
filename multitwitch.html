@@ -485,7 +485,19 @@
                 class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)]"
                 style="border: 2px solid var(--pixel-violet);">
                 <header
-                    class="pixel-header-violet px-1 py-1.5 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#0f0f13] gap-1.5">
+                    class="pixel-header-violet px-1 py-1 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#09090b] gap-1.5 relative">
+                    <div class="w-full flex justify-between items-center px-2 py-0.5 border-b border-[var(--pixel-violet)]/20 mb-0.5">
+                        <span class="text-[8px] font-pixel text-slate-600 uppercase">Twitch Chat System</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[8px] font-pixel text-slate-500 hidden sm:inline">IMPOSSIBLE D'ÉCRIRE ?</span>
+                            <button onclick="window.open('https://www.twitch.tv/login', '_blank', 'width=500,height=600')" 
+                                    title="Si vous n'arrivez pas à écrire, cliquez ici pour vous connecter sur Twitch.tv" 
+                                    class="text-[9px] font-pixel text-[var(--pixel-violet)] hover:text-white transition-colors flex items-center gap-1 bg-[var(--pixel-violet)]/10 px-1.5 py-0.5 rounded shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
+                                <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                                FIX CONNEXION
+                            </button>
+                        </div>
+                    </div>
                     <button onclick="switchChat('merged')" id="btn-chat-merged"
                         class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 transition-colors flex-auto text-center hidden"
                         style="color: var(--pixel-violet);">ALL</button>
@@ -509,19 +521,19 @@
                             Connexion aux tchats...</div>
                     </div>
 
-                    <!-- Iframes individuels cachés par défaut (Retrait de absolute, inset-0 et z-10) -->
+                    <!-- Iframes individuels avec attributs de robustesse pour la connexion -->
                     <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0"></iframe>
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
                     <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0"></iframe>
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
                     <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0"></iframe>
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
                     <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0"></iframe>
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
                     <iframe id="iframe-chat-5" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0"></iframe>
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
                     <iframe id="iframe-chat-6" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0"></iframe>
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
                 </div>
             </div>
         </div>
@@ -541,7 +553,8 @@
                     pour ne vous laisser que les vidéos ! La mise en page de la grille s'adaptera toujours
                     automatiquement de manière optimale selon le nombre de vidéos actives.</p>
                 <p>👉 Le tchat unifié "ALL" fusionne par défaut les messages de tous les canaux actifs pour ne rien
-                    manquer de l'ambiance globale.</p>
+                    manquer de l'ambiance globale. Vous pouvez aussi cliquer sur les onglets des chaînes individuelles pour interagir directement.</p>
+                <p>🔑 <span class="text-[var(--pixel-violet)] font-bold">Problème de connexion au tchat ?</span> Si le bouton "Connexion" dans le tchat ne fonctionne pas, cliquez sur le bouton <span class="text-white bg-[var(--pixel-violet)] px-1 rounded">FIX CONNEXION</span> en haut à droite du tchat. Cela ouvrira Twitch dans un nouvel onglet pour valider votre session. Revenez ensuite ici et rafraîchissez la page !</p>
 
                 <p>💾 <span class="text-[var(--pixel-green)] font-bold">Sauvegarde auto :</span> quittez la page et
                     revenez quand vous le souhaitez, vous retrouverez toujours vos streams configurés exactement comme
@@ -598,6 +611,19 @@
             const chatBtn = document.getElementById(`btn-chat-${slot}`);
             const titleEl = document.getElementById(`title-stream-${slot}`);
 
+            // Configuration des parents pour l'embed Twitch (nécessaire pour l'interaction/chat)
+            const host = window.location.hostname;
+            const hostWithPort = window.location.host; // Inclut le port pour le local (ex: localhost:3000)
+            const parents = ['localhost', '127.0.0.1', 'strelezian.github.io', 'prostrelezian.github.io', 'zlan.guill.tv'];
+            
+            if (host && !parents.includes(host)) parents.push(host);
+            if (hostWithPort && hostWithPort.includes(':')) {
+                const p = hostWithPort.split(':')[0];
+                if (!parents.includes(p)) parents.push(p);
+            }
+            
+            const parentParams = parents.map(p => `parent=${p}`).join('&');
+
             if (newChannel) {
                 if (!window.twitchPlayers[slot]) {
                     window.twitchPlayers[slot] = new Twitch.Player(`player-stream-${slot}`, {
@@ -605,7 +631,7 @@
                         width: '100%',
                         height: '100%',
                         muted: true,
-                        parent: ['localhost', '127.0.0.1', 'strelezian.github.io', 'zlan.guill.tv']
+                        parent: parents
                     });
                 } else {
                     window.twitchPlayers[slot].setChannel(newChannel);
@@ -614,7 +640,7 @@
                 const playerEl = document.getElementById(`player-stream-${slot}`);
                 if (playerEl) playerEl.classList.remove('invisible');
 
-                if (chatIframe) chatIframe.src = `https://www.twitch.tv/embed/${newChannel}/chat?parent=localhost&parent=strelezian.github.io&parent=zlan.guill.tv&darkpopout`;
+                if (chatIframe) chatIframe.src = `https://www.twitch.tv/embed/${newChannel}/chat?${parentParams}&darkpopout`;
                 if (chatBtn) {
                     chatBtn.textContent = newChannel.toUpperCase();
                     chatBtn.classList.remove('hidden');
@@ -622,8 +648,8 @@
                 if (titleEl) titleEl.textContent = newChannel.toUpperCase();
 
                 if (window.mtClient) {
-                    if (oldChannel) window.mtClient.part(oldChannel).catch(() => { });
-                    window.mtClient.join(newChannel).catch(() => { });
+                    if (oldChannel) window.mtClient.part('#' + oldChannel).catch(() => { });
+                    window.mtClient.join('#' + newChannel).catch(() => { });
                 }
             } else {
                 const playerEl = document.getElementById(`player-stream-${slot}`);
@@ -652,7 +678,7 @@
                 if (titleEl) titleEl.textContent = '';
 
                 if (window.mtClient && oldChannel) {
-                    window.mtClient.part(oldChannel).catch(() => { });
+                    window.mtClient.part('#' + oldChannel).catch(() => { });
                 }
             }
 
@@ -660,16 +686,8 @@
             saveChannels();
             updateLayout();
 
-            // Auto-switch to first chat if none active
-            let activeChatVisible = false;
-            for (let i = 1; i <= 6; i++) {
-                const iframe = document.getElementById(`iframe-chat-${i}`);
-                if (iframe && iframe.style.display === 'block') {
-                    activeChatVisible = true;
-                    break;
-                }
-            }
-            if (!activeChatVisible && newChannel) {
+            // Auto-switch to chat of newly added stream
+            if (newChannel) {
                 switchChat(slot);
             }
         }
@@ -844,7 +862,7 @@
             }
 
             // Load TMI
-            const tmiChannels = Object.values(initial).filter(c => c !== '');
+            const tmiChannels = Object.values(initial).filter(c => c !== '').map(c => '#' + c);
             const client = new tmi.Client({ channels: tmiChannels });
             client.connect().catch(console.error);
             window.mtClient = client;
