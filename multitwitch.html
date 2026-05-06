@@ -23,8 +23,8 @@
             overflow: hidden !important;
             padding: 0 !important;
             margin: 0 !important;
-            height: 100% !important;
-            width: 100% !important;
+            height: 100vh !important;
+            width: 100vw !important;
         }
 
         body.is-fullscreen #main-header,
@@ -49,24 +49,22 @@
             align-items: stretch !important;
         }
 
-        @media (min-width: 1024px) {
-            body.is-fullscreen #mt-videos {
-                width: 85vw !important;
-                height: 100vh !important;
-                margin: 0 !important;
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                grid-template-rows: 1fr 1fr !important;
-                gap: 0 !important;
-            }
+        body.is-fullscreen #mt-videos {
+            width: 85vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
+            gap: 0 !important;
+        }
 
-            body.is-fullscreen #mt-chat {
-                width: 15vw !important;
-                height: 100vh !important;
-                border: none !important;
-                margin: 0 !important;
-                position: static !important;
-            }
+        body.is-fullscreen #mt-chat {
+            width: 15vw !important;
+            height: 100vh !important;
+            border: none !important;
+            margin: 0 !important;
+            position: static !important;
         }
 
         body.is-fullscreen .pixel-card {
@@ -148,7 +146,7 @@
             grid-template-rows: 1fr 1fr;
         }
 
-        @media (min-width: 1024px) {
+        @media (min-width: 1280px) {
             .layout-2 {
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: 1fr;
@@ -202,75 +200,70 @@
         }
 
         @media (max-width: 767px) {
-            .layout-2 {
-                grid-template-columns: 1fr !important;
-                grid-template-rows: repeat(2, 1fr) !important;
-            }
-
-            .layout-3 {
-                grid-template-columns: 1fr !important;
-                grid-template-rows: repeat(3, 1fr) !important;
-            }
-
-            .layout-3>.stream-card:first-of-type {
-                grid-column: span 1 !important;
-            }
-
             .layout-4 {
-                grid-template-columns: 1fr !important;
-                grid-template-rows: repeat(4, 1fr) !important;
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr);
             }
 
             .layout-5 {
-                grid-template-columns: 1fr !important;
-                grid-template-rows: repeat(5, 1fr) !important;
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(5, 1fr);
             }
 
             .layout-6 {
-                grid-template-columns: 1fr !important;
-                grid-template-rows: repeat(6, 1fr) !important;
-            }
-
-            /* Fix aspect ratios on mobile to save vertical space */
-            .stream-card {
-                aspect-ratio: 16/9;
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(6, 1fr);
             }
         }
 
-        /* Mobile Optimizations for Fullscreen */
-        @media (max-width: 1023px) {
-            body.is-fullscreen #mt-layout {
-                flex-direction: column !important;
-            }
+        /* Fullscreen Layout Overrides */
+        body.is-fullscreen #mt-videos.layout-1 {
+            grid-template-columns: 1fr !important;
+            grid-template-rows: 1fr !important;
+        }
 
-            body.is-fullscreen #mt-videos {
-                width: 100vw !important;
-                height: 80vh !important;
-            }
+        body.is-fullscreen #mt-videos.layout-2 {
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1fr !important;
+        }
 
-            body.is-fullscreen #mt-chat {
-                width: 100vw !important;
-                height: 20vh !important;
-            }
+        body.is-fullscreen #mt-videos.layout-3 {
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
+        }
 
-            body.is-fullscreen.chat-hidden #mt-videos {
-                height: 100vh !important;
-            }
+        body.is-fullscreen #mt-videos.layout-3>.stream-card:not([style*="display: none"]):first-of-type {
+            grid-column: span 2 !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-4 {
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-5 {
+            grid-template-columns: 1fr 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
+        }
+
+        body.is-fullscreen #mt-videos.layout-6 {
+            grid-template-columns: 1fr 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
         }
     </style>
 </head>
 
-<body class="min-h-screen flex flex-col bg-[#09090b] overflow-x-clip">
+<body class="min-h-screen pb-20 overflow-x-clip">
 
     <header id="main-header"
-        class="p-2 md:p-3 border-b-2 border-[#27272a] mb-4 md:mb-10 bg-[#09090b] sticky top-0 z-50 transition-transform duration-1500 ease-in-out">
+        class="p-2.5 md:p-3 border-b-2 border-[#27272a] mb-6 md:mb-10 bg-[#09090b] sticky top-0 z-50 transition-transform duration-1500 ease-in-out">
         <div
-            class="w-full xl:px-6 2xl:px-8 mx-auto flex flex-col md:flex-row justify-between items-center px-1 md:px-3 gap-2 md:gap-0">
-            <div class="flex items-center gap-3 md:gap-6">
+            class="w-full xl:px-6 2xl:px-8 mx-auto flex flex-col md:flex-row justify-between items-center px-2 md:px-3 gap-4 md:gap-0">
+            <div class="flex items-center gap-6">
                 <h1 class="mt-1 flex items-center">
-                    <img src="./logozlan.png" alt="ZLAN 2026" class="h-8 md:h-20 w-auto object-contain">
+                    <img src="./logozlan.png" alt="ZLAN 2026" class="h-10 md:h-20 w-auto object-contain">
                 </h1>
-                <nav class="flex gap-3 md:gap-4 font-pixel text-[9px] md:text-sm mt-1">
+                <nav class="flex gap-4 font-pixel text-[10px] md:text-sm mt-1">
                     <a href="./guill2025.html" class="text-slate-500 hover:text-white transition-colors"
                         title="Archive Guill 2025">GUILL 2025</a>
                     <a href="./nykho2025.html" class="text-slate-500 hover:text-white transition-colors"
@@ -279,9 +272,9 @@
                 </nav>
             </div>
 
-            <div class="flex flex-row items-center gap-2 md:gap-6 w-full md:w-auto mt-2 md:mt-0 justify-center">
+            <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full md:w-auto mt-4 md:mt-0">
                 <a href="./multitwitch.html"
-                    class="flex items-center gap-1.5 px-2 py-1.5 md:px-4 md:py-2 bg-[var(--pixel-violet)] text-white font-pixel text-[8px] md:text-xs hover:bg-white hover:text-[var(--pixel-violet)] border-2 border-[var(--pixel-violet)] transition-colors duration-300 shadow-[2px_2px_0px_rgba(0,0,0,0.8)] md:shadow-[4px_4px_0px_rgba(0,0,0,0.8)]"
+                    class="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-[var(--pixel-violet)] text-white font-pixel text-[10px] md:text-xs hover:bg-white hover:text-[var(--pixel-violet)] border-2 border-[var(--pixel-violet)] transition-colors duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.8)]"
                     title="Multitwitch">
                     <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">
@@ -292,11 +285,11 @@
                     <span>MULTITWITCH</span>
                 </a>
 
-                <div class="flex items-center font-text text-sm md:text-xl">
+                <div class="flex flex-wrap justify-center items-center font-text text-base md:text-xl">
                     <a href="https://zlan.fr" target="_blank" rel="noopener noreferrer"
-                        class="flex items-center gap-1.5 text-slate-400 hover:text-[var(--pixel-green)] hover:-translate-y-0.5 transition-all duration-300 group"
+                        class="flex items-center gap-2 text-slate-400 hover:text-[var(--pixel-green)] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 group"
                         title="Site Officiel ZLAN">
-                        <svg class="w-3.5 h-3.5 md:w-5 md:h-5 group-hover:text-[var(--pixel-green)] transition-colors"
+                        <svg class="w-4 h-4 md:w-5 md:h-5 group-hover:text-[var(--pixel-green)] transition-colors"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12h20"></path>
@@ -311,68 +304,66 @@
         </div>
     </header>
 
-    <main class="flex-grow w-full 2xl:w-[98%] mx-auto px-2 md:px-4 flex flex-col">
-        <div id="mt-title" class="flex flex-col items-center justify-center mb-6 md:mb-10 px-3 md:px-0">
+    <main class="w-[98%] 2xl:w-[95%] mx-auto px-0 md:px-3 pb-12">
+        <div id="mt-title" class="flex flex-col items-center justify-center mb-10 px-3 md:px-0">
             <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest text-center drop-shadow-[0_0_8px_var(--pixel-violet)]"
                 style="color: var(--pixel-violet)">
                 MULTITWITCH
             </div>
-            <div class="mt-2 font-text text-xs md:text-xl text-slate-500 text-center max-w-2xl px-4">
+            <div class="mt-4 font-text text-sm md:text-xl text-slate-500 text-center max-w-2xl">
                 Suivez simultanément jusqu'à 6 streams en direct sur une seule page !
             </div>
             <button id="fullscreen-btn"
-                class="mt-4 px-4 py-1.5 md:px-6 md:py-2 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] font-pixel text-[10px] md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 shadow-[3px_3px_0px_rgba(0,0,0,0.8)]">
+                class="mt-6 px-6 py-2 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] font-pixel text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.8)]">
                 📺 PLEIN ÉCRAN
             </button>
         </div>
 
         <!-- Stream Controls -->
         <div id="stream-controls"
-            class="flex flex-row flex-wrap justify-center items-center gap-2 md:gap-4 mb-4 md:mb-6 px-2 md:px-0">
-            <div class="flex items-center w-full sm:w-auto justify-center">
+            class="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 md:gap-4 mb-6 px-3 md:px-0">
+            <div class="flex items-center">
                 <input type="text" id="add-stream-input"
-                    class="bg-[#0f0f13] border-2 border-r-0 border-[var(--pixel-violet)] text-white font-pixel text-[10px] md:text-sm px-2 py-1 md:px-3 md:py-1.5 outline-none uppercase w-[120px] xs:w-40 md:w-64"
-                    placeholder="CHAÎNE..." onkeypress="if(event.key==='Enter') addStream()">
+                    class="bg-[#0f0f13] border-2 border-r-0 border-[var(--pixel-violet)] text-white font-pixel text-xs md:text-sm px-3 py-1.5 outline-none uppercase w-40 md:w-64"
+                    placeholder="CHAÎNE TWITCH..." onkeypress="if(event.key==='Enter') addStream()">
                 <button onclick="addStream()"
-                    class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-2 py-1 md:px-3 md:py-1.5 font-pixel text-[10px] md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300">AJOUTER</button>
+                    class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300">AJOUTER</button>
             </div>
-            <div class="flex gap-2 w-full sm:w-auto justify-center">
-                <button onclick="toggleChat()" id="toggle-chat-btn"
-                    class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-2 py-1 md:px-3 md:py-1.5 font-pixel text-[10px] md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-1.5">
-                    <svg class="w-3 h-3 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
-                        </path>
-                    </svg>
-                    <span>SANS TCHAT</span>
-                </button>
-                <button onclick="shareLayout()" id="share-btn"
-                    class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-2 py-1 md:px-3 md:py-1.5 font-pixel text-[10px] md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-1.5">
-                    <svg class="w-3 h-3 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
-                        </path>
-                    </svg>
-                    <span>PARTAGER</span>
-                </button>
-            </div>
+            <button onclick="toggleChat()" id="toggle-chat-btn"
+                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                    </path>
+                </svg>
+                <span>SANS TCHAT</span>
+            </button>
+            <button onclick="shareLayout()" id="share-btn"
+                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                    </path>
+                </svg>
+                <span>PARTAGER</span>
+            </button>
             <button onclick="resetStreams()" id="reset-btn"
-                class="w-full sm:w-auto bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-2 py-1 md:px-3 md:py-1.5 font-pixel text-[10px] md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center justify-center gap-1.5">
-                <svg class="w-3 h-3 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
                     </path>
                 </svg>
-                <span>RESET</span>
+                <span>RESET (GUILL & NYKHO)</span>
             </button>
         </div>
 
-        <div id="mt-layout" class="flex-grow flex flex-col xl:flex-row gap-3 md:gap-4 items-stretch mb-8">
+        <div id="mt-layout" class="flex flex-col xl:flex-row gap-2 md:gap-3 items-start">
             <!-- Videos Container -->
-            <div id="mt-videos" class="flex-grow grid gap-3 md:gap-4 w-full xl:w-3/4 min-h-[500px] xl:min-h-[600px]">
+            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)]">
                 <!-- Stream 1 -->
                 <div id="card-stream-1" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
                     style="border: 2px solid var(--pixel-orange);" draggable="true"
@@ -389,7 +380,7 @@
                     <div id="container-stream-1"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
                         <div id="player-stream-1"
-                            class="w-full h-full aspect-video lg:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible">
+                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible">
                         </div>
                     </div>
                 </div>
@@ -408,7 +399,7 @@
                     <div id="container-stream-2"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
                         <div id="player-stream-2"
-                            class="w-full h-full aspect-video lg:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible">
+                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible">
                         </div>
                     </div>
                 </div>
@@ -429,7 +420,7 @@
                     <div id="container-stream-3"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
                         <div id="player-stream-3"
-                            class="w-full h-full aspect-video lg:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.1)] invisible z-10">
+                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.1)] invisible z-10">
                         </div>
                     </div>
                 </div>
@@ -447,7 +438,7 @@
                     </header>
                     <div id="container-stream-4"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-4" class="w-full h-full aspect-video lg:aspect-auto flex-grow invisible z-10">
+                        <div id="player-stream-4" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
                         </div>
                     </div>
                 </div>
@@ -465,7 +456,7 @@
                     </header>
                     <div id="container-stream-5"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-5" class="w-full h-full aspect-video lg:aspect-auto flex-grow invisible z-10">
+                        <div id="player-stream-5" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
                         </div>
                     </div>
                 </div>
@@ -483,7 +474,7 @@
                     </header>
                     <div id="container-stream-6"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-6" class="w-full h-full aspect-video lg:aspect-auto flex-grow invisible z-10">
+                        <div id="player-stream-6" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
                         </div>
                     </div>
                 </div>
@@ -491,87 +482,62 @@
 
             <!-- Merged Chat Container -->
             <div id="mt-chat"
-                class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-auto"
+                class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)]"
                 style="border: 2px solid var(--pixel-violet);">
                 <header
                     class="pixel-header-violet px-1 py-1 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#09090b] gap-1.5 relative">
-                    <div
-                        class="w-full flex justify-between items-center px-2 py-0.5 border-b border-[var(--pixel-violet)]/20 mb-0.5">
+                    <div class="w-full flex justify-between items-center px-2 py-0.5 border-b border-[var(--pixel-violet)]/20 mb-0.5">
                         <span class="text-[8px] font-pixel text-slate-600 uppercase">Twitch Chat System</span>
                         <div class="flex items-center gap-2">
-                            <span class="text-[8px] font-pixel text-slate-500 hidden sm:inline">IMPOSSIBLE D'ÉCRIRE
-                                ?</span>
-                            <button
-                                onclick="window.open('https://www.twitch.tv/login', '_blank', 'width=500,height=600')"
-                                title="Si vous n'arrivez pas à écrire, cliquez ici pour vous connecter sur Twitch.tv"
-                                class="text-[9px] font-pixel text-[var(--pixel-violet)] hover:text-white transition-colors flex items-center gap-1 bg-[var(--pixel-violet)]/10 px-1.5 py-0.5 rounded shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
-                                <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
-                                </svg>
+                            <span class="text-[8px] font-pixel text-slate-500 hidden sm:inline">IMPOSSIBLE D'ÉCRIRE ?</span>
+                            <button onclick="window.open('https://www.twitch.tv/login', '_blank', 'width=500,height=600')" 
+                                    title="Si vous n'arrivez pas à écrire, cliquez ici pour vous connecter sur Twitch.tv" 
+                                    class="text-[9px] font-pixel text-[var(--pixel-violet)] hover:text-white transition-colors flex items-center gap-1 bg-[var(--pixel-violet)]/10 px-1.5 py-0.5 rounded shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
+                                <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
                                 FIX CONNEXION
                             </button>
                         </div>
                     </div>
                     <button onclick="switchChat('merged')" id="btn-chat-merged"
-                        class="chat-tab-btn text-[9px] md:text-xs font-pixel px-1.5 py-1 transition-colors flex-auto text-center hidden"
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 transition-colors flex-auto text-center hidden"
                         style="color: var(--pixel-violet);">ALL</button>
                     <button onclick="switchChat(1)" id="btn-chat-1"
-                        class="chat-tab-btn text-[9px] md:text-xs font-pixel px-1.5 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM1</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM1</button>
                     <button onclick="switchChat(2)" id="btn-chat-2"
-                        class="chat-tab-btn text-[9px] md:text-xs font-pixel px-1.5 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM2</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM2</button>
                     <button onclick="switchChat(3)" id="btn-chat-3"
-                        class="chat-tab-btn text-[9px] md:text-xs font-pixel px-1.5 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM3</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM3</button>
                     <button onclick="switchChat(4)" id="btn-chat-4"
-                        class="chat-tab-btn text-[9px] md:text-xs font-pixel px-1.5 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM4</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM4</button>
                     <button onclick="switchChat(5)" id="btn-chat-5"
-                        class="chat-tab-btn text-[9px] md:text-xs font-pixel px-1.5 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM5</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM5</button>
                     <button onclick="switchChat(6)" id="btn-chat-6"
-                        class="chat-tab-btn text-[9px] md:text-xs font-pixel px-1.5 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM6</button>
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM6</button>
                 </header>
                 <div class="flex-grow w-full bg-[#18181b] relative z-20">
                     <div id="merged-chat"
-                        class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1"
-                        style="display: none;">
+                        class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1" style="display: none;">
                         <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-xs">
                             Connexion aux tchats...</div>
                     </div>
 
                     <!-- Iframes individuels avec attributs de robustesse pour la connexion -->
-                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src="" frameborder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src="" frameborder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src="" frameborder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src="" frameborder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-5" style="display: none;" class="w-full h-full" src="" frameborder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-6" style="display: none;" class="w-full h-full" src="" frameborder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src=""
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src=""
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src=""
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src=""
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-5" style="display: none;" class="w-full h-full" src=""
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-6" style="display: none;" class="w-full h-full" src=""
+                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
                 </div>
             </div>
         </div>
     </main>
-
-    <!-- Custom Alerts Container -->
-    <div id="pixel-alerts" class="pixel-alert-container"></div>
-
-    <!-- Custom Confirm Modal -->
-    <div id="pixel-modal-overlay" class="pixel-modal-overlay">
-        <div class="pixel-modal">
-            <div class="pixel-modal-title">
-                <span class="w-3 h-3 bg-[var(--pixel-violet)]"></span>
-                CONFIRMATION
-            </div>
-            <div id="pixel-modal-text" class="pixel-modal-content"></div>
-            <div class="pixel-modal-actions">
-                <button id="pixel-modal-cancel" class="pixel-btn-cancel">ANNULER</button>
-                <button id="pixel-modal-confirm" class="pixel-btn-confirm">CONFIRMER</button>
-            </div>
-        </div>
-    </div>
 
     <section class="w-[98%] 2xl:w-[95%] mx-auto px-2 md:px-3 mb-8">
         <div class="pixel-card w-full max-w-[920px] mx-auto bg-[#0f0f13] p-4 md:p-6 text-center"
@@ -587,13 +553,8 @@
                     pour ne vous laisser que les vidéos ! La mise en page de la grille s'adaptera toujours
                     automatiquement de manière optimale selon le nombre de vidéos actives.</p>
                 <p>👉 Le tchat unifié "ALL" fusionne par défaut les messages de tous les canaux actifs pour ne rien
-                    manquer de l'ambiance globale. Vous pouvez aussi cliquer sur les onglets des chaînes individuelles
-                    pour interagir directement.</p>
-                <p>🔑 <span class="text-[var(--pixel-violet)] font-bold">Problème de connexion au tchat ?</span> Si le
-                    bouton "Connexion" dans le tchat ne fonctionne pas, cliquez sur le bouton <span
-                        class="text-white bg-[var(--pixel-violet)] px-1 rounded">FIX CONNEXION</span> en haut à droite
-                    du tchat. Cela ouvrira Twitch dans un nouvel onglet pour valider votre session. Revenez ensuite ici
-                    et rafraîchissez la page !</p>
+                    manquer de l'ambiance globale. Vous pouvez aussi cliquer sur les onglets des chaînes individuelles pour interagir directement.</p>
+                <p>🔑 <span class="text-[var(--pixel-violet)] font-bold">Problème de connexion au tchat ?</span> Si le bouton "Connexion" dans le tchat ne fonctionne pas, cliquez sur le bouton <span class="text-white bg-[var(--pixel-violet)] px-1 rounded">FIX CONNEXION</span> en haut à droite du tchat. Cela ouvrira Twitch dans un nouvel onglet pour valider votre session. Revenez ensuite ici et rafraîchissez la page !</p>
 
                 <p>💾 <span class="text-[var(--pixel-green)] font-bold">Sauvegarde auto :</span> quittez la page et
                     revenez quand vous le souhaitez, vous retrouverez toujours vos streams configurés exactement comme
@@ -637,7 +598,7 @@
                     }
                 }
             }
-            mtVideos.className = `flex-grow grid gap-3 md:gap-4 w-full xl:w-3/4 min-h-[500px] xl:min-h-[600px] layout-${activeCount}`;
+            mtVideos.className = `flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)] layout-${activeCount}`;
         }
 
         function updateStream(slot, channelName) {
@@ -654,13 +615,13 @@
             const host = window.location.hostname;
             const hostWithPort = window.location.host; // Inclut le port pour le local (ex: localhost:3000)
             const parents = ['localhost', '127.0.0.1', 'strelezian.github.io', 'prostrelezian.github.io', 'zlan.guill.tv'];
-
+            
             if (host && !parents.includes(host)) parents.push(host);
             if (hostWithPort && hostWithPort.includes(':')) {
                 const p = hostWithPort.split(':')[0];
                 if (!parents.includes(p)) parents.push(p);
             }
-
+            
             const parentParams = parents.map(p => `parent=${p}`).join('&');
 
             if (newChannel) {
@@ -757,7 +718,7 @@
                 updateStream(emptySlot, newChannel);
                 input.value = '';
             } else {
-                showAlert("Vous avez déjà 6 streams actifs !", "error");
+                alert("Vous avez déjà 6 streams actifs !");
             }
         }
 
@@ -821,12 +782,12 @@
         }
 
         function resetStreams() {
-            showConfirm("Voulez-vous vraiment réinitialiser les streams pour n'afficher que TheGuill84 et Nykho ?", () => {
+            if (confirm("Voulez-vous vraiment réinitialiser les streams pour n'afficher que TheGuill84 et Nykho ?")) {
                 const initial = { 1: 'theguill84', 2: 'nykho', 3: '', 4: '', 5: '', 6: '' };
                 for (let i = 1; i <= 6; i++) {
                     updateStream(i, initial[i]);
                 }
-            });
+            }
         }
 
         function shareLayout() {
@@ -835,72 +796,16 @@
                 if (window.currentChannels[i]) activeStreams.push(window.currentChannels[i]);
             }
             if (activeStreams.length === 0) {
-                showAlert("Ajoutez au moins un stream !", "error");
+                alert("Ajoutez au moins un stream !");
                 return;
             }
             const url = new URL(window.location.href);
             url.searchParams.set('streams', activeStreams.join(','));
             navigator.clipboard.writeText(url.toString()).then(() => {
-                showAlert("Lien copié !", "success");
+                alert("Lien copié !");
             }).catch(() => {
-                showAlert("Erreur de copie : " + url.toString(), "error");
+                alert("Erreur de copie : " + url.toString());
             });
-        }
-
-        // --- CUSTOM ALERTS & MODALS ---
-        function showAlert(message, type = 'info') {
-            const container = document.getElementById('pixel-alerts');
-            if (!container) return;
-
-            const alert = document.createElement('div');
-            alert.className = `pixel-alert alert-${type}`;
-            alert.innerHTML = `<span>${message}</span>`;
-
-            container.appendChild(alert);
-
-            alert.onclick = () => {
-                alert.classList.add('fade-out');
-                setTimeout(() => alert.remove(), 300);
-            };
-
-            setTimeout(() => {
-                if (alert.parentElement) {
-                    alert.classList.add('fade-out');
-                    setTimeout(() => alert.remove(), 300);
-                }
-            }, 6000);
-        }
-
-        function showConfirm(message, callback) {
-            const overlay = document.getElementById('pixel-modal-overlay');
-            const text = document.getElementById('pixel-modal-text');
-            const confirmBtn = document.getElementById('pixel-modal-confirm');
-            const cancelBtn = document.getElementById('pixel-modal-cancel');
-
-            if (!overlay || !text || !confirmBtn || !cancelBtn) return;
-
-            text.textContent = message;
-            overlay.classList.add('active');
-
-            const cleanup = () => {
-                overlay.classList.remove('active');
-                confirmBtn.onclick = null;
-                cancelBtn.onclick = null;
-            };
-
-            confirmBtn.onclick = () => {
-                cleanup();
-                callback();
-            };
-
-            cancelBtn.onclick = () => {
-                cleanup();
-            };
-
-            // Close on overlay click
-            overlay.onclick = (e) => {
-                if (e.target === overlay) cleanup();
-            };
         }
 
         // 3. Initialization
