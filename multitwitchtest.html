@@ -628,8 +628,8 @@
                 if (titleEl) titleEl.textContent = newChannel.toUpperCase();
 
                 if (window.mtClient) {
-                    if (oldChannel) window.mtClient.part(oldChannel).catch(() => { });
-                    window.mtClient.join(newChannel).catch(() => { });
+                    if (oldChannel) window.mtClient.part('#' + oldChannel).catch(() => { });
+                    window.mtClient.join('#' + newChannel).catch(() => { });
                 }
             } else {
                 const playerEl = document.getElementById(`player-stream-${slot}`);
@@ -658,7 +658,7 @@
                 if (titleEl) titleEl.textContent = '';
 
                 if (window.mtClient && oldChannel) {
-                    window.mtClient.part(oldChannel).catch(() => { });
+                    window.mtClient.part('#' + oldChannel).catch(() => { });
                 }
             }
 
@@ -666,16 +666,8 @@
             saveChannels();
             updateLayout();
 
-            // Auto-switch to first chat if none active
-            let activeChatVisible = false;
-            for (let i = 1; i <= 6; i++) {
-                const iframe = document.getElementById(`iframe-chat-${i}`);
-                if (iframe && iframe.style.display === 'block') {
-                    activeChatVisible = true;
-                    break;
-                }
-            }
-            if (!activeChatVisible && newChannel) {
+            // Auto-switch to chat of newly added stream
+            if (newChannel) {
                 switchChat(slot);
             }
         }
@@ -850,7 +842,7 @@
             }
 
             // Load TMI
-            const tmiChannels = Object.values(initial).filter(c => c !== '');
+            const tmiChannels = Object.values(initial).filter(c => c !== '').map(c => '#' + c);
             const client = new tmi.Client({ channels: tmiChannels });
             client.connect().catch(console.error);
             window.mtClient = client;
