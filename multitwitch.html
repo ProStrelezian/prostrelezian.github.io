@@ -23,8 +23,8 @@
             overflow: hidden !important;
             padding: 0 !important;
             margin: 0 !important;
-            height: 100vh !important;
-            width: 100vw !important;
+            height: 100% !important;
+            width: 100% !important;
         }
 
         body.is-fullscreen #main-header,
@@ -148,7 +148,7 @@
             grid-template-rows: 1fr 1fr;
         }
 
-        @media (min-width: 1280px) {
+        @media (min-width: 1024px) {
             .layout-2 {
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: 1fr;
@@ -260,7 +260,7 @@
     </style>
 </head>
 
-<body class="min-h-screen pb-20 overflow-x-clip">
+<body class="min-h-screen flex flex-col bg-[#09090b] overflow-x-clip">
 
     <header id="main-header"
         class="p-2 md:p-3 border-b-2 border-[#27272a] mb-4 md:mb-10 bg-[#09090b] sticky top-0 z-50 transition-transform duration-1500 ease-in-out">
@@ -311,7 +311,7 @@
         </div>
     </header>
 
-    <main class="w-[98%] 2xl:w-[95%] mx-auto px-0 md:px-3 pb-12">
+    <main class="flex-grow w-full 2xl:w-[98%] mx-auto px-2 md:px-4 flex flex-col">
         <div id="mt-title" class="flex flex-col items-center justify-center mb-6 md:mb-10 px-3 md:px-0">
             <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest text-center drop-shadow-[0_0_8px_var(--pixel-violet)]"
                 style="color: var(--pixel-violet)">
@@ -370,9 +370,9 @@
             </button>
         </div>
 
-        <div id="mt-layout" class="flex flex-col xl:flex-row gap-2 md:gap-3 items-start">
+        <div id="mt-layout" class="flex-grow flex flex-col xl:flex-row gap-3 md:gap-4 items-stretch mb-8">
             <!-- Videos Container -->
-            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)]">
+            <div id="mt-videos" class="flex-grow grid gap-3 md:gap-4 w-full xl:w-3/4 min-h-[500px] xl:min-h-[600px]">
                 <!-- Stream 1 -->
                 <div id="card-stream-1" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
                     style="border: 2px solid var(--pixel-orange);" draggable="true"
@@ -389,7 +389,7 @@
                     <div id="container-stream-1"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
                         <div id="player-stream-1"
-                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible">
+                            class="w-full h-full aspect-video lg:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible">
                         </div>
                     </div>
                 </div>
@@ -408,7 +408,7 @@
                     <div id="container-stream-2"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
                         <div id="player-stream-2"
-                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible">
+                            class="w-full h-full aspect-video lg:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible">
                         </div>
                     </div>
                 </div>
@@ -429,7 +429,7 @@
                     <div id="container-stream-3"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
                         <div id="player-stream-3"
-                            class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.1)] invisible z-10">
+                            class="w-full h-full aspect-video lg:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.1)] invisible z-10">
                         </div>
                     </div>
                 </div>
@@ -447,7 +447,7 @@
                     </header>
                     <div id="container-stream-4"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-4" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
+                        <div id="player-stream-4" class="w-full h-full aspect-video lg:aspect-auto flex-grow invisible z-10">
                         </div>
                     </div>
                 </div>
@@ -465,7 +465,7 @@
                     </header>
                     <div id="container-stream-5"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-5" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
+                        <div id="player-stream-5" class="w-full h-full aspect-video lg:aspect-auto flex-grow invisible z-10">
                         </div>
                     </div>
                 </div>
@@ -483,7 +483,7 @@
                     </header>
                     <div id="container-stream-6"
                         class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-6" class="w-full aspect-video xl:aspect-auto flex-grow invisible z-10">
+                        <div id="player-stream-6" class="w-full h-full aspect-video lg:aspect-auto flex-grow invisible z-10">
                         </div>
                     </div>
                 </div>
@@ -491,7 +491,7 @@
 
             <!-- Merged Chat Container -->
             <div id="mt-chat"
-                class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)]"
+                class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-auto"
                 style="border: 2px solid var(--pixel-violet);">
                 <header
                     class="pixel-header-violet px-1 py-1 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#09090b] gap-1.5 relative">
@@ -637,7 +637,7 @@
                     }
                 }
             }
-            mtVideos.className = `flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)] layout-${activeCount}`;
+            mtVideos.className = `flex-grow grid gap-3 md:gap-4 w-full xl:w-3/4 min-h-[500px] xl:min-h-[600px] layout-${activeCount}`;
         }
 
         function updateStream(slot, channelName) {
