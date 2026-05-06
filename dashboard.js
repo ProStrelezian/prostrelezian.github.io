@@ -7,7 +7,7 @@ const isGroupPhase = (row) => {
     const cells = Array.isArray(row) ? row.slice(0, 3) : [row];
     return cells.some(cell => {
         const t = String(cell || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        return t.includes("PHASE DE GROUPE") || t.includes("PHASE A") || t.includes("PHASE FINALE");
+        return t.includes("PHASE") && !t.includes("SEEDING") && !t.includes("KNOCKOUT");
     });
 };
 
@@ -46,14 +46,16 @@ class ZlanDashboard {
                 },
                 error: (err) => {
                     console.error(err);
-                    statusEl.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-red)] shadow-[0_0_8px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)">ERREUR PARSE</span>`;
+                    const timeString = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    statusEl.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-red)] shadow-[0_0_8px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)" class="whitespace-nowrap">ERREUR PARSE (${timeString})</span>`;
                     this.isFetching = false;
                     setTimeout(() => this.init(), 30000);
                 }
             });
         } catch (error) {
             console.error("Erreur :", error);
-            statusEl.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-red)] shadow-[0_0_8px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)">HORS LIGNE</span>`;
+            const timeString = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            statusEl.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-red)] shadow-[0_0_8px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)" class="whitespace-nowrap">HORS LIGNE (${timeString})</span>`;
             this.isFetching = false;
             setTimeout(() => this.init(), 30000);
         }
@@ -65,14 +67,31 @@ class ZlanDashboard {
         let htmlChunks = { team: "", seeding: "", knockout: "", groups: "", finalRank: "" };
         let state = { seedingFinished: false, knockoutFinished: false, groupFinished: true, tournamentOver: false, tournamentWon: false };
 
+        let animDelay = 0;
+        let bluePhaseCount = 0;
         let lastValidRowIndex = data.findLastIndex(row => row.some(c => c?.trim()));
 
-        for (let i = 0; i < data.length; i++) {
+        // --- PRE-CHECK FINAL RESULT ---
+        let finalRankText = "";
+        if (lastValidRowIndex >= 0) {
+            let finalRow = data[lastValidRowIndex];
+            let r0Final = String(finalRow[0] || "");
+            let text = r0Final || finalRow.find(c => c?.trim()) || "";
+            let filledCellsCount = finalRow.filter(c => c?.trim()).length;
+            let isFinalResultKw = ["TOP", "ÉLIMIN", "ELIMIN", "WIN", "GAGNÉ", "1ER", "2EME", "3EME", "RÉSULTAT", "FIN "].some(kw => has(text, kw));
+            let isPhaseHeader = has(text, "PHASE") || has(text, "JEUX") || isGroupPhase(finalRow);
+
+            if (text && !isPhaseHeader && (!this.is2026 || isFinalResultKw || filledCellsCount <= 2)) {
+                finalRankText = text;
+                lastValidRowIndex--;
+            }
+        }
+
+        for (let i = 0; i <= lastValidRowIndex; i++) {
             const row = data[i];
             const r0 = String(row[0] || "");
-            const isLastRow = (i === lastValidRowIndex);
 
-            if (state.tournamentOver && !isLastRow) continue;
+            if (state.tournamentOver) continue;
 
             // --- 1. JOUEURS ENGAGÉS ---
             let teamText = row.find(c => has(c, "TEAM :") || has(c, "TEAM:"));
@@ -94,32 +113,12 @@ class ZlanDashboard {
                     </section>`;
             }
 
-            // --- 2. RÉSULTAT FINAL ---
-            if (isLastRow) {
-                let finalRankText = r0 || row.find(c => c?.trim()) || "";
-                if (finalRankText?.trim()) {
-                    let isWin = ["WIN", "1ER", "GAGNÉ", "OUI", "TOP 1"].some(kw => has(finalRankText, kw));
-                    if (isWin) state.tournamentWon = true;
-
-                    let colorVar = state.tournamentWon ? "var(--pixel-green)" : (state.tournamentOver ? "var(--pixel-red)" : "var(--pixel-green)");
-                    let bgColor = state.tournamentWon ? "rgba(100, 255, 218, 0.05)" : (state.tournamentOver ? "rgba(229, 57, 53, 0.05)" : "rgba(100, 255, 218, 0.05)");
-
-                    htmlChunks.finalRank = `
-                        <section class="mt-6 md:mt-12 mb-10 md:mb-16 flex justify-center w-full px-2 md:px-0">
-                            <div class="pixel-card border-2 px-4 py-5 md:px-10 md:p-13 w-full max-w-[720px]" style="border-color: ${colorVar}; text-align: center; background: ${bgColor};">
-                                <h2 class="text-slate-400 font-text text-lg md:text-3xl mb-1 tracking-widest">RÉSULTAT FINAL</h2>
-                                <p class="text-2xl md:text-6xl font-pixel tracking-widest" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.5);">${finalRankText}</p>
-                            </div>
-                        </section>`;
-                }
-            }
-
             // --- 3. PHASE DE SEEDING ---
             else if (has(r0, "PHASE DE SEEDING")) {
                 let games = [];
                 let seedingScore = "";
                 let j = i + 1;
-                while (j < data.length && !has(data[j][0], "PHASE DE KNOCKOUT") && j !== lastValidRowIndex) {
+                while (j <= lastValidRowIndex && !has(String(data[j][0] || ""), "PHASE DE KNOCKOUT")) {
                     let subRow = data[j];
                     if (subRow[0] && !has(subRow[0], "JEUX")) {
                         games.push({ name: subRow[0], place: subRow[3], heure: subRow[9] || subRow[10] || '' });
@@ -173,14 +172,14 @@ class ZlanDashboard {
             // --- 4. PHASE DE KNOCKOUT ---
             else if (has(r0, "PHASE DE KNOCKOUT")) {
                 if (!state.seedingFinished) {
-                    while (i + 1 < data.length && !isGroupPhase(String(data[i + 1][0]))) i++;
+                    while (i + 1 <= lastValidRowIndex && !isGroupPhase(data[i + 1])) i++;
                     continue;
                 }
 
                 let games = [], qualifKnockout = "", qualifKnockoutScore = "";
                 let j = i + 1;
 
-                while (j < data.length && !isGroupPhase(String(data[j][0])) && j !== lastValidRowIndex) {
+                while (j <= lastValidRowIndex && !isGroupPhase(data[j])) {
                     let subRow = data[j];
                     let qualifIdx = subRow.findIndex(c => has(c, "QUALIFIÉ"));
 
@@ -277,17 +276,17 @@ class ZlanDashboard {
             // --- 5. GROUPES & FINALES ---
             else if (isGroupPhase(row)) {
                 if (!state.knockoutFinished || !state.groupFinished) {
-                    while (i + 1 < data.length && !isGroupPhase(data[i + 1])) i++;
+                    while (i + 1 <= lastValidRowIndex && !isGroupPhase(data[i + 1])) i++;
                     continue;
                 }
 
                 let groupTitle = row.find(c => isGroupPhase(c)) || row[0];
                 let teamsTitle = "", teams = "", games = [], qualifStatus = "", qualifStatusScore = "";
                 let isFinale = has(groupTitle, "PHASE FINALE");
-                let isPhaseA = has(groupTitle, "PHASE A") || has(groupTitle, "PHASE À");
+                let isRedPhase = has(groupTitle, "PHASE A") || has(groupTitle, "PHASE À 4") || has(groupTitle, "PHASE À 3") || has(groupTitle, "PHASE À");
 
                 let j = i + 1;
-                while (j < data.length && !isGroupPhase(data[j]) && j !== lastValidRowIndex) {
+                while (j <= lastValidRowIndex && !isGroupPhase(data[j])) {
                     let subRow = data[j];
                     let qualifIdx = subRow.findIndex(c => has(c, "QUALIFIÉ") || has(c, "WIN"));
 
@@ -312,8 +311,15 @@ class ZlanDashboard {
                     j++;
                 }
 
-                let headerClass = isFinale ? "pixel-header-violet" : (isPhaseA ? "pixel-header-red" : "pixel-header-blue");
-                let titleColor = isFinale ? "var(--pixel-violet)" : (isPhaseA ? "var(--pixel-red)" : "var(--pixel-blue)");
+                let headerClass = isFinale ? "pixel-header-violet" : (isRedPhase ? "pixel-header-red" : "pixel-header-blue");
+                let titleColor = isFinale ? "var(--pixel-violet)" : (isRedPhase ? "var(--pixel-red)" : "var(--pixel-blue)");
+
+                // Appliquer un dégradé de bleus dynamiquement pour les phases de groupes standards
+                if (!isFinale && !isRedPhase) {
+                    const blueShades = ["#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"];
+                    titleColor = blueShades[bluePhaseCount % blueShades.length];
+                    bluePhaseCount++;
+                }
 
                 let gamesHtml = games.map((g, idx) => {
                     let resultText = isFinale ? (g.placeJeu || g.place) : g.place;
@@ -391,6 +397,25 @@ class ZlanDashboard {
             }
         }
 
+        // --- 2. GÉNÉRATION DU RÉSULTAT FINAL ---
+        if (finalRankText) {
+            let isWin = ["WIN", "1ER", "GAGNÉ", "OUI", "TOP 1"].some(kw => has(finalRankText, kw));
+            if (isWin) { state.tournamentWon = true; state.tournamentOver = true; }
+
+            if (has(finalRankText, "ÉLIMIN") || has(finalRankText, "ELIMIN")) state.tournamentOver = true;
+
+            let colorVar = state.tournamentWon ? "var(--pixel-green)" : (state.tournamentOver ? "var(--pixel-red)" : "var(--pixel-green)");
+            let bgColor = state.tournamentWon ? "rgba(100, 255, 218, 0.05)" : (state.tournamentOver ? "rgba(229, 57, 53, 0.05)" : "rgba(100, 255, 218, 0.05)");
+
+            htmlChunks.finalRank = `
+                <section class="pixel-animate-enter mt-6 md:mt-12 mb-10 md:mb-16 flex justify-center w-full px-2 md:px-0" style="animation-delay: ${animDelay}s;">
+                    <div class="pixel-card border-2 px-4 py-5 md:px-10 md:p-13 w-full max-w-[720px]" style="border-color: ${colorVar}; text-align: center; background: ${bgColor};">
+                        <h2 class="text-slate-400 font-text text-lg md:text-3xl mb-1 tracking-widest">RÉSULTAT FINAL</h2>
+                        <p class="text-2xl md:text-6xl font-pixel tracking-widest" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.5);">${finalRankText}</p>
+                    </div>
+                </section>`;
+        }
+
         const container = document.getElementById('dashboard-container');
         const fullHtml = htmlChunks.team + htmlChunks.seeding + htmlChunks.knockout + (htmlChunks.groups ? `<div>${htmlChunks.groups}</div>` : '') + htmlChunks.finalRank;
 
@@ -399,8 +424,8 @@ class ZlanDashboard {
         }
 
         const status = document.getElementById('status');
-        status.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-green)] shadow-[0_0_8px_rgba(100,255,218,1)]"></span> <span style="color: var(--pixel-green)">SYNC OK</span>`;
-        status.className = "font-text text-lg md:text-xl flex items-center justify-center gap-2 mt-1 md:mt-0 w-full md:w-auto";
+        const timeString = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        status.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-green)] shadow-[0_0_8px_rgba(100,255,218,1)]"></span> <span style="color: var(--pixel-green)" class="whitespace-nowrap">SYNC OK (${timeString})</span>`;
     }
 
     async checkTwitchLive() {

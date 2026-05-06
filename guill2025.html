@@ -22,37 +22,42 @@
 <body class="min-h-screen pb-20 overflow-x-clip">
 
     <header id="main-header"
-        class="p-2.5 md:p-3 border-b-2 border-[#27272a] mb-6 md:mb-10 bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50 transition-transform duration-1500 ease-in-out">
-        <div class="w-[80%] mx-auto flex flex-col md:flex-row justify-between items-center px-2 md:px-3 gap-4 md:gap-0">
-            <div class="flex items-center gap-6">
-                <h1 class="mt-1 flex items-center">
-                    <img src="./logozlan.png" alt="ZLAN 2025" class="h-10 md:h-20 w-auto object-contain">
-                </h1>
-                <nav class="flex gap-4 font-pixel text-[10px] md:text-sm mt-1">
-                    <a href="./guill2025.html"
-                        class="text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)] drop-shadow-[0_0_8px_var(--pixel-green)]"
-                        title="Archive Guill 2025">GUILL 2025</a>
-                    <a href="./nykho2025.html" class="text-slate-500 hover:text-white transition-colors"
-                        title="Archive Nykho 2025">NYKHO 2025</a>
-                    <a href="./index.html" class="text-slate-500 hover:text-white transition-colors">2026</a>
-                </nav>
-            </div>
+        class="py-2 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 border-b-4 border-[#27272a] mb-6 md:mb-10 bg-[#09090b]/95 backdrop-blur-md sticky top-0 z-50 transition-all duration-500 ease-in-out shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+        <div class="w-full xl:w-[95%] 2xl:w-[90%] mx-auto">
+            <div class="flex flex-wrap xl:flex-nowrap justify-between items-center">
+                <a href="./index.html" class="group mt-1 flex items-center transition-transform hover:scale-105 duration-300 shrink-0">
+                    <img src="./logozlan.png" alt="ZLAN" class="h-10 sm:h-14 lg:h-20 w-auto object-contain drop-shadow-[0_0_4px_rgba(255,255,255,0.2)] group-hover:drop-shadow-[0_0_12px_var(--pixel-green)] transition-all">
+                </a>
 
-            <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full md:w-auto mt-4 md:mt-0">
+                <!-- Hamburger Button -->
+                <button id="mobile-menu-btn" class="xl:hidden text-slate-400 hover:text-white focus:outline-none p-2 mr-1">
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path id="mobile-menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <div id="mobile-menu" class="hidden w-full xl:flex xl:flex-1 xl:justify-between flex-col xl:flex-row items-center gap-4 xl:gap-8 mt-3 xl:mt-0 pt-4 xl:pt-0 border-t-2 border-[#27272a] xl:border-none xl:ml-6">
+                <nav class="w-full xl:w-auto flex flex-wrap justify-center gap-1 sm:gap-2 lg:gap-4 font-pixel text-[10px] sm:text-xs lg:text-sm bg-black/40 p-1.5 sm:p-2 rounded-lg border border-[#27272a]">
+                    <a href="./guill2025.html" class="px-2 sm:px-3 py-1 sm:py-1.5 text-[var(--pixel-green)] border-b-2 border-[var(--pixel-green)] drop-shadow-[0_0_8px_var(--pixel-green)] bg-white/5 rounded-t transition-all duration-300 whitespace-nowrap" title="Archive Guill 2025">GUILL 2025</a>
+                    <a href="./nykho2025.html" class="px-2 sm:px-3 py-1 sm:py-1.5 text-slate-500 hover:text-white hover:bg-white/10 rounded transition-all duration-300 whitespace-nowrap" title="Archive Nykho 2025">NYKHO 2025</a>
+                    <a href="./index.html" class="px-2 sm:px-3 py-1 sm:py-1.5 text-slate-500 hover:text-white hover:bg-white/10 rounded transition-all duration-300 whitespace-nowrap" title="ZLAN 2026">2026</a>
+                </nav>
+
+                <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:gap-6 w-full xl:w-auto">
                 <a href="./multitwitch.html"
-                    class="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-[var(--pixel-violet)] text-white font-pixel text-[10px] md:text-xs hover:bg-white hover:text-[var(--pixel-violet)] border-2 border-[var(--pixel-violet)] transition-colors duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.8)]"
+                    class="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-[var(--pixel-violet)] text-white font-pixel text-[10px] sm:text-xs lg:text-sm hover:bg-white hover:text-[var(--pixel-violet)] border-2 border-[var(--pixel-violet)] transition-all duration-300 shadow-[2px_2px_0px_rgba(0,0,0,0.8)] sm:shadow-[4px_4px_0px_rgba(0,0,0,0.8)] hover:shadow-[3px_3px_0px_rgba(0,0,0,0.9)] sm:hover:shadow-[6px_6px_0px_rgba(0,0,0,0.9)] hover:-translate-y-0.5 shrink-0"
                     title="Multitwitch">
-                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                     </svg>
-                    <span>MULTITWITCH</span>
+                    <span class="whitespace-nowrap">MULTITWITCH</span>
                 </a>
                 
-                <div class="flex flex-wrap justify-center items-center gap-3 md:gap-5 font-text text-base md:text-xl">
+                <div class="flex flex-wrap justify-center items-center gap-3 sm:gap-4 lg:gap-5 font-text text-xs sm:text-sm lg:text-base bg-black/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#27272a]">
                     <a href="https://zlan.fr" target="_blank" rel="noopener noreferrer"
-                        class="flex items-center gap-2 text-slate-400 hover:text-[var(--pixel-green)] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 group"
+                        class="flex items-center gap-1.5 sm:gap-2 text-slate-400 hover:text-[var(--pixel-green)] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_var(--pixel-green)] transition-all duration-300 group shrink-0"
                         title="Site Officiel ZLAN">
-                        <svg class="w-4 h-4 md:w-5 md:h-5 group-hover:text-[var(--pixel-green)] transition-colors"
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 shrink-0 group-hover:text-[var(--pixel-green)] transition-colors"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 12h20"></path>
@@ -60,53 +65,52 @@
                                 d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
                             </path>
                         </svg>
-                        <span>ZLAN.FR</span>
+                        <span class="whitespace-nowrap">ZLAN.FR</span>
                     </a>
 
                     <a href="https://twitch.tv/theguill84" target="_blank" rel="noopener noreferrer"
                         id="link-theguill84"
-                        class="flex items-center gap-2 text-slate-400 hover:text-[var(--pixel-orange)] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_var(--pixel-orange)] transition-all duration-300 group"
+                        class="flex items-center gap-1.5 sm:gap-2 text-slate-400 hover:text-[var(--pixel-orange)] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_var(--pixel-orange)] transition-all duration-300 group shrink-0"
                         title="Twitch TheGuill84">
-                        <svg class="w-4 h-4 md:w-5 md:h-5 fill-current group-hover:text-[var(--pixel-orange)] transition-colors"
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 shrink-0 fill-current group-hover:text-[var(--pixel-orange)] transition-colors"
                             viewBox="0 0 24 24">
                             <path
                                 d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
                         </svg>
-                        <span>THEGUILL84</span>
-                        <!-- Ajout du badge Live caché -->
+                        <span class="whitespace-nowrap">THEGUILL84</span>
                         <span id="live-theguill84"
-                            class="hidden flex items-center gap-1.5 bg-[#18181b] border border-[var(--pixel-red)] text-[var(--pixel-red)] text-[8px] md:text-[10px] font-pixel px-1.5 py-0.5 rounded-sm shadow-[0_0_8px_rgba(229,57,53,0.3)] tracking-widest ml-1">
+                            class="hidden flex items-center gap-1.5 bg-[#18181b] border border-[var(--pixel-red)] text-[var(--pixel-red)] text-[8px] sm:text-[10px] font-pixel px-1.5 py-0.5 rounded-sm shadow-[0_0_8px_rgba(229,57,53,0.3)] tracking-widest ml-1 shrink-0">
                             <span
-                                class="w-1.5 h-1.5 bg-[var(--pixel-red)] rounded-full animate-pulse shadow-[0_0_4px_rgba(229,57,53,1)]"></span>
+                                class="w-1.5 h-1.5 bg-[var(--pixel-red)] rounded-full animate-pulse shadow-[0_0_4px_rgba(229,57,53,1)] shrink-0"></span>
                             LIVE
                         </span>
                     </a>
 
                     <a href="https://twitch.tv/nykho" target="_blank" rel="noopener noreferrer" id="link-nykho"
-                        class="flex items-center gap-2 text-slate-400 hover:text-[#9146FF] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_#9146FF] transition-all duration-300 group"
+                        class="flex items-center gap-1.5 sm:gap-2 text-slate-400 hover:text-[#9146FF] hover:-translate-y-0.5 hover:drop-shadow-[0_0_8px_#9146FF] transition-all duration-300 group shrink-0"
                         title="Twitch Nykho">
-                        <svg class="w-4 h-4 md:w-5 md:h-5 fill-current group-hover:text-[#9146FF] transition-colors"
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 shrink-0 fill-current group-hover:text-[#9146FF] transition-colors"
                             viewBox="0 0 24 24">
                             <path
                                 d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
                         </svg>
-                        <span>NYKHO</span>
-                        <!-- Ajout du badge Live caché -->
+                        <span class="whitespace-nowrap">NYKHO</span>
                         <span id="live-nykho"
-                            class="hidden flex items-center gap-1.5 bg-[#18181b] border border-[var(--pixel-red)] text-[var(--pixel-red)] text-[8px] md:text-[10px] font-pixel px-1.5 py-0.5 rounded-sm shadow-[0_0_8px_rgba(229,57,53,0.3)] tracking-widest ml-1">
+                            class="hidden flex items-center gap-1.5 bg-[#18181b] border border-[var(--pixel-red)] text-[var(--pixel-red)] text-[8px] sm:text-[10px] font-pixel px-1.5 py-0.5 rounded-sm shadow-[0_0_8px_rgba(229,57,53,0.3)] tracking-widest ml-1 shrink-0">
                             <span
-                                class="w-1.5 h-1.5 bg-[var(--pixel-red)] rounded-full animate-pulse shadow-[0_0_4px_rgba(229,57,53,1)]"></span>
+                                class="w-1.5 h-1.5 bg-[var(--pixel-red)] rounded-full animate-pulse shadow-[0_0_4px_rgba(229,57,53,1)] shrink-0"></span>
                             LIVE
                         </span>
                     </a>
+
+                    <div class="hidden xl:block w-px h-5 bg-[#27272a]"></div>
+
+                    <div id="status"
+                        class="font-text text-xs sm:text-sm lg:text-base text-slate-500 flex items-center justify-center gap-1.5 w-full xl:w-auto mt-1 xl:mt-0 shrink-0"
+                        aria-live="polite">
+                        <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[var(--pixel-red)] animate-pulse shrink-0" aria-hidden="true"></span> <span class="whitespace-nowrap">INIT...</span>
+                    </div>
                 </div>
-
-                <div class="hidden md:block w-px h-6 bg-[#27272a]"></div>
-
-                <div id="status"
-                    class="font-text text-lg md:text-xl text-slate-500 flex items-center justify-center gap-2 mt-1 md:mt-0 w-full md:w-auto"
-                    aria-live="polite">
-                    <span class="w-3 h-3 bg-[var(--pixel-red)] animate-pulse" aria-hidden="true"></span> INIT...
                 </div>
             </div>
         </div>
@@ -149,7 +153,7 @@
 
     <footer
         class="w-full text-center py-6 mt-10 border-t-2 border-[#27272a] text-slate-500 font-text text-xs md:text-sm px-3">
-        <p>@2025 Strelezian - Archive ZLAN 2025. Ceci n'est pas un site officiel de la ZLAN.</p>
+        <p>@2025 <span id="strelezian-secret" class="cursor-pointer hover:text-white transition-colors" title="🤫">Strelezian</span><span id="visit-counter" class="hidden text-[var(--pixel-green)] ml-2">| VUES : <span id="visit-count">...</span></span> - Archive ZLAN 2025. Ceci n'est pas un site officiel de la ZLAN.</p>
     </footer>
 
     <button id="scrollTopBtn"
@@ -161,6 +165,7 @@
     </button>
 
     <script src="./dashboard.js" defer></script>
+    <script src="./counter.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // On passe l'URL encodée, et false car c'est une archive (pas de Twitch)
@@ -171,6 +176,22 @@
         document.addEventListener('DOMContentLoaded', () => {
             let lastScroll = 0;
             const header = document.getElementById('main-header');
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('mobile-menu-icon');
+
+            if (menuBtn && mobileMenu && menuIcon) {
+                menuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                    mobileMenu.classList.toggle('flex');
+                    if (mobileMenu.classList.contains('hidden')) {
+                        menuIcon.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                    } else {
+                        menuIcon.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+                    }
+                });
+            }
+
             if (header) {
                 window.addEventListener('scroll', () => {
                     const currentScroll = window.pageYOffset;
