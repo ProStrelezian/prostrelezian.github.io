@@ -487,7 +487,7 @@
                 <header
                     class="pixel-header-violet px-1 py-1.5 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#0f0f13] gap-1.5">
                     <button onclick="switchChat('merged')" id="btn-chat-merged"
-                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 transition-colors flex-auto text-center"
+                        class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 transition-colors flex-auto text-center hidden"
                         style="color: var(--pixel-violet);">ALL</button>
                     <button onclick="switchChat(1)" id="btn-chat-1"
                         class="chat-tab-btn text-[10px] md:text-xs font-pixel px-2 py-1 text-slate-500 hover:text-white transition-colors hidden flex-auto text-center">STRM1</button>
@@ -504,7 +504,7 @@
                 </header>
                 <div class="flex-grow w-full bg-[#18181b] relative z-20">
                     <div id="merged-chat"
-                        class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1">
+                        class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1" style="display: none;">
                         <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-xs">
                             Connexion aux tchats...</div>
                     </div>
@@ -542,6 +542,7 @@
                     automatiquement de manière optimale selon le nombre de vidéos actives.</p>
                 <p>👉 Le tchat unifié "ALL" fusionne par défaut les messages de tous les canaux actifs pour ne rien
                     manquer de l'ambiance globale.</p>
+
                 <p>💾 <span class="text-[var(--pixel-green)] font-bold">Sauvegarde auto :</span> quittez la page et
                     revenez quand vous le souhaitez, vous retrouverez toujours vos streams configurés exactement comme
                     vous les avez laissés ! (Jusqu'à ce que les données du navigateur soient effacées (ou que le site
@@ -636,7 +637,16 @@
                 if (chatBtn) {
                     chatBtn.classList.add('hidden');
                     if (chatBtn.style.color === 'var(--pixel-violet)' || chatBtn.style.color === 'rgb(167, 139, 250)') {
-                        switchChat('merged');
+                        // Switch to another available chat
+                        let nextSlot = -1;
+                        for (let i = 1; i <= 6; i++) {
+                            if (window.currentChannels[i] && i !== slot) {
+                                nextSlot = i;
+                                break;
+                            }
+                        }
+                        if (nextSlot !== -1) switchChat(nextSlot);
+                        else switchChat('merged'); // Will be empty/hidden
                     }
                 }
                 if (titleEl) titleEl.textContent = '';
@@ -649,6 +659,19 @@
             window.currentChannels[slot] = newChannel;
             saveChannels();
             updateLayout();
+
+            // Auto-switch to first chat if none active
+            let activeChatVisible = false;
+            for (let i = 1; i <= 6; i++) {
+                const iframe = document.getElementById(`iframe-chat-${i}`);
+                if (iframe && iframe.style.display === 'block') {
+                    activeChatVisible = true;
+                    break;
+                }
+            }
+            if (!activeChatVisible && newChannel) {
+                switchChat(slot);
+            }
         }
 
         // 2. UI Event Handlers
