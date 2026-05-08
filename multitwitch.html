@@ -328,10 +328,6 @@
             filter: drop-shadow(0 0 5px rgba(255,255,255,0.6));
         }
 
-        #mt-videos.has-focus .stream-card:not(.is-focused) header {
-            display: none !important;
-        }
-
         [id^="title-stream-"] {
             transition: all 0.3s ease;
         }
@@ -343,9 +339,21 @@
             margin: -0.25rem 0 !important;
         }
 
+        #mt-videos.has-focus .stream-card:not(.is-focused) header {
+            padding-top: 0.15rem !important;
+            padding-bottom: 0.15rem !important;
+        }
+
+        #mt-videos.has-focus .stream-card:not(.is-focused) [id^="title-stream-"] {
+            font-size: 0.65rem !important;
+        }
+
         @media (min-width: 768px) {
             #mt-videos.has-focus .stream-card.is-focused [id^="title-stream-"] {
                 font-size: 1.5rem !important;
+            }
+            #mt-videos.has-focus .stream-card:not(.is-focused) [id^="title-stream-"] {
+                font-size: 0.75rem !important;
             }
         }
 
