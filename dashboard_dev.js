@@ -93,6 +93,7 @@ class ZlanDashboard {
 
                 htmlChunks.team = `
 <<<<<<< HEAD
+<<<<<<< HEAD
                     <section class="mb-8 md:mb-12 flex justify-center w-full px-2 md:px-0">
                         <div class="w-full max-w-[960px]">
                             <div class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 border-[#27272a] border-l-[var(--pixel-orange)] flex flex-col md:flex-row items-center p-5 md:p-8">
@@ -103,6 +104,8 @@ class ZlanDashboard {
                                         ${cleanTeam}
                                     </h2>
 =======
+=======
+>>>>>>> parent of e57c639 (V2026-05-08_04)
                     <section class="mb-8 md:mb-16 flex justify-center w-full px-2 md:px-0">
                         <div class="w-full max-w-[920px] relative">
                             <!-- Decorative corners -->
@@ -132,6 +135,9 @@ class ZlanDashboard {
                                             <span class="bg-[#18181b] text-[var(--pixel-green)] border border-[var(--pixel-green)] px-3 py-1.5 font-text text-sm md:text-xl shadow-[4px_4px_0px_rgba(0,0,0,0.8)] animate-pulse">PRESS START</span>
                                         </div>
                                     </div>
+<<<<<<< HEAD
+>>>>>>> parent of e57c639 (V2026-05-08_04)
+=======
 >>>>>>> parent of e57c639 (V2026-05-08_04)
                                 </div>
                             </div>
