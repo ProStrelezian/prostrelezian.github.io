@@ -6,29 +6,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (secretBtn && counterSpan && countVal) {
         const isVisited = localStorage.getItem('zlan_visited');
-        const url = isVisited 
-            ? 'https://api.counterapi.dev/v1/zlan_strelezian/visits' 
-            : 'https://api.counterapi.dev/v1/zlan_strelezian/visits/up';
+        const baseUrl = 'https://api.counterapi.dev/v1/zlan_strelezian/visits';
 
-        fetch(url)
-            .then(res => {
-                if (!res.ok) throw new Error('Erreur réseau API');
-                return res.json();
-            })
-            .then(data => {
-                // Gère count ou value au cas où l'API change son format
+        const getCounter = async (increment) => {
+            const url = increment ? `${baseUrl}/up` : baseUrl;
+            try {
+                let res = await fetch(url);
+                
+                // Si l'API retourne 404 (compteur expiré ou purgé côté serveur), on force sa recréation
+                if (res.status === 404 && !increment) {
+                    res = await fetch(`${baseUrl}/up`);
+                }
+                
+                if (!res.ok) throw new Error(`Erreur API: ${res.status}`);
+                
+                const data = await res.json();
                 const count = data.count !== undefined ? data.count : data.value;
-                if(count !== undefined) {
+                
+                if (count !== undefined) {
                     countVal.textContent = count;
                     localStorage.setItem('zlan_visited', 'true');
                 } else {
                     countVal.textContent = "N/A";
                 }
-            })
-            .catch(err => {
+            } catch (err) {
                 console.error('Erreur compteur:', err);
-                countVal.textContent = "ERR";
-            });
+                // En cas de vrai pépin réseau ou de blocage par un Adblocker (uBlock Origin, Brave...)
+                countVal.textContent = "N/A";
+            }
+        };
+
+        getCounter(!isVisited);
 
         secretBtn.addEventListener('click', () => {
             counterSpan.classList.toggle('hidden');
