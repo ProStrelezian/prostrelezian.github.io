@@ -106,6 +106,7 @@ class ZlanDashboard {
             poules: { exists: false, finished: false },
             finale: { exists: false, finished: false }
         };
+        let gameStats = { total: 0, completed: 0 };
         let bluePhaseCount = 0;
         let lastValidRowIndex = data.findLastIndex(row => row.some(c => c?.trim()));
 
@@ -129,6 +130,10 @@ class ZlanDashboard {
                 htmlChunks.seeding = this.renderSeedingBlock(games, seedingScore);
                 timeline.seeding.exists = true;
                 timeline.seeding.finished = !!(seedingScore && !has(seedingScore, "EN ATTENTE"));
+                
+                gameStats.total += games.length;
+                gameStats.completed += games.filter(g => g.place && !has(g.place, "???") && !has(g.place, "ATTENTE")).length;
+                
                 i = nextIndex - 1;
             }
             else if (has(r0, "PHASE DE KNOCKOUT")) {
@@ -136,12 +141,16 @@ class ZlanDashboard {
                 htmlChunks.knockout = this.renderKnockoutBlock(games, qualif, score);
                 timeline.knockout.exists = true;
                 timeline.knockout.finished = !!(qualif && !has(qualif, "EN ATTENTE") && (has(qualif, "OUI") || has(qualif, "WIN")));
+                
+                gameStats.total += games.length;
+                gameStats.completed += games.filter(g => g.resultat && !has(g.resultat, "???") && !has(g.resultat, "ATTENTE")).length;
+                
                 i = nextIndex - 1;
             }
             else if (isGroupPhase(row)) {
                 let groupTitle = row.find(c => isGroupPhase(c)) || row[0];
                 let isF = has(groupTitle, "PHASE FINALE");
-                let { chunk, nextIndex, blueCount, qStatus } = this.renderGroupBlock(data, i, lastValidRowIndex, state, bluePhaseCount);
+                let { chunk, nextIndex, blueCount, qStatus, gamesCount, completedCount } = this.renderGroupBlock(data, i, lastValidRowIndex, state, bluePhaseCount);
                 htmlChunks.groups += chunk;
                 
                 let isFinished = !!(qStatus && !has(qStatus, "EN ATTENTE") && (has(qStatus, "OUI") || has(qStatus, "WIN") || has(qStatus, "1ER")));
@@ -153,6 +162,9 @@ class ZlanDashboard {
                     timeline.poules.finished = isFinished;
                 }
                 
+                gameStats.total += gamesCount;
+                gameStats.completed += completedCount;
+                
                 bluePhaseCount = blueCount;
                 i = nextIndex - 1;
             }
@@ -160,15 +172,11 @@ class ZlanDashboard {
 
         const container = document.getElementById('dashboard-container');
         if (container) {
-            const fullHtml = htmlChunks.team + htmlChunks.seeding + htmlChunks.knockout + (htmlChunks.groups ? `<div>${htmlChunks.groups}</div>` : '') + htmlChunks.finalRank;
+            const trackerHtml = this.renderTracker(timeline, state, gameStats);
+            const fullHtml = htmlChunks.team + trackerHtml + htmlChunks.seeding + htmlChunks.knockout + (htmlChunks.groups ? `<div>${htmlChunks.groups}</div>` : '') + htmlChunks.finalRank;
             if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
                 container.innerHTML = fullHtml;
             }
-        }
-        
-        const trackerContainer = document.getElementById('tracker-container');
-        if (trackerContainer) {
-            trackerContainer.innerHTML = this.renderTracker(timeline, state);
         }
     }
 
@@ -296,10 +304,16 @@ class ZlanDashboard {
         let tH = (cTitle && tTitle) ? `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]"><div class="flex-1 flex flex-col md:border-r-2 border-[#27272a]"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div><div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div></div><div class="flex-1 flex flex-col"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div><div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div></div></div>` : (tTitle || teams ? `${tTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>` : ''}${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}` : '');
         let articleId = isF ? "section-finale" : `section-poules-${blueCount}`;
         let chunk = `<article id="${articleId}" class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0"><header class="${hC} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${tC};">${groupTitle}</h2></header>${tH}<div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[600px]"><div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div>${gH || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}</div></div></div>${qH}</article>`;
-        return { chunk, nextIndex: j, blueCount, qStatus };
+        
+        let completedCount = games.filter(g => {
+            let res = isF ? (g.placeJeu || g.place) : g.place;
+            return res && !has(res, "???") && !has(res, "ATTENTE");
+        }).length;
+
+        return { chunk, nextIndex: j, blueCount, qStatus, gamesCount: games.length, completedCount };
     }
 
-    renderTracker(timeline, state) {
+    renderTracker(timeline, state, gameStats) {
         if (!timeline.seeding.exists && !timeline.knockout.exists && !timeline.poules.exists) return "";
 
         let steps = [
@@ -309,12 +323,8 @@ class ZlanDashboard {
             { id: "finale", label: "FINALE", target: "section-finale", exists: timeline.finale.exists, finished: timeline.finale.finished }
         ];
         
-        let progress = 0;
+        let progress = gameStats.total > 0 ? Math.round((gameStats.completed / gameStats.total) * 100) : 0;
         if (state.tournamentWon) progress = 100;
-        else if (timeline.finale.exists) progress = timeline.finale.finished ? 100 : 90;
-        else if (timeline.poules.exists) progress = timeline.poules.finished ? 80 : 65;
-        else if (timeline.knockout.exists) progress = timeline.knockout.finished ? 50 : 35;
-        else if (timeline.seeding.exists) progress = timeline.seeding.finished ? 25 : 15;
 
         let breadcrumbs = steps.map((s, idx) => {
             let statusClass = s.finished ? "text-[var(--pixel-green)] border-[var(--pixel-green)]" : (s.exists ? "text-[var(--pixel-orange)] border-[var(--pixel-orange)] animate-pulse shadow-[0_0_8px_var(--pixel-orange)]" : "text-slate-600 border-slate-700");
@@ -335,17 +345,24 @@ class ZlanDashboard {
         }).join('');
 
         return `
-            <section class="mb-8 md:mb-12 w-full px-2 md:px-0 flex flex-col items-center pixel-animate-enter">
-                <div class="flex flex-wrap justify-center items-center mb-6 overflow-x-auto w-full pb-2">
-                    <div class="flex items-center min-w-max px-2">
+            <section class="mt-6 md:mt-10 mx-2 md:mx-0 w-full max-w-[900px] self-center pixel-card border-[3px] md:border-4 border-[#27272a] bg-[#09090b] p-3 md:p-5 relative flex flex-col items-center pixel-animate-enter mx-auto">
+                <div class="absolute -top-3 md:-top-4 left-4 bg-[#09090b] px-2 font-pixel text-[8px] md:text-xs text-slate-400 border border-[#27272a]">SUIVI DU TOURNOI</div>
+                
+                <div class="flex flex-wrap justify-center items-center mb-4 md:mb-6 overflow-x-auto w-full pb-2">
+                    <div class="flex items-center min-w-max">
                         ${breadcrumbs}
                     </div>
                 </div>
-                <div class="w-full max-w-[800px] pixel-card border-4 border-[#27272a] bg-[#09090b] p-1.5 md:p-2 relative">
-                    <div class="absolute -top-4 md:-top-5 left-4 bg-[#09090b] px-2 font-pixel text-[10px] md:text-xs text-slate-400 border border-[#27272a]">PROGRESSION : ${progress}%</div>
-                    <div class="h-4 md:h-6 w-full bg-[#18181b] relative overflow-hidden">
+                
+                <div class="w-full relative px-2 md:px-6">
+                    <div class="flex justify-between items-end mb-1 md:mb-2">
+                        <span class="font-pixel text-[6px] md:text-[10px] text-slate-500">DÉBUT</span>
+                        <span class="font-pixel text-[8px] md:text-sm text-[var(--pixel-green)]">PROGRESSION : ${progress}%</span>
+                        <span class="font-pixel text-[6px] md:text-[10px] text-slate-500">VICTOIRE</span>
+                    </div>
+                    <div class="h-3 md:h-5 w-full bg-[#18181b] border-2 border-[#27272a] relative overflow-hidden">
                         <div class="h-full bg-[var(--pixel-green)] transition-all duration-1000 ease-out relative" style="width: ${progress}%; box-shadow: 0 0 10px var(--pixel-green);">
-                            ${progress > 0 && progress < 100 ? `<div class="absolute top-0 right-0 w-2 h-full bg-white opacity-50 animate-pulse"></div>` : ''}
+                            ${progress > 0 && progress < 100 ? `<div class="absolute top-0 right-0 w-1.5 md:w-2 h-full bg-white opacity-50 animate-pulse"></div>` : ''}
                             <div class="absolute top-0 left-0 w-full h-full opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.5) 10px, rgba(0,0,0,0.5) 20px);"></div>
                         </div>
                     </div>
