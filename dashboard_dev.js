@@ -12,8 +12,10 @@ const isGroupPhase = (row) => {
     const cells = Array.isArray(row) ? row.slice(0, 3) : [row];
     return cells.some(cell => {
         const t = normalizeText(cell);
-        // Détection élargie : contient "phase" ou est une "finale"
-        return (t.includes("phase") || t.includes("finale") || t.includes("eliminatoire")) && !t.includes("seeding") && !t.includes("knockout");
+        if (t.includes("seeding") || t.includes("knockout")) return false;
+        return t.includes("phase") || t.includes("finale") || t.includes("eliminatoire") || 
+               t.includes("demi") || t.includes("quart") || t.includes("huitieme") || 
+               t.includes("groupe") || t.includes("tournoi");
     });
 };
 
@@ -97,7 +99,7 @@ class ZlanDashboard {
 
     buildDashboard(data) {
         let htmlChunks = { team: "", seeding: "", knockout: "", groups: "", finalRank: "" };
-        let state = { seedingFinished: false, knockoutFinished: false, groupFinished: true, tournamentOver: false, tournamentWon: false };
+        let state = { tournamentOver: false, tournamentWon: false };
         let bluePhaseCount = 0;
         let lastValidRowIndex = data.findLastIndex(row => row.some(c => c?.trim()));
 
@@ -118,26 +120,15 @@ class ZlanDashboard {
             }
             else if (has(r0, "PHASE DE SEEDING")) {
                 let { games, seedingScore, nextIndex } = this.parseSeeding(data, i, lastValidRowIndex);
-                if (seedingScore && !has(seedingScore, "EN ATTENTE")) state.seedingFinished = true;
                 htmlChunks.seeding = this.renderSeedingBlock(games, seedingScore);
                 i = nextIndex - 1;
             }
             else if (has(r0, "PHASE DE KNOCKOUT")) {
-                if (!state.seedingFinished) {
-                    while (i + 1 < data.length && !isGroupPhase(data[i + 1])) i++;
-                    continue;
-                }
                 let { games, qualif, score, nextIndex } = this.parseKnockout(data, i, lastValidRowIndex, state);
-                if (qualif && !has(qualif, "EN ATTENTE")) state.knockoutFinished = true;
                 htmlChunks.knockout = this.renderKnockoutBlock(games, qualif, score);
                 i = nextIndex - 1;
             }
             else if (isGroupPhase(row)) {
-                // On retire la restriction de state.groupFinished pour forcer l'affichage de toutes les phases présentes
-                if (!state.knockoutFinished) {
-                    while (i + 1 < data.length && !isGroupPhase(data[i + 1])) i++;
-                    continue;
-                }
                 let { chunk, nextIndex, blueCount } = this.renderGroupBlock(data, i, lastValidRowIndex, state, bluePhaseCount);
                 htmlChunks.groups += chunk;
                 bluePhaseCount = blueCount;
@@ -204,7 +195,9 @@ class ZlanDashboard {
             if (qIdx !== -1) {
                 let vals = sub.slice(qIdx + 1).filter(v => v.trim() !== "");
                 qualif = vals[0] || ""; score = vals[1] || "";
-                if (!has(qualif, "OUI") && !has(qualif, "WIN") && !has(qualif, "EN ATTENTE") && qualif.trim()) state.tournamentOver = true;
+                let isO = has(qualif, "OUI") || has(qualif, "WIN");
+                let isAttente = has(qualif, "EN ATTENTE") || qualif.trim() === "";
+                if (!isO && !isAttente) state.tournamentOver = true;
             } else if (sub[0] && !has(sub[0], "JEUX") && !has(sub[0], "PHASE")) {
                 if (this.is2026) games.push({ name: sub[0], choix: sub[3] || '', contre: sub[4] || '', score: [sub[6] || ''], resultat: sub[7] || '', vies: sub[8] || '', heure: sub[9] || '' });
                 else games.push({ name: sub[0], choix: '', contre: sub[3] || '', score: [sub[5] || ''], resultat: sub[6] || '', vies: sub[7] || '', heure: '' });
@@ -237,13 +230,17 @@ class ZlanDashboard {
         let j = start + 1;
         while (j < data.length && !isGroupPhase(data[j])) {
             let sub = data[j];
-            let qIdx = sub.findIndex(c => has(c, "QUALIFIÉ") || has(c, "WIN"));
+            let isHeaderRow = sub.some(c => has(c, "JEUX") || has(c, "PHASE") || has(c, "RÉSULTATS"));
+            let qIdx = isHeaderRow ? -1 : sub.findIndex(c => has(c, "QUALIFIÉ") || has(c, "WIN"));
+            
             if (qIdx !== -1) {
                 let vals = sub.slice(qIdx + 1).filter(v => v.trim() !== "");
                 qStatus = vals[0] || ""; qScore = vals[1] || "";
                 let isO = has(qStatus, "OUI") || has(qStatus, "WIN");
+                let isAttente = has(qStatus, "EN ATTENTE") || qStatus.trim() === "";
+                
                 if (isF && isO) { state.tournamentOver = true; state.tournamentWon = true; }
-                else if (!isO && !has(qStatus, "EN ATTENTE") && qStatus.trim()) state.tournamentOver = true;
+                else if (!isO && !isAttente) state.tournamentOver = true;
             } else if (sub.some(c => { const tc = normalizeText(c); return tc.includes("teams presentes") || tc.includes("contre"); })) {
                 let pIdx = sub.findIndex(c => normalizeText(c).includes("teams presentes")), cIdx = sub.findIndex(c => normalizeText(c).includes("contre"));
                 if (pIdx !== -1) { tTitle = sub[pIdx]; teams = sub.slice(pIdx + 1).find(c => c?.trim() && !has(c, "CONTRE")) || (data[j+1] && data[j+1][pIdx]?.trim() && !has(data[j+1][pIdx], "JEUX") ? data[j+1][pIdx] : ""); }
@@ -270,7 +267,6 @@ class ZlanDashboard {
         let qH = ""; if (qStatus) { let isO = has(qStatus, "OUI") || has(qStatus, "WIN"); let bg = isO ? "rgba(100, 255, 218, 0.1)" : (has(qStatus, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)"); let tr = isO ? "var(--pixel-green)" : (has(qStatus, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)"); qH = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">${isF ? "WIN ?" : "QUALIFIÉ ?"}</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bg};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tr};">${qStatus}</span></div>${qScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: ${tC};">${qScore}</span></div>` : ''}</div>`; }
         let tH = (cTitle && tTitle) ? `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]"><div class="flex-1 flex flex-col md:border-r-2 border-[#27272a]"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div><div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div></div><div class="flex-1 flex flex-col"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div><div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div></div></div>` : (tTitle || teams ? `${tTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>` : ''}${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}` : '');
         let chunk = `<article class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0"><header class="${hC} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${tC};">${groupTitle}</h2></header>${tH}<div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[600px]"><div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div>${gH || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}</div></div></div>${qH}</article>`;
-        state.groupFinished = qStatus && !has(qStatus, "EN ATTENTE");
         return { chunk, nextIndex: j, blueCount };
     }
 
