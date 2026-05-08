@@ -100,6 +100,12 @@ class ZlanDashboard {
     buildDashboard(data) {
         let htmlChunks = { team: "", seeding: "", knockout: "", groups: "", finalRank: "" };
         let state = { tournamentOver: false, tournamentWon: false };
+        let timeline = {
+            seeding: { exists: false, finished: false },
+            knockout: { exists: false, finished: false },
+            poules: { exists: false, finished: false },
+            finale: { exists: false, finished: false }
+        };
         let bluePhaseCount = 0;
         let lastValidRowIndex = data.findLastIndex(row => row.some(c => c?.trim()));
 
@@ -121,16 +127,32 @@ class ZlanDashboard {
             else if (has(r0, "PHASE DE SEEDING")) {
                 let { games, seedingScore, nextIndex } = this.parseSeeding(data, i, lastValidRowIndex);
                 htmlChunks.seeding = this.renderSeedingBlock(games, seedingScore);
+                timeline.seeding.exists = true;
+                timeline.seeding.finished = !!(seedingScore && !has(seedingScore, "EN ATTENTE"));
                 i = nextIndex - 1;
             }
             else if (has(r0, "PHASE DE KNOCKOUT")) {
                 let { games, qualif, score, nextIndex } = this.parseKnockout(data, i, lastValidRowIndex, state);
                 htmlChunks.knockout = this.renderKnockoutBlock(games, qualif, score);
+                timeline.knockout.exists = true;
+                timeline.knockout.finished = !!(qualif && !has(qualif, "EN ATTENTE") && (has(qualif, "OUI") || has(qualif, "WIN")));
                 i = nextIndex - 1;
             }
             else if (isGroupPhase(row)) {
-                let { chunk, nextIndex, blueCount } = this.renderGroupBlock(data, i, lastValidRowIndex, state, bluePhaseCount);
+                let groupTitle = row.find(c => isGroupPhase(c)) || row[0];
+                let isF = has(groupTitle, "PHASE FINALE");
+                let { chunk, nextIndex, blueCount, qStatus } = this.renderGroupBlock(data, i, lastValidRowIndex, state, bluePhaseCount);
                 htmlChunks.groups += chunk;
+                
+                let isFinished = !!(qStatus && !has(qStatus, "EN ATTENTE") && (has(qStatus, "OUI") || has(qStatus, "WIN") || has(qStatus, "1ER")));
+                if (isF) {
+                    timeline.finale.exists = true;
+                    if (state.tournamentWon || isFinished) timeline.finale.finished = true;
+                } else {
+                    timeline.poules.exists = true;
+                    timeline.poules.finished = isFinished;
+                }
+                
                 bluePhaseCount = blueCount;
                 i = nextIndex - 1;
             }
@@ -142,6 +164,11 @@ class ZlanDashboard {
             if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
                 container.innerHTML = fullHtml;
             }
+        }
+        
+        const trackerContainer = document.getElementById('tracker-container');
+        if (trackerContainer) {
+            trackerContainer.innerHTML = this.renderTracker(timeline, state);
         }
     }
 
@@ -184,7 +211,7 @@ class ZlanDashboard {
 
     renderSeedingBlock(games, score) {
         let gHtml = games.map((g, idx) => `<div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}"><div class="col-span-2 font-pixel text-[9px] md:text-base lg:text-xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center" style="color: var(--pixel-orange);">${g.name}</div><div class="col-span-2 font-text text-sm md:text-xl lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>` : ''}</div>`).join('');
-        return `<section class="pixel-card mt-6 mx-2 md:mx-0"><header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[500px]"><div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]"><div class="col-span-2">JEUX</div><div class="col-span-2">PLACE</div>${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${score ? `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${has(score, 'EN ATTENTE') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};"><span class="font-pixel text-xl md:text-5xl" style="color: ${has(score, 'EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${score}</span></div></div>` : ''}</section>`;
+        return `<section id="section-seeding" class="pixel-card mt-6 mx-2 md:mx-0"><header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[500px]"><div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]"><div class="col-span-2">JEUX</div><div class="col-span-2">PLACE</div>${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${score ? `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${has(score, 'EN ATTENTE') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};"><span class="font-pixel text-xl md:text-5xl" style="color: ${has(score, 'EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${score}</span></div></div>` : ''}</section>`;
     }
 
     parseKnockout(data, start, lastIndex, state) {
@@ -220,7 +247,7 @@ class ZlanDashboard {
         let bgR = iO ? "rgba(100, 255, 218, 0.1)" : (has(qualif, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)");
         let tR = iO ? "var(--pixel-green)" : (has(qualif, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)");
         let hH = this.is2026 ? `<div class="col-span-2">JEUX</div><div class="col-span-2">CHOIX</div><div class="col-span-2">CONTRE QUI</div><div class="col-span-2">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div><div class="col-span-1">LIVE</div>` : `<div class="col-span-3">JEUX</div><div class="col-span-3">CONTRE QUI ?</div><div class="col-span-3">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div>`;
-        return `<section class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0"><header class="pixel-header-green px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[800px]"><div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${qualif ? `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">QUALIFIÉ ?</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bgR};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tR};">${qualif}</span></div>${score ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: var(--pixel-green);">${score}</span></div>` : ''}</div>` : ''}</section>`;
+        return `<section id="section-knockout" class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0"><header class="pixel-header-green px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[800px]"><div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${qualif ? `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">QUALIFIÉ ?</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bgR};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tR};">${qualif}</span></div>${score ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: var(--pixel-green);">${score}</span></div>` : ''}</div>` : ''}</section>`;
     }
 
     renderGroupBlock(data, start, lastIndex, state, blueCount) {
@@ -267,8 +294,64 @@ class ZlanDashboard {
         let hH = isF ? (this.is2026 ? `<div class="col-span-7">JEUX</div><div class="col-span-3">RÉSULTATS</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-8">JEUX</div><div class="col-span-4">RÉSULTATS</div>`) : (isE ? `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS SUR LE JEU</div><div class="col-span-4">WIN?</div>` : (this.is2026 ? `<div class="col-span-4">JEUX</div><div class="col-span-3">RÉSULTATS DU JEU</div><div class="col-span-3">PLACE</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS DU JEU</div><div class="col-span-4">PLACE</div>`));
         let qH = ""; if (qStatus) { let isO = has(qStatus, "OUI") || has(qStatus, "WIN"); let bg = isO ? "rgba(100, 255, 218, 0.1)" : (has(qStatus, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)"); let tr = isO ? "var(--pixel-green)" : (has(qStatus, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)"); qH = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">${isF ? "WIN ?" : "QUALIFIÉ ?"}</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bg};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tr};">${qStatus}</span></div>${qScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: ${tC};">${qScore}</span></div>` : ''}</div>`; }
         let tH = (cTitle && tTitle) ? `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]"><div class="flex-1 flex flex-col md:border-r-2 border-[#27272a]"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div><div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div></div><div class="flex-1 flex flex-col"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div><div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div></div></div>` : (tTitle || teams ? `${tTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>` : ''}${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}` : '');
-        let chunk = `<article class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0"><header class="${hC} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${tC};">${groupTitle}</h2></header>${tH}<div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[600px]"><div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div>${gH || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}</div></div></div>${qH}</article>`;
-        return { chunk, nextIndex: j, blueCount };
+        let articleId = isF ? "section-finale" : `section-poules-${blueCount}`;
+        let chunk = `<article id="${articleId}" class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0"><header class="${hC} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${tC};">${groupTitle}</h2></header>${tH}<div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[600px]"><div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div>${gH || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}</div></div></div>${qH}</article>`;
+        return { chunk, nextIndex: j, blueCount, qStatus };
+    }
+
+    renderTracker(timeline, state) {
+        if (!timeline.seeding.exists && !timeline.knockout.exists && !timeline.poules.exists) return "";
+
+        let steps = [
+            { id: "seeding", label: "SEEDING", target: "section-seeding", exists: timeline.seeding.exists, finished: timeline.seeding.finished },
+            { id: "knockout", label: "KNOCKOUT", target: "section-knockout", exists: timeline.knockout.exists, finished: timeline.knockout.finished },
+            { id: "poules", label: "POULES", target: "section-poules-1", exists: timeline.poules.exists, finished: timeline.poules.finished },
+            { id: "finale", label: "FINALE", target: "section-finale", exists: timeline.finale.exists, finished: timeline.finale.finished }
+        ];
+        
+        let progress = 0;
+        if (state.tournamentWon) progress = 100;
+        else if (timeline.finale.exists) progress = timeline.finale.finished ? 100 : 90;
+        else if (timeline.poules.exists) progress = timeline.poules.finished ? 80 : 65;
+        else if (timeline.knockout.exists) progress = timeline.knockout.finished ? 50 : 35;
+        else if (timeline.seeding.exists) progress = timeline.seeding.finished ? 25 : 15;
+
+        let breadcrumbs = steps.map((s, idx) => {
+            let statusClass = s.finished ? "text-[var(--pixel-green)] border-[var(--pixel-green)]" : (s.exists ? "text-[var(--pixel-orange)] border-[var(--pixel-orange)] animate-pulse shadow-[0_0_8px_var(--pixel-orange)]" : "text-slate-600 border-slate-700");
+            let icon = s.finished ? "✓" : (s.exists ? "▶" : "🔒");
+            let bg = s.finished ? "bg-[rgba(100,255,218,0.1)]" : (s.exists ? "bg-[rgba(245,158,11,0.1)]" : "bg-[#18181b]");
+            let pointer = s.exists ? "cursor-pointer hover:-translate-y-1 hover:brightness-125" : "cursor-default opacity-50";
+            
+            return `
+                <div class="flex items-center">
+                    <div onclick="${s.exists ? `document.getElementById('${s.target}')?.scrollIntoView({behavior: 'smooth'})` : ''}" 
+                         class="flex items-center gap-1.5 md:gap-2 px-2 py-1.5 md:px-4 md:py-2 border-2 ${statusClass} ${bg} ${pointer} font-pixel text-[8px] md:text-sm transition-all duration-300">
+                        <span>${icon}</span>
+                        <span>${s.label}</span>
+                    </div>
+                    ${idx < steps.length - 1 ? `<div class="w-4 md:w-8 h-0.5 md:h-1 bg-slate-700 mx-1 md:mx-2"></div>` : ''}
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <section class="mb-8 md:mb-12 w-full px-2 md:px-0 flex flex-col items-center pixel-animate-enter">
+                <div class="flex flex-wrap justify-center items-center mb-6 overflow-x-auto w-full pb-2">
+                    <div class="flex items-center min-w-max px-2">
+                        ${breadcrumbs}
+                    </div>
+                </div>
+                <div class="w-full max-w-[800px] pixel-card border-4 border-[#27272a] bg-[#09090b] p-1.5 md:p-2 relative">
+                    <div class="absolute -top-4 md:-top-5 left-4 bg-[#09090b] px-2 font-pixel text-[10px] md:text-xs text-slate-400 border border-[#27272a]">PROGRESSION : ${progress}%</div>
+                    <div class="h-4 md:h-6 w-full bg-[#18181b] relative overflow-hidden">
+                        <div class="h-full bg-[var(--pixel-green)] transition-all duration-1000 ease-out relative" style="width: ${progress}%; box-shadow: 0 0 10px var(--pixel-green);">
+                            ${progress > 0 && progress < 100 ? `<div class="absolute top-0 right-0 w-2 h-full bg-white opacity-50 animate-pulse"></div>` : ''}
+                            <div class="absolute top-0 left-0 w-full h-full opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.5) 10px, rgba(0,0,0,0.5) 20px);"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        `;
     }
 
     async checkTwitchLive() {
