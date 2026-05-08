@@ -333,9 +333,12 @@ class ZlanDashboard {
                         let isOui = has(qualifStatus, "OUI") || has(qualifStatus, "WIN");
                         if (isFinale && isOui) { state.tournamentOver = true; state.tournamentWon = true; }
                         else if (!isOui && !has(qualifStatus, "EN ATTENTE") && qualifStatus.trim()) { state.tournamentOver = true; }
-                    } else if (subRow.some(c => has(c, "TEAMS PRÉSENTES") || has(c, "CONTRE"))) {
-                        let presentIdx = subRow.findIndex(c => has(c, "TEAMS PRÉSENTES"));
-                        let contreIdx = subRow.findIndex(c => has(c, "CONTRE"));
+                    } else if (subRow.some(c => {
+                        const tc = String(c || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        return tc.includes("TEAMS PRESENTES") || tc.includes("CONTRE");
+                    })) {
+                        let presentIdx = subRow.findIndex(c => String(c || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes("TEAMS PRESENTES"));
+                        let contreIdx = subRow.findIndex(c => String(c || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes("CONTRE"));
 
                         if (presentIdx !== -1) {
                             teamsTitle = subRow[presentIdx];
@@ -351,7 +354,7 @@ class ZlanDashboard {
                         }
                         if (contreIdx !== -1) {
                             contreTitle = subRow[contreIdx];
-                            let potentialContre = subRow.slice(contreIdx + 1).find(c => c && c.trim() !== "" && !has(c, "TEAMS PRÉSENTES"));
+                            let potentialContre = subRow.slice(contreIdx + 1).find(c => c && c.trim() !== "" && !has(c, "TEAMS"));
                             if (potentialContre) {
                                 contre = potentialContre;
                             } else if (data[j + 1]) {
@@ -363,7 +366,11 @@ class ZlanDashboard {
                         }
                     } else if (subRow.some(c => c && c.trim() !== "") && !has(subRow[0] || "", "JEUX") && !has(subRow[0] || "", "PHASE")) {
                         // Si on a déjà trouvé contre/teams et que cette ligne est celle des valeurs, on l'ignore comme "jeu"
-                        if ((teams || contre) && (has(subRow[0] || "", teams) || has(subRow[0] || "", contre) || subRow[0] === "???")) {
+                        const isValueRow = (teams && teams.trim() !== "" && has(subRow[0] || "", teams)) || 
+                                           (contre && contre.trim() !== "" && has(subRow[0] || "", contre)) || 
+                                           (subRow[0] && subRow[0].trim() === "???");
+                        
+                        if (isValueRow) {
                             // Ignorer cette ligne
                         } else {
                             let name = String(subRow[0] || "");
@@ -380,7 +387,7 @@ class ZlanDashboard {
                 let headerClass = isFinale ? "pixel-header-violet" : (isEliminatoire ? "pixel-header-green" : (isRedPhase ? "pixel-header-red" : "pixel-header-blue"));
                 let titleColor = isFinale ? "var(--pixel-violet)" : (isEliminatoire ? "var(--pixel-green)" : (isRedPhase ? "var(--pixel-red)" : "var(--pixel-blue)"));
 
-                if (!isFinale && !isRedPhase) {
+                if (!isFinale && !isRedPhase && !isEliminatoire) {
                     const blueShades = ["#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"];
                     titleColor = blueShades[bluePhaseCount % blueShades.length];
                     bluePhaseCount++;
