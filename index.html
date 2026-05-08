@@ -118,14 +118,14 @@
         <div class="flex flex-col items-center justify-center py-12 md:py-24 px-3 md:px-0" role="status">
             <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest mb-6 text-center drop-shadow-[0_0_8px_var(--pixel-green)]"
                 style="color: var(--pixel-green)">
-                EN ATTENTE DE LA ZLAN 2026
+                RECONSTRUCTION EN COURS JUSQU'À DIMANCHE... 
             </div>
             <div
                 class="w-64 md:w-96 h-6 md:h-8 border-4 border-[#27272a] bg-[#09090b] relative overflow-hidden pixel-card p-1">
-                <div class="h-full bg-[#27272a] w-full"></div>
+                <div class="h-full bg-[var(--pixel-green)] pixel-loader text-[var(--pixel-green)]"></div>
             </div>
             <div class="mt-4 font-text text-sm md:text-xl text-slate-500 animate-pulse text-center">
-                Le dashboard sera activé le jour de l'événement...
+                La page est en reconstruction avec le changement du format de 2026...
             </div>
         </div>
     </main>
@@ -157,6 +157,32 @@
                 true
             );
             */
+            
+            // Polling Twitch autonome pour garder les indicateurs Live actifs pendant la reconstruction
+            const checkTwitchLive = async () => {
+                const streamers = ["theguill84", "nykho"];
+                await Promise.all(streamers.map(async (streamer) => {
+                    try {
+                        const response = await fetch(`https://decapi.me/twitch/uptime/${streamer}`);
+                        const text = await response.text();
+                        const liveBadge = document.getElementById(`live-${streamer}`);
+                        const linkElement = document.getElementById(`link-${streamer}`);
+
+                        if (liveBadge && linkElement) {
+                            const isLive = !text.includes("offline") && !text.includes("Error") && !text.includes("User not found");
+                            liveBadge.classList.toggle('hidden', !isLive);
+
+                            const activeColor = streamer === "theguill84" ? "text-[var(--pixel-orange)]" : "text-[#9146FF]";
+                            linkElement.classList.toggle(activeColor, isLive);
+                            linkElement.classList.toggle('text-slate-400', !isLive);
+                        }
+                    } catch (e) {
+                        console.error(`Erreur Twitch ${streamer}:`, e);
+                    }
+                }));
+            };
+            checkTwitchLive();
+            setInterval(checkTwitchLive, 120000);
         });
     </script>
     <script>
