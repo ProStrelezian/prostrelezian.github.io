@@ -106,7 +106,7 @@
                     <div id="status"
                         class="font-text text-xs sm:text-sm lg:text-base text-slate-500 flex items-center justify-center gap-1.5 w-full xl:w-auto mt-1 xl:mt-0 shrink-0"
                         aria-live="polite">
-                        <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-slate-500 shrink-0" aria-hidden="true"></span> <span class="whitespace-nowrap">EN ATTENTE</span>
+                        <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[var(--pixel-red)] animate-pulse shrink-0" aria-hidden="true"></span> <span class="whitespace-nowrap">INIT...</span>
                     </div>
                 </div>
                 </div>
@@ -118,14 +118,14 @@
         <div class="flex flex-col items-center justify-center py-12 md:py-24 px-3 md:px-0" role="status">
             <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest mb-6 text-center drop-shadow-[0_0_8px_var(--pixel-green)]"
                 style="color: var(--pixel-green)">
-                EN ATTENTE DE LA ZLAN 2026
+                CHARGEMENT EN COURS...
             </div>
             <div
                 class="w-64 md:w-96 h-6 md:h-8 border-4 border-[#27272a] bg-[#09090b] relative overflow-hidden pixel-card p-1">
-                <div class="h-full bg-[#27272a] w-full"></div>
+                <div class="h-full bg-[var(--pixel-green)] pixel-loader text-[var(--pixel-green)]"></div>
             </div>
             <div class="mt-4 font-text text-sm md:text-xl text-slate-500 animate-pulse text-center">
-                Le dashboard sera activé le jour de l'événement...
+                CONNEXION AUX SERVEURS... (C'est faux, y'a juste un Google Sheet derrière mais chut)
             </div>
         </div>
     </main>
@@ -148,7 +148,6 @@
     <script src="./counter.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            /* Dashboard gelé en attendant l'événement
             // URL encodée, Live Twitch activé (true), URL de l'image, Format 2026 activé (true)
             new ZlanDashboard(
                 'aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMWxUUUl4cjFyYWxMUUZPekdzWThiXzNvNUZGN2N1RGROY3VEcE4xWEQyYzQvZXhwb3J0P2Zvcm1hdD1jc3YmZ2lkPTA=',
@@ -156,7 +155,6 @@
                 'https://yt3.ggpht.com/zs8gmrzyEG1Sn_iUIFnS7usvq-1BTT3lYt5YsbH_Br-Jjs4Xhpr21suv5hZuaXnpkujlT6eWFT0R6Q',
                 true
             );
-            */
         });
     </script>
     <script>
