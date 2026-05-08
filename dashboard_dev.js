@@ -90,11 +90,11 @@ class ZlanDashboard {
 
                 htmlChunks.team = `
                     <section class="mb-8 md:mb-12 flex justify-center w-full px-2 md:px-0">
-                        <div class="w-full max-w-[800px]">
+                        <div class="w-full max-w-[960px]">
                             <div class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 border-[#27272a] border-l-[var(--pixel-orange)] flex flex-col md:flex-row items-center p-5 md:p-8">
                                 ${avatarHtml}
                                 <div class="flex flex-col items-center md:items-start text-center md:text-left flex-1">
-                                    <div class="text-[var(--pixel-orange)] font-text text-sm md:text-lg mb-1 tracking-widest">>>> ÉQUIPE</div>
+                                    <div class="text-[var(--pixel-orange)] font-text text-sm md:text-lg mb-1 tracking-widest">>>> JOUEURS ENGAGÉS</div>
                                     <h2 class="text-xl md:text-3xl lg:text-4xl font-pixel tracking-widest text-white">
                                         ${cleanTeam}
                                     </h2>
@@ -112,13 +112,12 @@ class ZlanDashboard {
                     if (isWin) state.tournamentWon = true;
 
                     let colorVar = state.tournamentWon ? "var(--pixel-green)" : (state.tournamentOver ? "var(--pixel-red)" : "var(--pixel-green)");
-                    let bgColor = state.tournamentWon ? "rgba(100, 255, 218, 0.05)" : (state.tournamentOver ? "rgba(229, 57, 53, 0.05)" : "rgba(100, 255, 218, 0.05)");
 
                     htmlChunks.finalRank = `
                         <section class="pixel-animate-enter mt-6 md:mt-12 mb-10 md:mb-16 flex justify-center w-full px-2 md:px-0" style="animation-delay: ${animDelay}s;">
-                            <div class="pixel-card border-2 px-4 py-5 md:px-10 md:p-13 w-full max-w-[720px]" style="border-color: ${colorVar}; text-align: center; background: ${bgColor};">
-                                <h2 class="text-slate-400 font-text text-lg md:text-3xl mb-1 tracking-widest">RÉSULTAT FINAL</h2>
-                                <p class="text-2xl md:text-6xl font-pixel tracking-widest" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.5);">${finalRankText}</p>
+                            <div class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 px-5 py-6 md:px-8 md:py-8 w-full max-w-[720px] flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8" style="border-left-color: ${colorVar};">
+                                <div class="text-slate-400 font-text text-sm md:text-xl tracking-widest text-center md:text-left flex-1">>>> RÉSULTAT FINAL</div>
+                                <div class="text-2xl md:text-4xl lg:text-5xl font-pixel tracking-widest text-center md:text-right flex-1" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.3);">${finalRankText}</div>
                             </div>
                         </section>`;
                 }
@@ -152,28 +151,28 @@ class ZlanDashboard {
                 `).join('');
 
                 htmlChunks.seeding = `
-                    <section class="pixel-card mt-6 mx-2 md:mx-0">
-                        <header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative">
-                            <div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
-                            <h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
+                    <section class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 mt-6 mx-2 md:mx-0 overflow-hidden" style="border-left-color: var(--pixel-orange);">
+                        <header class="px-3 py-3 md:px-5 md:py-4 flex flex-col md:flex-row justify-between items-center bg-[#09090b]/50 border-b border-[#27272a]">
+                            <div class="text-slate-400 font-text text-sm md:text-base tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
+                            <h2 class="font-pixel text-lg md:text-2xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
                         </header>
-                        <div class="p-2 md:p-0">
+                        <div class="p-0">
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[500px]">
-                                    <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
+                                    <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-transparent border-b border-[#27272a]">
                                         <div class="col-span-2">JEUX</div>
                                         <div class="col-span-2">PLACE</div>
                                         ${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}
                                     </div>
-                                    <div class="bg-[#0f0f13]">${gamesHtml}</div>
+                                    <div class="bg-transparent">${gamesHtml}</div>
                                 </div>
                             </div>
                         </div>
                         ${seedingScore ? `
-                        <div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row">
-                            <div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span></div>
-                            <div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${has(seedingScore, 'EN ATTENTE') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};">
-                                <span class="font-pixel text-xl md:text-5xl" style="color: ${has(seedingScore, 'EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${seedingScore}</span>
+                        <div class="flex border-t border-[#27272a] mt-auto flex-col md:flex-row bg-[#09090b]/30">
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-sm md:text-xl text-slate-400 pl-0 md:pl-2">SEED FINALE</span></div>
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-end md:border-l border-t md:border-t-0 border-[#27272a]">
+                                <span class="font-pixel text-xl md:text-3xl pr-0 md:pr-2" style="color: ${has(seedingScore, 'EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${seedingScore}</span>
                             </div>
                         </div>` : ''}
                     </section>`;
@@ -248,7 +247,6 @@ class ZlanDashboard {
                 }).join('');
 
                 let isOui = has(qualifKnockout, "OUI") || has(qualifKnockout, "WIN");
-                let bgRight = isOui ? "rgba(100, 255, 218, 0.1)" : (has(qualifKnockout, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)");
                 let textRight = isOui ? "var(--pixel-green)" : (has(qualifKnockout, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)");
 
                 // Header strict 2025 vs 2026
@@ -257,28 +255,28 @@ class ZlanDashboard {
                     : `<div class="col-span-3">JEUX</div><div class="col-span-3">CONTRE QUI ?</div><div class="col-span-3">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div>`;
 
                 htmlChunks.knockout = `
-                    <section class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0">
-                        <header class="pixel-header-green px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
-                            <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
-                            <h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2>
+                    <section class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 mt-6 md:mt-10 mx-2 md:mx-0 overflow-hidden" style="border-left-color: var(--pixel-green);">
+                        <header class="px-3 py-3 md:px-5 md:py-4 flex flex-col md:flex-row justify-between items-center bg-[#09090b]/50 border-b border-[#27272a]">
+                            <div class="text-slate-400 font-text text-sm md:text-base tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
+                            <h2 class="font-pixel text-lg md:text-2xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2>
                         </header>
-                        <div class="p-2 md:p-0">
+                        <div class="p-0">
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[800px]">
-                                    <div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">
+                                    <div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-transparent border-b border-[#27272a]">
                                         ${headerHtml}
                                     </div>
-                                    <div class="bg-[#0f0f13]">${gamesHtml}</div>
+                                    <div class="bg-transparent">${gamesHtml}</div>
                                 </div>
                             </div>
                         </div>
                         ${qualifKnockout ? `
-                        <div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row">
-                            <div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">QUALIFIÉ ?</span></div>
-                            <div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bgRight};">
-                                <span class="font-pixel text-xl md:text-5xl" style="color: ${textRight};">${qualifKnockout}</span>
+                        <div class="flex border-t border-[#27272a] mt-auto flex-col md:flex-row bg-[#09090b]/30">
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-sm md:text-xl text-slate-400 pl-0 md:pl-2">QUALIFIÉ ?</span></div>
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-end md:border-l border-t md:border-t-0 border-[#27272a]">
+                                <span class="font-pixel text-xl md:text-3xl pr-0 md:pr-2" style="color: ${textRight};">${qualifKnockout}</span>
                             </div>
-                            ${qualifKnockoutScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: var(--pixel-green);">${qualifKnockoutScore}</span></div>` : ''}
+                            ${qualifKnockoutScore ? `<div class="w-full md:w-auto px-4 py-3 md:py-4 flex items-center justify-center border-t md:border-t-0 md:border-l border-[#27272a]"><span class="font-pixel text-lg md:text-2xl" style="color: var(--pixel-green);">${qualifKnockoutScore}</span></div>` : ''}
                         </div>` : ''}
                     </section>`;
                 i = j - 1;
@@ -322,7 +320,6 @@ class ZlanDashboard {
                     j++;
                 }
 
-                let headerClass = isFinale ? "pixel-header-violet" : (isRedPhase ? "pixel-header-red" : "pixel-header-blue");
                 let titleColor = isFinale ? "var(--pixel-violet)" : (isRedPhase ? "var(--pixel-red)" : "var(--pixel-blue)");
 
                 // Appliquer un dégradé de bleus dynamiquement pour les phases de groupes standards
@@ -370,30 +367,29 @@ class ZlanDashboard {
                 let qualifHtml = "";
                 if (qualifStatus) {
                     let isOui = has(qualifStatus, "OUI") || has(qualifStatus, "WIN");
-                    let bgRight = isOui ? "rgba(100, 255, 218, 0.1)" : (has(qualifStatus, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)");
                     let textRight = isOui ? "var(--pixel-green)" : (has(qualifStatus, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)");
                     qualifHtml = `
-                        <div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row">
-                            <div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">${isFinale ? "WIN ?" : "QUALIFIÉ ?"}</span></div>
-                            <div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bgRight};">
-                                <span class="font-pixel text-xl md:text-5xl" style="color: ${textRight};">${qualifStatus}</span>
+                        <div class="flex border-t border-[#27272a] mt-auto flex-col md:flex-row bg-[#09090b]/30">
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-sm md:text-xl text-slate-400 pl-0 md:pl-2">${isFinale ? "WIN ?" : "QUALIFIÉ ?"}</span></div>
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-end md:border-l border-t md:border-t-0 border-[#27272a]">
+                                <span class="font-pixel text-xl md:text-3xl pr-0 md:pr-2" style="color: ${textRight};">${qualifStatus}</span>
                             </div>
-                            ${qualifStatusScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: ${titleColor};">${qualifStatusScore}</span></div>` : ''}
+                            ${qualifStatusScore ? `<div class="w-full md:w-auto px-4 py-3 md:py-4 flex items-center justify-center border-t md:border-t-0 md:border-l border-[#27272a]"><span class="font-pixel text-lg md:text-2xl" style="color: ${titleColor};">${qualifStatusScore}</span></div>` : ''}
                         </div>`;
                 }
 
                 htmlChunks.groups += `
-                    <article class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0">
-                        <header class="${headerClass} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
-                            <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
-                            <h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
+                    <article class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0 overflow-hidden" style="border-left-color: ${titleColor};">
+                        <header class="px-3 py-3 md:px-5 md:py-4 flex flex-col md:flex-row justify-between items-center bg-[#09090b]/50 border-b border-[#27272a]">
+                            <div class="text-slate-400 font-text text-sm md:text-base tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
+                            <h2 class="font-pixel text-lg md:text-2xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
                         </header>
-                        ${teamsTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${teamsTitle}</div>` : ''}
-                        ${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}
-                        <div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0">
+                        ${teamsTitle ? `<div class="bg-[#18181b]/50 p-2 md:p-3 text-center font-text text-sm md:text-lg text-slate-400 border-b border-[#27272a]">${teamsTitle}</div>` : ''}
+                        ${teams ? `<div class="bg-[#18181b]/80 p-2 md:p-3 text-center font-pixel text-xs md:text-sm text-white border-b border-[#27272a]">${teams}</div>` : ''}
+                        <div class="flex-grow p-0 border-t border-[#27272a] md:border-0">
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[600px]">
-                                    <div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">
+                                    <div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-transparent border-b border-[#27272a]">
                                         ${groupHeaderHtml}
                                     </div>
                                     ${gamesHtml || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}
