@@ -101,8 +101,10 @@ class ZlanDashboard {
             if (teamText) {
                 let cleanTeam = teamText.replace(/TEAM\s*:/i, '').trim();
                 let avatarHtml = this.avatarUrl ? `
-                    <div class="flex-shrink-0">
-                        <img src="${this.avatarUrl}" alt="Avatar" class="h-[80px] md:h-[140px] lg:h-[180px] w-auto max-w-full border-[3px] border-[var(--pixel-orange)] shadow-[6px_6px_0px_rgba(0,0,0,0.8)] object-cover">
+                    <div class="flex-shrink-0 transition-transform duration-300 hover:scale-105" style="filter: drop-shadow(6px 6px 0px rgba(0,0,0,0.8));">
+                        <div class="bg-[var(--pixel-orange)] p-[4px]" style="clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 8px 8px);">
+                            <img src="${this.avatarUrl}" alt="Avatar" class="h-[80px] md:h-[140px] lg:h-[180px] w-auto max-w-full object-cover block" style="clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 4px 4px);">
+                        </div>
                     </div>
                 ` : '';
 
@@ -167,7 +169,7 @@ class ZlanDashboard {
 
                 let gamesHtml = games.map((g, idx) => `
                     <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
-                        <div class="col-span-2 font-pixel text-slate-200 text-[10px] md:text-lg lg:text-2xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center">${g.name}</div>
+                        <div class="col-span-2 font-pixel text-[9px] md:text-base lg:text-xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center" style="color: var(--pixel-orange);">${g.name}</div>
                         <div class="col-span-2 font-text text-sm md:text-xl lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
                         ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>` : ''}
                     </div>
@@ -250,7 +252,7 @@ class ZlanDashboard {
                     let colScore = this.is2026 ? 'col-span-2' : 'col-span-3';
 
                     let htmlRow = `<div class="grid grid-cols-12 text-[10px] text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">`;
-                    htmlRow += `<div class="${colJeux} font-pixel text-slate-100 text-[9px] md:text-lg lg:text-2xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase">${g.name}</div>`;
+                    htmlRow += `<div class="${colJeux} font-pixel text-[8px] md:text-base lg:text-xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase" style="color: var(--pixel-green);">${g.name}</div>`;
 
                     if (this.is2026) {
                         let choixColor = has(g.choix, "OUI") || has(g.choix, "CHOISI") ? "text-[var(--pixel-green)]" : (has(g.choix, "NON") || has(g.choix, "BAN") ? "text-[var(--pixel-red)]" : "text-white");
@@ -314,7 +316,7 @@ class ZlanDashboard {
                 }
 
                 let groupTitle = row.find(c => isGroupPhase(c)) || row[0];
-                let teamsTitle = "", teams = "", games = [], qualifStatus = "", qualifStatusScore = "";
+                let teamsTitle = "", teams = "", contreTitle = "", contre = "", games = [], qualifStatus = "", qualifStatusScore = "";
                 let isFinale = has(groupTitle, "PHASE FINALE");
                 let isRedPhase = has(groupTitle, "PHASE A") || has(groupTitle, "PHASE À 4") || has(groupTitle, "PHASE À 3") || has(groupTitle, "PHASE À");
 
@@ -330,12 +332,22 @@ class ZlanDashboard {
                         let isOui = has(qualifStatus, "OUI") || has(qualifStatus, "WIN");
                         if (isFinale && isOui) { state.tournamentOver = true; state.tournamentWon = true; }
                         else if (!isOui && !has(qualifStatus, "EN ATTENTE") && qualifStatus.trim()) { state.tournamentOver = true; }
-                    } else if (subRow.some(c => has(c, "TEAMS PRÉSENTES"))) {
-                        teamsTitle = subRow.find(c => has(c, "TEAMS PRÉSENTES"));
-                        let potentialTeams = subRow.find(c => c.trim() !== "" && !has(c, "TEAMS PRÉSENTES"));
-                        if (potentialTeams) teams = potentialTeams;
+                    } else if (subRow.some(c => has(c, "TEAMS PRÉSENTES") || has(c, "CONTRE"))) {
+                        let presentIdx = subRow.findIndex(c => has(c, "TEAMS PRÉSENTES"));
+                        let contreIdx = subRow.findIndex(c => has(c, "CONTRE"));
+
+                        if (presentIdx !== -1) {
+                            teamsTitle = subRow[presentIdx];
+                            let potentialTeams = subRow.slice(presentIdx + 1).find(c => c.trim() !== "" && !has(c, "CONTRE"));
+                            if (potentialTeams) teams = potentialTeams;
+                        }
+                        if (contreIdx !== -1) {
+                            contreTitle = subRow[contreIdx];
+                            let potentialContre = subRow.slice(contreIdx + 1).find(c => c.trim() !== "" && !has(c, "TEAMS PRÉSENTES"));
+                            if (potentialContre) contre = potentialContre;
+                        }
                     } else if (subRow[0] && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
-                        if (games.length === 0 && !teams) {
+                        if (games.length === 0 && !teams && !contre) {
                             teams = subRow[0];
                         } else if ((subRow[4] && subRow[4].trim() !== "") || (subRow[7] && subRow[7].trim() !== "") || (!((subRow[0].includes(" - ") || subRow[0].includes(" & ")) && subRow[0].length > 20) && subRow[0].length < 50)) {
                             games.push({ name: subRow[0], placeJeu: subRow[4] || subRow[3] || '', place: subRow[7] || subRow[6] || '', heure: subRow[8] || subRow[9] || '' });
@@ -361,7 +373,7 @@ class ZlanDashboard {
                         let colJeux = this.is2026 ? 'col-span-7' : 'col-span-8';
                         let colRes = this.is2026 ? 'col-span-3' : 'col-span-4';
                         return `<div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
-                                    <div class="${colJeux} font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                                    <div class="${colJeux} font-pixel text-[9px] md:text-base lg:text-xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}" style="color: ${titleColor};">${g.name}</div>
                                     <div class="${colRes} font-pixel text-[10px] md:text-lg lg:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
                                     ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
                                 </div>`;
@@ -369,7 +381,7 @@ class ZlanDashboard {
                         let colResJeu = this.is2026 ? 'col-span-3' : 'col-span-4';
                         let colPlace = this.is2026 ? 'col-span-3' : 'col-span-4';
                         return `<div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
-                                    <div class="col-span-4 font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                                    <div class="col-span-4 font-pixel text-[9px] md:text-base lg:text-xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}" style="color: ${titleColor};">${g.name}</div>
                                     <div class="${colResJeu} font-text text-[10px] md:text-lg lg:text-xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
                                     <div class="${colPlace} font-pixel text-[10px] md:text-lg lg:text-xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
                                     ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
@@ -403,14 +415,33 @@ class ZlanDashboard {
                         </div>`;
                 }
 
+                let teamsHtml = "";
+                if (contreTitle && teamsTitle) {
+                    teamsHtml = `
+                        <div class="flex flex-col md:flex-row border-b-2 border-[#27272a]">
+                            <div class="flex-1 flex flex-col md:border-r-2 border-[#27272a]">
+                                <div class="bg-[rgba(229,57,53,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${contreTitle}</div>
+                                <div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div>
+                            </div>
+                            <div class="flex-1 flex flex-col">
+                                <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${teamsTitle}</div>
+                                <div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div>
+                            </div>
+                        </div>`;
+                } else if (teamsTitle || teams) {
+                    teamsHtml = `
+                        ${teamsTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${teamsTitle}</div>` : ''}
+                        ${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}
+                    `;
+                }
+
                 htmlChunks.groups += `
                     <article class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0">
                         <header class="${headerClass} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
                             <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
                             <h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
                         </header>
-                        ${teamsTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${teamsTitle}</div>` : ''}
-                        ${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}
+                        ${teamsHtml}
                         <div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0">
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[600px]">
@@ -483,7 +514,7 @@ class ZlanDashboard {
             ["", "", "QUALIFIÉ ?", "OUI", "2-1"],
             [""],
             ["PHASE À 4 - POULE DE TEST"],
-            ["TEAMS PRÉSENTES", "LES MOCKERS, TEAM B, TEAM C, TEAM D"],
+            ["CONTRE QUI ?", "LES TARDTARDS", "TEAMS PRÉSENTES", "LES MOCKERS"],
             ["LES BONS GROS MOCKERS"],
             ["JEUX", "", "", "", "RÉSULTAT DU JEU", "", "", "PLACE", "LIVE"],
             ["GEOGUESSR", "", "", "", "21000 PTS", "", "", "2ÈME", "18:00"],
