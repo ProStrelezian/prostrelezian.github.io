@@ -13,9 +13,9 @@ const isGroupPhase = (row) => {
     return cells.some(cell => {
         const t = normalizeText(cell);
         if (t.includes("seeding") || t.includes("knockout")) return false;
-        return t.includes("phase") || t.includes("finale") || t.includes("eliminatoire") || 
-               t.includes("demi") || t.includes("quart") || t.includes("huitieme") || 
-               t.includes("groupe") || t.includes("tournoi");
+        return t.includes("phase") || t.includes("finale") || t.includes("eliminatoire") ||
+            t.includes("demi") || t.includes("quart") || t.includes("huitieme") ||
+            t.includes("groupe") || t.includes("tournoi");
     });
 };
 
@@ -53,7 +53,7 @@ class ZlanDashboard {
             const response = await fetch(url, { cache: 'no-store' });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const csvData = await response.text();
-            
+
             if (csvData === this.lastRawData) {
                 this.isFetching = false;
                 this.updateStatus("SYNC OK (Cached)", "green");
@@ -65,7 +65,7 @@ class ZlanDashboard {
             Papa.parse(csvData, {
                 skipEmptyLines: false,
                 complete: (results) => {
-                    if (results?.data) this.handleData(results.data);
+                    if (results && results.data) this.handleData(results.data);
                     this.isFetching = false;
                     this.updateStatus("SYNC OK", "green");
                     setTimeout(() => this.init(), 30000);
@@ -93,7 +93,7 @@ class ZlanDashboard {
     }
 
     handleData(data) {
-        if (!data?.length) return;
+        if (!data || !data.length) return;
         this.buildDashboard(data);
     }
 
@@ -101,14 +101,22 @@ class ZlanDashboard {
         let htmlChunks = { team: "", seeding: "", knockout: "", groups: "", finalRank: "" };
         let state = { tournamentOver: false, tournamentWon: false };
         let timeline = {
-            seeding: { exists: false, finished: false },
-            knockout: { exists: false, finished: false },
-            poules: { exists: false, finished: false },
-            finale: { exists: false, finished: false }
+            seeding: { exists: false, finished: false, target: "section-seeding" },
+            knockout: { exists: false, finished: false, target: "section-knockout" },
+            eliminatoire: { exists: false, finished: false, target: "" },
+            carre: { exists: false, finished: false, target: "" },
+            finale: { exists: false, finished: false, target: "section-finale" }
         };
         let gameStats = { total: 0, completed: 0 };
         let bluePhaseCount = 0;
-        let lastValidRowIndex = data.findLastIndex(row => row.some(c => c?.trim()));
+        let redPhaseCount = 0;
+        let lastValidRowIndex = -1;
+        for (let r = data.length - 1; r >= 0; r--) {
+            if (data[r] && data[r].some(c => c && String(c).trim() !== "")) {
+                lastValidRowIndex = r;
+                break;
+            }
+        }
 
         for (let i = 0; i < data.length; i++) {
             const row = data[i];
@@ -128,44 +136,64 @@ class ZlanDashboard {
             else if (has(r0, "PHASE DE SEEDING")) {
                 let { games, seedingScore, nextIndex } = this.parseSeeding(data, i, lastValidRowIndex);
                 htmlChunks.seeding = this.renderSeedingBlock(games, seedingScore);
+                let phaseTotal = games.length;
+                let phaseCompleted = games.filter(g => g.place && String(g.place).trim() !== "" && !has(g.place, "???") && !has(g.place, "ATTENTE")).length;
+
                 timeline.seeding.exists = true;
-                timeline.seeding.finished = !!(seedingScore && !has(seedingScore, "EN ATTENTE"));
-                
-                gameStats.total += games.length;
-                gameStats.completed += games.filter(g => g.place && !has(g.place, "???") && !has(g.place, "ATTENTE")).length;
-                
+                timeline.seeding.finished = phaseTotal > 0 && phaseCompleted === phaseTotal;
+
+                gameStats.total += phaseTotal;
+                gameStats.completed += phaseCompleted;
+
                 i = nextIndex - 1;
             }
             else if (has(r0, "PHASE DE KNOCKOUT")) {
                 let { games, qualif, score, nextIndex } = this.parseKnockout(data, i, lastValidRowIndex, state);
                 htmlChunks.knockout = this.renderKnockoutBlock(games, qualif, score);
+                let phaseTotal = games.length;
+                let phaseCompleted = games.filter(g => g.resultat && String(g.resultat).trim() !== "" && !has(g.resultat, "???") && !has(g.resultat, "ATTENTE")).length;
+
                 timeline.knockout.exists = true;
-                timeline.knockout.finished = !!(qualif && !has(qualif, "EN ATTENTE") && (has(qualif, "OUI") || has(qualif, "WIN")));
-                
-                gameStats.total += games.length;
-                gameStats.completed += games.filter(g => g.resultat && !has(g.resultat, "???") && !has(g.resultat, "ATTENTE")).length;
-                
+                timeline.knockout.finished = phaseTotal > 0 && phaseCompleted === phaseTotal;
+
+                gameStats.total += phaseTotal;
+                gameStats.completed += phaseCompleted;
+
                 i = nextIndex - 1;
             }
             else if (isGroupPhase(row)) {
                 let groupTitle = row.find(c => isGroupPhase(c)) || row[0];
                 let isF = has(groupTitle, "PHASE FINALE");
-                let { chunk, nextIndex, blueCount, qStatus, gamesCount, completedCount } = this.renderGroupBlock(data, i, lastValidRowIndex, state, bluePhaseCount);
+                let isR = has(groupTitle, "PHASE A") || has(groupTitle, "PHASE À");
+                let { chunk, nextIndex, blueCount, redCount, qStatus, gamesCount, completedCount, articleId } = this.renderGroupBlock(data, i, lastValidRowIndex, state, bluePhaseCount, redPhaseCount);
                 htmlChunks.groups += chunk;
-                
-                let isFinished = !!(qStatus && !has(qStatus, "EN ATTENTE") && (has(qStatus, "OUI") || has(qStatus, "WIN") || has(qStatus, "1ER")));
+                let isFinished = gamesCount > 0 && completedCount === gamesCount;
                 if (isF) {
                     timeline.finale.exists = true;
                     if (state.tournamentWon || isFinished) timeline.finale.finished = true;
+                } else if (isR) {
+                    if (!timeline.carre.exists) {
+                        timeline.carre.exists = true;
+                        timeline.carre.finished = isFinished;
+                        timeline.carre.target = articleId;
+                    } else {
+                        timeline.carre.finished = timeline.carre.finished && isFinished;
+                    }
                 } else {
-                    timeline.poules.exists = true;
-                    timeline.poules.finished = isFinished;
+                    if (!timeline.eliminatoire.exists) {
+                        timeline.eliminatoire.exists = true;
+                        timeline.eliminatoire.finished = isFinished;
+                        timeline.eliminatoire.target = articleId;
+                    } else {
+                        timeline.eliminatoire.finished = timeline.eliminatoire.finished && isFinished;
+                    }
                 }
-                
+
                 gameStats.total += gamesCount;
                 gameStats.completed += completedCount;
-                
+
                 bluePhaseCount = blueCount;
+                redPhaseCount = redCount;
                 i = nextIndex - 1;
             }
         }
@@ -187,7 +215,7 @@ class ZlanDashboard {
     }
 
     renderFinalRankBlock(row, r0, state) {
-        let finalRankText = r0 || row.find(c => c?.trim()) || "";
+        let finalRankText = r0 || row.find(c => (c || '').trim()) || "";
         const exitKeywords = ["ÉLIMINÉ", "ELIMINE", "GAGNÉ", "GAGNE", "CHAMPION", "VICTOIRE", "DÉFAITE", "TOP", "CLASSEMENT", "FINI", "1ER", "2EME", "3EME"];
         const isExplicitEnd = exitKeywords.some(kw => has(finalRankText, kw));
         if (isExplicitEnd) state.tournamentOver = true;
@@ -258,40 +286,41 @@ class ZlanDashboard {
         return `<section id="section-knockout" class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0"><header class="pixel-header-green px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[800px]"><div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${qualif ? `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">QUALIFIÉ ?</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bgR};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tR};">${qualif}</span></div>${score ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: var(--pixel-green);">${score}</span></div>` : ''}</div>` : ''}</section>`;
     }
 
-    renderGroupBlock(data, start, lastIndex, state, blueCount) {
+    renderGroupBlock(data, start, lastIndex, state, blueCount, redCount) {
         let groupTitle = data[start].find(c => isGroupPhase(c)) || data[start][0];
         let tTitle = "", teams = "", cTitle = "", contre = "", games = [], qStatus = "", qScore = "";
-        let isF = has(groupTitle, "PHASE FINALE"), isE = has(groupTitle, "ÉLIMINATOIRE");
+        let isF = has(groupTitle, "PHASE FINALE"), isE = has(groupTitle, "ÉLIMINATOIRE"), isR = has(groupTitle, "PHASE A") || has(groupTitle, "PHASE À");
         let j = start + 1;
         while (j < data.length && !isGroupPhase(data[j])) {
             let sub = data[j];
             let isHeaderRow = sub.some(c => has(c, "JEUX") || has(c, "PHASE") || has(c, "RÉSULTATS"));
             let qIdx = isHeaderRow ? -1 : sub.findIndex(c => has(c, "QUALIFIÉ") || has(c, "WIN"));
-            
+
             if (qIdx !== -1) {
                 let vals = sub.slice(qIdx + 1).filter(v => v.trim() !== "");
                 qStatus = vals[0] || ""; qScore = vals[1] || "";
                 let isO = has(qStatus, "OUI") || has(qStatus, "WIN");
                 let isAttente = has(qStatus, "EN ATTENTE") || qStatus.trim() === "";
-                
+
                 if (isF && isO) { state.tournamentOver = true; state.tournamentWon = true; }
                 else if (!isO && !isAttente) state.tournamentOver = true;
             } else if (sub.some(c => { const tc = normalizeText(c); return tc.includes("teams presentes") || tc.includes("contre"); })) {
                 let pIdx = sub.findIndex(c => normalizeText(c).includes("teams presentes")), cIdx = sub.findIndex(c => normalizeText(c).includes("contre"));
-                if (pIdx !== -1) { tTitle = sub[pIdx]; teams = sub.slice(pIdx + 1).find(c => c?.trim() && !has(c, "CONTRE")) || (data[j+1] && data[j+1][pIdx]?.trim() && !has(data[j+1][pIdx], "JEUX") ? data[j+1][pIdx] : ""); }
-                if (cIdx !== -1) { cTitle = sub[cIdx]; contre = sub.slice(cIdx + 1).find(c => c?.trim() && !has(c, "TEAMS")) || (data[j+1] && data[j+1][cIdx]?.trim() && !has(data[j+1][cIdx], "JEUX") ? data[j+1][cIdx] : ""); }
-            } else if (sub.some(c => c?.trim()) && !has(sub[0], "JEUX") && !has(sub[0], "PHASE")) {
-                const isVal = (teams && has(sub[0], teams)) || (contre && has(sub[0], contre)) || (sub[0]?.trim() === "???");
-                if (!isVal && sub[0]?.trim()) {
-                    if (sub[4]?.trim() || sub[7]?.trim() || sub[0].length < 50) games.push({ name: sub[0], placeJeu: sub[4] || sub[3] || '', place: sub[7] || sub[6] || '', heure: sub[8] || sub[9] || '' });
+                if (pIdx !== -1) { tTitle = sub[pIdx]; teams = sub.slice(pIdx + 1).find(c => (c || '').trim() && !has(c, "CONTRE")) || (data[j + 1] && (data[j + 1][pIdx] || '').trim() && !has(data[j + 1][pIdx], "JEUX") ? data[j + 1][pIdx] : ""); }
+                if (cIdx !== -1) { cTitle = sub[cIdx]; contre = sub.slice(cIdx + 1).find(c => (c || '').trim() && !has(c, "TEAMS")) || (data[j + 1] && (data[j + 1][cIdx] || '').trim() && !has(data[j + 1][cIdx], "JEUX") ? data[j + 1][cIdx] : ""); }
+            } else if (sub.some(c => (c || '').trim()) && !has(sub[0], "JEUX") && !has(sub[0], "PHASE")) {
+                const isVal = (teams && has(sub[0], teams)) || (contre && has(sub[0], contre)) || ((sub[0] || '').trim() === "???");
+                if (!isVal && (sub[0] || '').trim()) {
+                    if ((sub[4] || '').trim() || (sub[7] || '').trim() || sub[0].length < 50) games.push({ name: sub[0], placeJeu: sub[4] || sub[3] || '', place: sub[7] || sub[6] || '', heure: sub[8] || sub[9] || '' });
                 }
             }
             if (j === lastIndex) { j++; break; }
             j++;
         }
-        let hC = isF ? "pixel-header-violet" : "pixel-header-blue";
-        let tC = isF ? "var(--pixel-violet)" : ["#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"][blueCount % 5];
-        if (!isF) blueCount++;
+        let hC = isF ? "pixel-header-violet" : (isR ? "pixel-header-red" : "pixel-header-blue");
+        let tC = isF ? "var(--pixel-violet)" : (isR ? "var(--pixel-red)" : ["#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"][blueCount % 5]);
+        if (!isF && !isR) blueCount++;
+        if (isR) redCount++;
         let gH = games.map((g, idx) => {
             let res = isF ? (g.placeJeu || g.place) : g.place;
             let pc = has(res, "EN ATTENTE") ? "#94a3b8" : (has(res, "GAGNÉ") || has(res, "VICTOIRE") ? "var(--pixel-green)" : (has(res, "PERDU") || has(res, "DÉFAITE") ? "var(--pixel-red)" : tC));
@@ -302,68 +331,79 @@ class ZlanDashboard {
         let hH = isF ? (this.is2026 ? `<div class="col-span-7">JEUX</div><div class="col-span-3">RÉSULTATS</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-8">JEUX</div><div class="col-span-4">RÉSULTATS</div>`) : (isE ? `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS SUR LE JEU</div><div class="col-span-4">WIN?</div>` : (this.is2026 ? `<div class="col-span-4">JEUX</div><div class="col-span-3">RÉSULTATS DU JEU</div><div class="col-span-3">PLACE</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS DU JEU</div><div class="col-span-4">PLACE</div>`));
         let qH = ""; if (qStatus) { let isO = has(qStatus, "OUI") || has(qStatus, "WIN"); let bg = isO ? "rgba(100, 255, 218, 0.1)" : (has(qStatus, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)"); let tr = isO ? "var(--pixel-green)" : (has(qStatus, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)"); qH = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">${isF ? "WIN ?" : "QUALIFIÉ ?"}</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bg};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tr};">${qStatus}</span></div>${qScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: ${tC};">${qScore}</span></div>` : ''}</div>`; }
         let tH = (cTitle && tTitle) ? `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]"><div class="flex-1 flex flex-col md:border-r-2 border-[#27272a]"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div><div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div></div><div class="flex-1 flex flex-col"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div><div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div></div></div>` : (tTitle || teams ? `${tTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>` : ''}${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}` : '');
-        let articleId = isF ? "section-finale" : `section-poules-${blueCount}`;
+        let articleId = isF ? "section-finale" : (isR ? `section-carre-${redCount}` : `section-eliminatoire-${blueCount}`);
         let chunk = `<article id="${articleId}" class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0"><header class="${hC} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${tC};">${groupTitle}</h2></header>${tH}<div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[600px]"><div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div>${gH || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}</div></div></div>${qH}</article>`;
-        
+
         let completedCount = games.filter(g => {
             let res = isF ? (g.placeJeu || g.place) : g.place;
-            return res && !has(res, "???") && !has(res, "ATTENTE");
+            return res && String(res).trim() !== "" && !has(res, "???") && !has(res, "ATTENTE");
         }).length;
 
         return { chunk, nextIndex: j, blueCount, qStatus, gamesCount: games.length, completedCount };
     }
 
     renderTracker(timeline, state, gameStats) {
-        if (!timeline.seeding.exists && !timeline.knockout.exists && !timeline.poules.exists) return "";
+        if (!timeline.seeding.exists && !timeline.knockout.exists && !timeline.eliminatoire.exists) return "";
 
         let steps = [
-            { id: "seeding", label: "SEEDING", target: "section-seeding", exists: timeline.seeding.exists, finished: timeline.seeding.finished },
-            { id: "knockout", label: "KNOCKOUT", target: "section-knockout", exists: timeline.knockout.exists, finished: timeline.knockout.finished },
-            { id: "poules", label: "POULES", target: "section-poules-1", exists: timeline.poules.exists, finished: timeline.poules.finished },
-            { id: "finale", label: "FINALE", target: "section-finale", exists: timeline.finale.exists, finished: timeline.finale.finished }
+            { id: "seeding", label: "SEEDING", target: timeline.seeding.target, exists: timeline.seeding.exists, finished: timeline.seeding.finished },
+            { id: "knockout", label: "KNOCKOUT", target: timeline.knockout.target, exists: timeline.knockout.exists, finished: timeline.knockout.finished },
+            { id: "eliminatoire", label: "ÉLIMINATOIRES", target: timeline.eliminatoire.target, exists: timeline.eliminatoire.exists, finished: timeline.eliminatoire.finished },
+            { id: "carre", label: "CARRÉ FINAL", target: timeline.carre.target, exists: timeline.carre.exists, finished: timeline.carre.finished },
+            { id: "finale", label: "FINALE", target: timeline.finale.target, exists: timeline.finale.exists, finished: timeline.finale.finished }
         ];
-        
+
         let progress = gameStats.total > 0 ? Math.round((gameStats.completed / gameStats.total) * 100) : 0;
         if (state.tournamentWon) progress = 100;
 
+        let progressText = `PROGRESSION : ${progress}% (${gameStats.completed}/${gameStats.total})`;
+
+        let activeFound = false;
         let breadcrumbs = steps.map((s, idx) => {
-            let statusClass = s.finished ? "text-[var(--pixel-green)] border-[var(--pixel-green)]" : (s.exists ? "text-[var(--pixel-orange)] border-[var(--pixel-orange)] animate-pulse shadow-[0_0_8px_var(--pixel-orange)]" : "text-slate-600 border-slate-700");
-            let icon = s.finished ? "✓" : (s.exists ? "▶" : "🔒");
-            let bg = s.finished ? "bg-[rgba(100,255,218,0.1)]" : (s.exists ? "bg-[rgba(245,158,11,0.1)]" : "bg-[#18181b]");
+            let isActive = false;
+            if (s.exists && !s.finished && !activeFound) {
+                isActive = true;
+                activeFound = true;
+            }
+            let statusClass = s.finished ? "text-[var(--pixel-green)] border-[var(--pixel-green)]" : (isActive ? "text-[var(--pixel-orange)] border-[var(--pixel-orange)] animate-pulse shadow-[0_0_8px_var(--pixel-orange)]" : "text-slate-600 border-slate-700 opacity-70");
+            let icon = s.finished ? "✓" : (isActive ? "▶" : "🔒");
+            let bg = s.finished ? "bg-[rgba(100,255,218,0.1)]" : (isActive ? "bg-[rgba(245,158,11,0.1)]" : "bg-[#18181b]");
             let pointer = s.exists ? "cursor-pointer hover:-translate-y-1 hover:brightness-125" : "cursor-default opacity-50";
-            
+
             return `
                 <div class="flex items-center">
-                    <div onclick="${s.exists ? `document.getElementById('${s.target}')?.scrollIntoView({behavior: 'smooth'})` : ''}" 
-                         class="flex items-center gap-1.5 md:gap-2 px-2 py-1.5 md:px-4 md:py-2 border-2 ${statusClass} ${bg} ${pointer} font-pixel text-[8px] md:text-sm transition-all duration-300">
+                    <div onclick="${s.exists ? `var el = document.getElementById('${s.target}'); if(el) el.scrollIntoView({behavior: 'smooth'})` : ''}" 
+                         class="flex items-center gap-1 md:gap-1.5 px-1.5 py-1 md:px-3 md:py-1.5 border-2 ${statusClass} ${bg} ${pointer} font-pixel text-[7px] md:text-[11px] lg:text-xs transition-all duration-300">
                         <span>${icon}</span>
                         <span>${s.label}</span>
                     </div>
-                    ${idx < steps.length - 1 ? `<div class="w-4 md:w-8 h-0.5 md:h-1 bg-slate-700 mx-1 md:mx-2"></div>` : ''}
+                    ${idx < steps.length - 1 ? `<div class="w-2 md:w-4 lg:w-6 h-0.5 md:h-1 bg-slate-700 mx-1"></div>` : ''}
                 </div>
             `;
         }).join('');
 
         return `
-            <section class="mt-6 md:mt-10 mx-2 md:mx-0 w-full max-w-[900px] self-center pixel-card border-[3px] md:border-4 border-[#27272a] bg-[#09090b] p-3 md:p-5 relative flex flex-col items-center pixel-animate-enter mx-auto">
-                <div class="absolute -top-3 md:-top-4 left-4 bg-[#09090b] px-2 font-pixel text-[8px] md:text-xs text-slate-400 border border-[#27272a]">SUIVI DU TOURNOI</div>
-                
-                <div class="flex flex-wrap justify-center items-center mb-4 md:mb-6 overflow-x-auto w-full pb-2">
-                    <div class="flex items-center min-w-max">
-                        ${breadcrumbs}
+            <section class="mt-6 md:mt-10 mb-6 md:mb-10 flex justify-center w-full px-2 md:px-0 pixel-animate-enter">
+                <div class="w-full max-w-[920px] pixel-card border-[3px] md:border-4 border-[#27272a] bg-[#09090b] p-4 md:p-6 relative flex flex-col items-center">
+                    <div class="absolute -top-3 md:-top-4 left-4 bg-[#09090b] px-2 font-pixel text-[8px] md:text-xs text-slate-400 border border-[#27272a]">SUIVI DU TOURNOI</div>
+                    
+                    <div class="flex flex-wrap justify-center items-center mb-6 md:mb-8 overflow-x-auto w-full pb-2">
+                        <div class="flex items-center min-w-max">
+                            ${breadcrumbs}
+                        </div>
                     </div>
-                </div>
-                
-                <div class="w-full relative px-2 md:px-6">
-                    <div class="flex justify-between items-end mb-1 md:mb-2">
-                        <span class="font-pixel text-[6px] md:text-[10px] text-slate-500">DÉBUT</span>
-                        <span class="font-pixel text-[8px] md:text-sm text-[var(--pixel-green)]">PROGRESSION : ${progress}%</span>
-                        <span class="font-pixel text-[6px] md:text-[10px] text-slate-500">VICTOIRE</span>
-                    </div>
-                    <div class="h-3 md:h-5 w-full bg-[#18181b] border-2 border-[#27272a] relative overflow-hidden">
-                        <div class="h-full bg-[var(--pixel-green)] transition-all duration-1000 ease-out relative" style="width: ${progress}%; box-shadow: 0 0 10px var(--pixel-green);">
-                            ${progress > 0 && progress < 100 ? `<div class="absolute top-0 right-0 w-1.5 md:w-2 h-full bg-white opacity-50 animate-pulse"></div>` : ''}
-                            <div class="absolute top-0 left-0 w-full h-full opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.5) 10px, rgba(0,0,0,0.5) 20px);"></div>
+                    
+                    <div class="w-full relative px-2 md:px-8">
+                        <div class="flex justify-between items-end mb-1 md:mb-2">
+                            <span class="font-pixel text-[6px] md:text-[10px] text-slate-500">DÉBUT</span>
+                            <span class="font-pixel text-[8px] md:text-sm text-[var(--pixel-green)]">${progressText}</span>
+                            <span class="font-pixel text-[6px] md:text-[10px] text-slate-500">VICTOIRE</span>
+                        </div>
+                        <div class="h-3 md:h-5 w-full bg-[#18181b] border-2 border-[#27272a] relative overflow-hidden">
+                            <div class="h-full bg-[var(--pixel-green)] transition-all duration-1000 ease-out relative" style="width: ${progress}%; box-shadow: 0 0 10px var(--pixel-green);">
+                                ${progress > 0 && progress < 100 ? `<div class="absolute top-0 right-0 w-1.5 md:w-2 h-full bg-white opacity-50 animate-pulse"></div>` : ''}
+                                <div class="absolute top-0 left-0 w-full h-full opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.5) 10px, rgba(0,0,0,0.5) 20px);"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -380,7 +420,7 @@ class ZlanDashboard {
                 const isLive = !text.includes("offline") && !text.includes("Error") && !text.includes("User not found");
                 const badge = document.getElementById(`live-${streamer}`), link = document.getElementById(`link-${streamer}`);
                 if (badge && link) { badge.classList.toggle('hidden', !isLive); const c = streamer === "theguill84" ? "text-[var(--pixel-orange)]" : "text-[#9146FF]"; link.classList.toggle(c, isLive); link.classList.toggle('text-slate-400', !isLive); }
-            } catch (e) {}
+            } catch (e) { }
         }));
     }
 
