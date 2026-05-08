@@ -12,7 +12,8 @@ const isGroupPhase = (row) => {
     const cells = Array.isArray(row) ? row.slice(0, 3) : [row];
     return cells.some(cell => {
         const t = normalizeText(cell);
-        return t.includes("phase") && !t.includes("seeding") && !t.includes("knockout");
+        // Détection élargie : contient "phase" ou est une "finale"
+        return (t.includes("phase") || t.includes("finale") || t.includes("eliminatoire")) && !t.includes("seeding") && !t.includes("knockout");
     });
 };
 
@@ -105,28 +106,22 @@ class ZlanDashboard {
             const r0 = String(row[0] || "");
             const isLastRow = (i === lastValidRowIndex);
 
-            // Toujours traiter le résultat final si c'est la dernière ligne
             if (isLastRow) {
                 htmlChunks.finalRank = this.renderFinalRankBlock(row, r0, state);
             }
 
             if (state.tournamentOver && !isLastRow) continue;
 
-            // --- 1. JOUEURS ENGAGÉS ---
             let teamText = row.find(c => has(c, "TEAM :") || has(c, "TEAM:"));
             if (teamText) {
                 htmlChunks.team = this.renderTeamBlock(teamText);
             }
-
-            // --- 2. PHASE DE SEEDING ---
             else if (has(r0, "PHASE DE SEEDING")) {
                 let { games, seedingScore, nextIndex } = this.parseSeeding(data, i, lastValidRowIndex);
                 if (seedingScore && !has(seedingScore, "EN ATTENTE")) state.seedingFinished = true;
                 htmlChunks.seeding = this.renderSeedingBlock(games, seedingScore);
                 i = nextIndex - 1;
             }
-
-            // --- 3. PHASE DE KNOCKOUT ---
             else if (has(r0, "PHASE DE KNOCKOUT")) {
                 if (!state.seedingFinished) {
                     while (i + 1 < data.length && !isGroupPhase(data[i + 1])) i++;
@@ -137,11 +132,9 @@ class ZlanDashboard {
                 htmlChunks.knockout = this.renderKnockoutBlock(games, qualif, score);
                 i = nextIndex - 1;
             }
-
-            // --- 4. GROUPES & FINALES ---
             else if (isGroupPhase(row)) {
-                // On n'affiche la phase que si la précédente est finie
-                if (!state.knockoutFinished || !state.groupFinished) {
+                // On retire la restriction de state.groupFinished pour forcer l'affichage de toutes les phases présentes
+                if (!state.knockoutFinished) {
                     while (i + 1 < data.length && !isGroupPhase(data[i + 1])) i++;
                     continue;
                 }
