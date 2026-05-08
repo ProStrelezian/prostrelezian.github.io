@@ -320,8 +320,8 @@
         #mt-videos.has-focus .stream-card.is-focused [id^="title-stream-"] {
             font-size: 1.1rem !important;
             text-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
-            overflow: visible !important;
             padding: 0.25rem 0 !important;
+            margin: -0.25rem 0 !important;
         }
 
         @media (min-width: 768px) {
@@ -334,16 +334,23 @@
             #mt-videos.has-focus,
             body.is-fullscreen #mt-videos.has-focus {
                 grid-template-columns: 4fr 1fr !important;
-                grid-template-rows: auto !important;
-                grid-auto-rows: 1fr !important;
             }
+            
+            #mt-videos.has-focus.layout-2, body.is-fullscreen #mt-videos.has-focus.layout-2 { grid-template-rows: 1fr !important; }
+            #mt-videos.has-focus.layout-3, body.is-fullscreen #mt-videos.has-focus.layout-3 { grid-template-rows: repeat(2, 1fr) !important; }
+            #mt-videos.has-focus.layout-4, body.is-fullscreen #mt-videos.has-focus.layout-4 { grid-template-rows: repeat(3, 1fr) !important; }
+            #mt-videos.has-focus.layout-5, body.is-fullscreen #mt-videos.has-focus.layout-5 { grid-template-rows: repeat(4, 1fr) !important; }
+            #mt-videos.has-focus.layout-6, body.is-fullscreen #mt-videos.has-focus.layout-6 { grid-template-rows: repeat(5, 1fr) !important; }
+
+
             #mt-videos.has-focus .stream-card {
                 grid-column: 2 !important;
                 grid-row: auto !important;
+                min-height: 0 !important;
             }
             #mt-videos.has-focus .stream-card.is-focused {
                 grid-column: 1 !important;
-                grid-row: 1 / 10 !important; /* S'étend sur toute la hauteur */
+                grid-row: 1 / -1 !important; /* S'étend dynamiquement sur toute la hauteur exacte */
             }
         }
 
@@ -485,8 +492,8 @@
                             <button class="remove-stream-btn text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel" data-slot="1">X</button>
                         </div>
                     </header>
-                    <div id="container-stream-1" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-1" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible"></div>
+                    <div id="container-stream-1" class="w-full bg-[#18181b] flex-grow relative min-h-0">
+                        <div id="player-stream-1" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible"></div>
                     </div>
                 </div>
 
@@ -501,8 +508,8 @@
                             <button class="remove-stream-btn text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel" data-slot="2">X</button>
                         </div>
                     </header>
-                    <div id="container-stream-2" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-2" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible"></div>
+                    <div id="container-stream-2" class="w-full bg-[#18181b] flex-grow relative min-h-0">
+                        <div id="player-stream-2" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible"></div>
                     </div>
                 </div>
 
@@ -517,8 +524,8 @@
                             <button class="remove-stream-btn text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel" data-slot="3">X</button>
                         </div>
                     </header>
-                    <div id="container-stream-3" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-3" class="w-full aspect-video xl:aspect-auto flex-grow shadow-[0_0_10px_rgba(100,255,218,0.1)] z-10 invisible"></div>
+                    <div id="container-stream-3" class="w-full bg-[#18181b] flex-grow relative min-h-0">
+                        <div id="player-stream-3" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(100,255,218,0.1)] z-10 invisible"></div>
                     </div>
                 </div>
 
@@ -533,8 +540,8 @@
                             <button class="remove-stream-btn text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel" data-slot="4">X</button>
                         </div>
                     </header>
-                    <div id="container-stream-4" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-4" class="w-full aspect-video xl:aspect-auto flex-grow z-10 invisible"></div>
+                    <div id="container-stream-4" class="w-full bg-[#18181b] flex-grow relative min-h-0">
+                        <div id="player-stream-4" class="absolute inset-0 w-full h-full z-10 invisible"></div>
                     </div>
                 </div>
 
@@ -549,8 +556,8 @@
                             <button class="remove-stream-btn text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel" data-slot="5">X</button>
                         </div>
                     </header>
-                    <div id="container-stream-5" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-5" class="w-full aspect-video xl:aspect-auto flex-grow z-10 invisible"></div>
+                    <div id="container-stream-5" class="w-full bg-[#18181b] flex-grow relative min-h-0">
+                        <div id="player-stream-5" class="absolute inset-0 w-full h-full z-10 invisible"></div>
                     </div>
                 </div>
 
@@ -565,8 +572,8 @@
                             <button class="remove-stream-btn text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel" data-slot="6">X</button>
                         </div>
                     </header>
-                    <div id="container-stream-6" class="w-full bg-[#18181b] flex-grow flex flex-col min-h-0 relative items-center justify-center">
-                        <div id="player-stream-6" class="w-full aspect-video xl:aspect-auto flex-grow z-10 invisible"></div>
+                    <div id="container-stream-6" class="w-full bg-[#18181b] flex-grow relative min-h-0">
+                        <div id="player-stream-6" class="absolute inset-0 w-full h-full z-10 invisible"></div>
                     </div>
                 </div>
             </div>
@@ -708,7 +715,7 @@
                 // Event delegation for stream card controls
                 document.querySelectorAll('.remove-stream-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        const slot = parseInt(e.target.dataset.slot);
+                        const slot = parseInt(e.currentTarget.dataset.slot);
                         if (slot) updateStream(slot, '');
                     });
                 });
@@ -716,7 +723,7 @@
                 // Focus stream button
                 document.querySelectorAll('.focus-stream-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        const slot = parseInt(e.target.dataset.slot);
+                        const slot = parseInt(e.currentTarget.dataset.slot);
                         toggleFocus(slot);
                     });
                 });
@@ -724,7 +731,7 @@
                 // Chat tab switching
                 DOM.chatTabs.forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        switchChat(e.target.dataset.target);
+                        switchChat(e.currentTarget.dataset.target);
                     });
                 });
 
@@ -1069,7 +1076,11 @@
                 updateLayout();
 
                 // Delay Twitch embed initialization slightly if TMI is still loading to prioritize main thread
-                setTimeout(() => {
+                const loadInitialStreams = () => {
+                    if (typeof Twitch === 'undefined') {
+                        setTimeout(loadInitialStreams, 100);
+                        return;
+                    }
                     let firstActive = null;
                     for (let i = 1; i <= state.maxSlots; i++) {
                         if (initial[i]) {
@@ -1078,13 +1089,22 @@
                         }
                     }
                     if (firstActive) switchChat(firstActive);
-                }, 50); // Minor delay for UI thread yielding
+                };
+                setTimeout(loadInitialStreams, 50); // Minor delay for UI thread yielding
             }
 
             return { init: initializeApp };
         })();
 
         // Start Application
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', MultitwitchApp.init);
+        } else {
+            MultitwitchApp.init();
+        }
+    </script>
+</body>
+</html> // Start Application
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', MultitwitchApp.init);
         } else {
