@@ -241,7 +241,7 @@ class ZlanDashboard {
                 if (qualifKnockout && !has(qualifKnockout, "EN ATTENTE")) state.knockoutFinished = true;
 
                 let gamesHtml = games.map((g, idx) => {
-                    let resColor = has(g.resultat, "GAGNÉ") || has(g.resultat, "VICTOIRE") ? "text-[var(--pixel-green)]" : (has(g.resultat, "PERDU") || has(g.resultat, "DÉFAITE") || has(g.resultat, "NON") ? "text-[var(--pixel-red)]" : "text-white");
+                    let resColor = has(g.resultat, "GAGNÉ") || has(g.resultat, "VICTOIRE") ? "text-[var(--pixel-green)]" : (has(g.resultat, "PERDU") || has(g.resultat, "DÉFAITE") || has(g.resultat, "NON") ? "text-[var(--pixel-red)]" : (has(g.resultat, "ATTENTE") ? "text-slate-600" : "text-white"));
                     let scoresHtml = g.score.map(s => `<div>${s}</div>`).join('');
                     let numVies = parseInt(g.vies);
                     let viesDisplay = !isNaN(numVies) && numVies > 0 ? `<div class="flex gap-1 justify-center flex-wrap" style="text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.8);">${Array(numVies).fill('<span style="color: var(--pixel-red);">♥</span>').join('')}</div>` : (numVies === 0 ? `<span class="font-pixel text-slate-600">X</span>` : `<span class="text-slate-700">-</span>`);
@@ -259,7 +259,7 @@ class ZlanDashboard {
                         htmlRow += `<div class="col-span-2 font-text text-[10px] md:text-lg lg:text-xl ${choixColor} px-1 py-1.5 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>`;
                     }
 
-                    htmlRow += `<div class="${colContre} font-text text-[10px] md:text-lg lg:text-xl text-slate-400 px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>`;
+                    htmlRow += `<div class="${colContre} font-text text-[10px] md:text-lg lg:text-xl text-[var(--pixel-red)] px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>`;
                     htmlRow += `<div class="${colScore} font-text text-[10px] md:text-xl lg:text-2xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${scoresHtml}</div>`;
                     htmlRow += `<div class="col-span-2 font-pixel text-[7px] md:text-sm lg:text-lg ${resColor} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>`;
                     htmlRow += `<div class="col-span-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]">${viesDisplay}</div>`;
@@ -318,6 +318,7 @@ class ZlanDashboard {
                 let groupTitle = row.find(c => isGroupPhase(c)) || row[0];
                 let teamsTitle = "", teams = "", contreTitle = "", contre = "", games = [], qualifStatus = "", qualifStatusScore = "";
                 let isFinale = has(groupTitle, "PHASE FINALE");
+                let isEliminatoire = has(groupTitle, "ÉLIMINATOIRE");
                 let isRedPhase = has(groupTitle, "PHASE A") || has(groupTitle, "PHASE À 4") || has(groupTitle, "PHASE À 3") || has(groupTitle, "PHASE À");
 
                 let j = i + 1;
@@ -339,28 +340,31 @@ class ZlanDashboard {
                         if (presentIdx !== -1) {
                             teamsTitle = subRow[presentIdx];
                             let potentialTeams = subRow.slice(presentIdx + 1).find(c => c && c.trim() !== "" && !has(c, "CONTRE"));
-                            if (potentialTeams) teams = potentialTeams;
+                            if (potentialTeams) {
+                                teams = potentialTeams;
+                            } else if (data[j + 1]) {
+                                let nextVal = data[j + 1][presentIdx];
+                                if (nextVal && nextVal.trim() !== "" && !has(nextVal, "PHASE") && !has(nextVal, "JEUX") && !has(nextVal, "CONTRE")) {
+                                    teams = nextVal;
+                                }
+                            }
                         }
                         if (contreIdx !== -1) {
                             contreTitle = subRow[contreIdx];
                             let potentialContre = subRow.slice(contreIdx + 1).find(c => c && c.trim() !== "" && !has(c, "TEAMS PRÉSENTES"));
-                            if (potentialContre) contre = potentialContre;
-                        }
-                    } else if (subRow.some(c => c && c.trim() !== "") && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
-                        if (games.length === 0 && !teams && !contre) {
-                            let vals = subRow.filter(c => c && c.trim() !== "");
-                            if (contreTitle && teamsTitle) {
-                                if (vals.length >= 2) {
-                                    contre = vals[0];
-                                    teams = vals[1];
-                                } else if (vals.length === 1) {
-                                    let idx = subRow.findIndex(c => c && c.trim() === vals[0]);
-                                    if (idx < 3) contre = vals[0];
-                                    else teams = vals[0];
+                            if (potentialContre) {
+                                contre = potentialContre;
+                            } else if (data[j + 1]) {
+                                let nextVal = data[j + 1][contreIdx];
+                                if (nextVal && nextVal.trim() !== "" && !has(nextVal, "PHASE") && !has(nextVal, "JEUX") && !has(nextVal, "TEAMS")) {
+                                    contre = nextVal;
                                 }
-                            } else {
-                                teams = vals[0] || "";
                             }
+                        }
+                    } else if (subRow.some(c => c && c.trim() !== "") && !has(subRow[0] || "", "JEUX") && !has(subRow[0] || "", "PHASE")) {
+                        // Si on a déjà trouvé contre/teams et que cette ligne est celle des valeurs, on l'ignore comme "jeu"
+                        if ((teams || contre) && (has(subRow[0] || "", teams) || has(subRow[0] || "", contre) || subRow[0] === "???")) {
+                            // Ignorer cette ligne
                         } else {
                             let name = String(subRow[0] || "");
                             if (name.trim() !== "") {
@@ -373,8 +377,8 @@ class ZlanDashboard {
                     j++;
                 }
 
-                let headerClass = isFinale ? "pixel-header-violet" : (isRedPhase ? "pixel-header-red" : "pixel-header-blue");
-                let titleColor = isFinale ? "var(--pixel-violet)" : (isRedPhase ? "var(--pixel-red)" : "var(--pixel-blue)");
+                let headerClass = isFinale ? "pixel-header-violet" : (isEliminatoire ? "pixel-header-green" : (isRedPhase ? "pixel-header-red" : "pixel-header-blue"));
+                let titleColor = isFinale ? "var(--pixel-violet)" : (isEliminatoire ? "var(--pixel-green)" : (isRedPhase ? "var(--pixel-red)" : "var(--pixel-blue)"));
 
                 if (!isFinale && !isRedPhase) {
                     const blueShades = ["#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"];
@@ -394,6 +398,12 @@ class ZlanDashboard {
                                     <div class="${colRes} font-pixel text-[10px] md:text-lg lg:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
                                     ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
                                 </div>`;
+                    } else if (isEliminatoire) {
+                        return `<div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
+                                    <div class="col-span-4 font-pixel text-[9px] md:text-base lg:text-xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}" style="color: ${titleColor};">${g.name}</div>
+                                    <div class="col-span-4 font-text text-[10px] md:text-lg lg:text-xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
+                                    <div class="col-span-4 font-pixel text-[10px] md:text-lg lg:text-xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
+                                </div>`;
                     } else {
                         let colResJeu = this.is2026 ? 'col-span-3' : 'col-span-4';
                         let colPlace = this.is2026 ? 'col-span-3' : 'col-span-4';
@@ -411,6 +421,8 @@ class ZlanDashboard {
                     groupHeaderHtml = this.is2026
                         ? `<div class="col-span-7">JEUX</div><div class="col-span-3">RÉSULTATS</div><div class="col-span-2">LIVE</div>`
                         : `<div class="col-span-8">JEUX</div><div class="col-span-4">RÉSULTATS</div>`;
+                } else if (isEliminatoire) {
+                    groupHeaderHtml = `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS SUR LE JEU</div><div class="col-span-4">WIN?</div>`;
                 } else {
                     groupHeaderHtml = this.is2026
                         ? `<div class="col-span-4">JEUX</div><div class="col-span-3">RÉSULTATS DU JEU</div><div class="col-span-3">PLACE</div><div class="col-span-2">LIVE</div>`
@@ -437,7 +449,7 @@ class ZlanDashboard {
                     teamsHtml = `
                         <div class="flex flex-col md:flex-row border-b-2 border-[#27272a]">
                             <div class="flex-1 flex flex-col md:border-r-2 border-[#27272a]">
-                                <div class="bg-[rgba(229,57,53,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${contreTitle}</div>
+                                <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${contreTitle}</div>
                                 <div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div>
                             </div>
                             <div class="flex-1 flex flex-col">
@@ -530,13 +542,13 @@ class ZlanDashboard {
             ["CULT OF THE LAMB", "", "", "OUI", "AUTRE TEAM", "", "3-0", "GAGNÉ", "2", "17:00"],
             ["", "", "QUALIFIÉ ?", "OUI", "2-1"],
             [""],
-            ["PHASE À 4 - POULE DE TEST"],
+            ["PHASE ÉLIMINATOIRE (16 ÉQUIPES)"],
             ["CONTRE QUI ?", "", "", "TEAMS PRÉSENTES"],
-            ["LES TARDTARDS", "", "", "LES MOCKERS"],
-            ["JEUX", "", "", "", "RÉSULTAT DU JEU", "", "", "PLACE", "LIVE"],
-            ["GEOGUESSR", "", "", "", "21000 PTS", "", "", "2ÈME", "18:00"],
-            ["VALORANT", "", "", "", "13-11", "", "", "1ER", "19:00"],
-            ["", "", "QUALIFIÉ ?", "OUI", "1ER"],
+            ["???", "", "", "???"],
+            ["JEUX", "", "", "", "RÉSULTATS SUR LE JEU", "", "", "WIN?"],
+            ["MINECRAFT", "", "", "", "1ER", "", "", "OUI"],
+            ["VALORANT", "", "", "", "13-5", "", "", "OUI"],
+            ["", "", "QUALIFIÉ ?", "OUI", "2-0"],
             [""],
             ["PHASE FINALE"],
             ["JEUX", "", "", "", "", "", "", "RÉSULTATS", "LIVE"],
