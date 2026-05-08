@@ -94,8 +94,8 @@ class ZlanDashboard {
                             <div class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 border-[#27272a] border-l-[var(--pixel-orange)] flex flex-col md:flex-row items-center p-5 md:p-8">
                                 ${avatarHtml}
                                 <div class="flex flex-col items-center md:items-start text-center md:text-left flex-1">
-                                    <div class="text-[var(--pixel-orange)] font-text text-sm md:text-lg mb-1 tracking-widest">>>> JOUEURS ENGAGÉS</div>
-                                    <h2 class="text-xl md:text-3xl lg:text-4xl font-pixel tracking-widest text-white">
+                                    <div class="text-[var(--pixel-orange)] font-text text-base md:text-xl lg:text-2xl mb-1 tracking-widest">>>> JOUEURS ENGAGÉS</div>
+                                    <h2 class="text-2xl md:text-4xl lg:text-5xl font-pixel tracking-widest text-white">
                                         ${cleanTeam}
                                     </h2>
                                 </div>
@@ -116,8 +116,8 @@ class ZlanDashboard {
                     htmlChunks.finalRank = `
                         <section class="pixel-animate-enter mt-6 md:mt-12 mb-10 md:mb-16 flex justify-center w-full px-2 md:px-0" style="animation-delay: ${animDelay}s;">
                             <div class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 px-5 py-6 md:px-8 md:py-8 w-full max-w-[720px] flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8" style="border-left-color: ${colorVar};">
-                                <div class="text-slate-400 font-text text-sm md:text-xl tracking-widest text-center md:text-left flex-1">>>> RÉSULTAT FINAL</div>
-                                <div class="text-2xl md:text-4xl lg:text-5xl font-pixel tracking-widest text-center md:text-right flex-1" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.3);">${finalRankText}</div>
+                                <div class="text-slate-400 font-text text-base md:text-xl lg:text-2xl tracking-widest text-center md:text-left flex-1">>>> RÉSULTAT FINAL</div>
+                                <div class="text-3xl md:text-5xl lg:text-6xl font-pixel tracking-widest text-center md:text-right flex-1" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.3);">${finalRankText}</div>
                             </div>
                         </section>`;
                 }
@@ -144,22 +144,22 @@ class ZlanDashboard {
 
                 let gamesHtml = games.map((g, idx) => `
                     <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
-                        <div class="col-span-2 font-pixel text-slate-200 text-[10px] md:text-lg lg:text-2xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center">${g.name}</div>
-                        <div class="col-span-2 font-text text-sm md:text-xl lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
-                        ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>` : ''}
+                        <div class="col-span-2 font-pixel text-slate-200 text-xs md:text-base lg:text-xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center">${g.name}</div>
+                        <div class="col-span-2 font-text text-sm md:text-lg lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>
+                        ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[9px] md:text-xs lg:text-sm text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>` : ''}
                     </div>
                 `).join('');
 
                 htmlChunks.seeding = `
                     <section class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 mt-6 mx-2 md:mx-0 overflow-hidden" style="border-left-color: var(--pixel-orange);">
                         <header class="px-3 py-3 md:px-5 md:py-4 flex flex-col md:flex-row justify-between items-center bg-[#09090b]/50 border-b border-[#27272a]">
-                            <div class="text-slate-400 font-text text-sm md:text-base tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
-                            <h2 class="font-pixel text-lg md:text-2xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
+                            <div class="text-slate-400 font-text text-xs md:text-base lg:text-lg tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
+                            <h2 class="font-pixel text-xl md:text-3xl lg:text-4xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
                         </header>
                         <div class="p-0">
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[500px]">
-                                    <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-transparent border-b border-[#27272a]">
+                                    <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-xs md:text-sm lg:text-base text-slate-500 p-1.5 md:p-3 text-center bg-transparent border-b border-[#27272a]">
                                         <div class="col-span-2">JEUX</div>
                                         <div class="col-span-2">PLACE</div>
                                         ${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}
@@ -170,9 +170,9 @@ class ZlanDashboard {
                         </div>
                         ${seedingScore ? `
                         <div class="flex border-t border-[#27272a] mt-auto flex-col md:flex-row bg-[#09090b]/30">
-                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-sm md:text-xl text-slate-400 pl-0 md:pl-2">SEED FINALE</span></div>
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-base md:text-xl lg:text-2xl text-slate-400 pl-0 md:pl-2">SEED FINALE</span></div>
                             <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-end md:border-l border-t md:border-t-0 border-[#27272a]">
-                                <span class="font-pixel text-xl md:text-3xl pr-0 md:pr-2" style="color: ${has(seedingScore, 'EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${seedingScore}</span>
+                                <span class="font-pixel text-2xl md:text-4xl lg:text-5xl pr-0 md:pr-2" style="color: ${has(seedingScore, 'EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${seedingScore}</span>
                             </div>
                         </div>` : ''}
                     </section>`;
@@ -227,20 +227,20 @@ class ZlanDashboard {
                     let colScore = this.is2026 ? 'col-span-2' : 'col-span-3';
 
                     let htmlRow = `<div class="grid grid-cols-12 text-[10px] text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">`;
-                    htmlRow += `<div class="${colJeux} font-pixel text-slate-100 text-[9px] md:text-lg lg:text-2xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase">${g.name}</div>`;
+                    htmlRow += `<div class="${colJeux} font-pixel text-slate-100 text-[10px] md:text-base lg:text-xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase">${g.name}</div>`;
 
                     if (this.is2026) {
                         let choixColor = has(g.choix, "OUI") || has(g.choix, "CHOISI") ? "text-[var(--pixel-green)]" : (has(g.choix, "NON") || has(g.choix, "BAN") ? "text-[var(--pixel-red)]" : "text-white");
-                        htmlRow += `<div class="col-span-2 font-text text-[10px] md:text-lg lg:text-xl ${choixColor} px-1 py-1.5 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>`;
+                        htmlRow += `<div class="col-span-2 font-text text-[10px] md:text-base lg:text-lg ${choixColor} px-1 py-1.5 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>`;
                     }
 
-                    htmlRow += `<div class="${colContre} font-text text-[10px] md:text-lg lg:text-xl text-slate-400 px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>`;
-                    htmlRow += `<div class="${colScore} font-text text-[10px] md:text-xl lg:text-2xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${scoresHtml}</div>`;
-                    htmlRow += `<div class="col-span-2 font-pixel text-[7px] md:text-sm lg:text-lg ${resColor} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>`;
+                    htmlRow += `<div class="${colContre} font-text text-[10px] md:text-base lg:text-lg text-slate-400 px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div>`;
+                    htmlRow += `<div class="${colScore} font-text text-[10px] md:text-lg lg:text-xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${scoresHtml}</div>`;
+                    htmlRow += `<div class="col-span-2 font-pixel text-[9px] md:text-base lg:text-xl ${resColor} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div>`;
                     htmlRow += `<div class="col-span-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]">${viesDisplay}</div>`;
 
                     if (this.is2026) {
-                        htmlRow += `<time class="col-span-1 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 px-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>`;
+                        htmlRow += `<time class="col-span-1 font-pixel italic text-[8px] md:text-xs lg:text-sm text-slate-400 px-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>`;
                     }
                     htmlRow += `</div>`;
                     return htmlRow;
@@ -257,13 +257,13 @@ class ZlanDashboard {
                 htmlChunks.knockout = `
                     <section class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 mt-6 md:mt-10 mx-2 md:mx-0 overflow-hidden" style="border-left-color: var(--pixel-green);">
                         <header class="px-3 py-3 md:px-5 md:py-4 flex flex-col md:flex-row justify-between items-center bg-[#09090b]/50 border-b border-[#27272a]">
-                            <div class="text-slate-400 font-text text-sm md:text-base tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
-                            <h2 class="font-pixel text-lg md:text-2xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2>
+                            <div class="text-slate-400 font-text text-xs md:text-base lg:text-lg tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
+                            <h2 class="font-pixel text-xl md:text-3xl lg:text-4xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2>
                         </header>
                         <div class="p-0">
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[800px]">
-                                    <div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-transparent border-b border-[#27272a]">
+                                    <div class="grid grid-cols-12 font-pixel text-xs md:text-sm lg:text-base text-slate-500 p-1.5 md:p-3 text-center bg-transparent border-b border-[#27272a]">
                                         ${headerHtml}
                                     </div>
                                     <div class="bg-transparent">${gamesHtml}</div>
@@ -272,11 +272,11 @@ class ZlanDashboard {
                         </div>
                         ${qualifKnockout ? `
                         <div class="flex border-t border-[#27272a] mt-auto flex-col md:flex-row bg-[#09090b]/30">
-                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-sm md:text-xl text-slate-400 pl-0 md:pl-2">QUALIFIÉ ?</span></div>
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-base md:text-xl lg:text-2xl text-slate-400 pl-0 md:pl-2">QUALIFIÉ ?</span></div>
                             <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-end md:border-l border-t md:border-t-0 border-[#27272a]">
-                                <span class="font-pixel text-xl md:text-3xl pr-0 md:pr-2" style="color: ${textRight};">${qualifKnockout}</span>
+                                <span class="font-pixel text-2xl md:text-4xl lg:text-5xl pr-0 md:pr-2" style="color: ${textRight};">${qualifKnockout}</span>
                             </div>
-                            ${qualifKnockoutScore ? `<div class="w-full md:w-auto px-4 py-3 md:py-4 flex items-center justify-center border-t md:border-t-0 md:border-l border-[#27272a]"><span class="font-pixel text-lg md:text-2xl" style="color: var(--pixel-green);">${qualifKnockoutScore}</span></div>` : ''}
+                            ${qualifKnockoutScore ? `<div class="w-full md:w-auto px-4 py-3 md:py-4 flex items-center justify-center border-t md:border-t-0 md:border-l border-[#27272a]"><span class="font-pixel text-xl md:text-3xl lg:text-4xl" style="color: var(--pixel-green);">${qualifKnockoutScore}</span></div>` : ''}
                         </div>` : ''}
                     </section>`;
                 i = j - 1;
@@ -337,18 +337,18 @@ class ZlanDashboard {
                         let colJeux = this.is2026 ? 'col-span-7' : 'col-span-8';
                         let colRes = this.is2026 ? 'col-span-3' : 'col-span-4';
                         return `<div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
-                                    <div class="${colJeux} font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
-                                    <div class="${colRes} font-pixel text-[10px] md:text-lg lg:text-2xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
-                                    ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
+                                    <div class="${colJeux} font-pixel text-slate-100 text-[10px] md:text-base lg:text-xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                                    <div class="${colRes} font-pixel text-[10px] md:text-base lg:text-xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${resultText}</div>
+                                    ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[8px] md:text-xs lg:text-sm text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
                                 </div>`;
                     } else {
                         let colResJeu = this.is2026 ? 'col-span-3' : 'col-span-4';
                         let colPlace = this.is2026 ? 'col-span-3' : 'col-span-4';
                         return `<div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
-                                    <div class="col-span-4 font-pixel text-slate-100 text-[10px] md:text-lg lg:text-2xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
-                                    <div class="${colResJeu} font-text text-[10px] md:text-lg lg:text-xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
-                                    <div class="${colPlace} font-pixel text-[10px] md:text-lg lg:text-xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
-                                    ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
+                                    <div class="col-span-4 font-pixel text-slate-100 text-[10px] md:text-base lg:text-xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}">${g.name}</div>
+                                    <div class="${colResJeu} font-text text-[10px] md:text-base lg:text-lg text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div>
+                                    <div class="${colPlace} font-pixel text-[10px] md:text-base lg:text-lg py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${placeColor};">${g.place}</div>
+                                    ${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[8px] md:text-xs lg:text-sm text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}
                                 </div>`;
                     }
                 }).join('');
@@ -370,26 +370,26 @@ class ZlanDashboard {
                     let textRight = isOui ? "var(--pixel-green)" : (has(qualifStatus, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)");
                     qualifHtml = `
                         <div class="flex border-t border-[#27272a] mt-auto flex-col md:flex-row bg-[#09090b]/30">
-                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-sm md:text-xl text-slate-400 pl-0 md:pl-2">${isFinale ? "WIN ?" : "QUALIFIÉ ?"}</span></div>
+                            <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-start"><span class="font-text text-base md:text-xl lg:text-2xl text-slate-400 pl-0 md:pl-2">${isFinale ? "WIN ?" : "QUALIFIÉ ?"}</span></div>
                             <div class="flex-1 p-2.5 md:p-4 flex items-center justify-center md:justify-end md:border-l border-t md:border-t-0 border-[#27272a]">
-                                <span class="font-pixel text-xl md:text-3xl pr-0 md:pr-2" style="color: ${textRight};">${qualifStatus}</span>
+                                <span class="font-pixel text-2xl md:text-4xl lg:text-5xl pr-0 md:pr-2" style="color: ${textRight};">${qualifStatus}</span>
                             </div>
-                            ${qualifStatusScore ? `<div class="w-full md:w-auto px-4 py-3 md:py-4 flex items-center justify-center border-t md:border-t-0 md:border-l border-[#27272a]"><span class="font-pixel text-lg md:text-2xl" style="color: ${titleColor};">${qualifStatusScore}</span></div>` : ''}
+                            ${qualifStatusScore ? `<div class="w-full md:w-auto px-4 py-3 md:py-4 flex items-center justify-center border-t md:border-t-0 md:border-l border-[#27272a]"><span class="font-pixel text-xl md:text-3xl lg:text-4xl" style="color: ${titleColor};">${qualifStatusScore}</span></div>` : ''}
                         </div>`;
                 }
 
                 htmlChunks.groups += `
                     <article class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0 overflow-hidden" style="border-left-color: ${titleColor};">
                         <header class="px-3 py-3 md:px-5 md:py-4 flex flex-col md:flex-row justify-between items-center bg-[#09090b]/50 border-b border-[#27272a]">
-                            <div class="text-slate-400 font-text text-sm md:text-base tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
-                            <h2 class="font-pixel text-lg md:text-2xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
+                            <div class="text-slate-400 font-text text-xs md:text-base lg:text-lg tracking-widest mb-1 md:mb-0">>>> RÉSULTATS DE LA</div>
+                            <h2 class="font-pixel text-xl md:text-3xl lg:text-4xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
                         </header>
-                        ${teamsTitle ? `<div class="bg-[#18181b]/50 p-2 md:p-3 text-center font-text text-sm md:text-lg text-slate-400 border-b border-[#27272a]">${teamsTitle}</div>` : ''}
-                        ${teams ? `<div class="bg-[#18181b]/80 p-2 md:p-3 text-center font-pixel text-xs md:text-sm text-white border-b border-[#27272a]">${teams}</div>` : ''}
+                        ${teamsTitle ? `<div class="bg-[#18181b]/50 p-2 md:p-3 text-center font-text text-sm md:text-lg lg:text-xl text-slate-400 border-b border-[#27272a]">${teamsTitle}</div>` : ''}
+                        ${teams ? `<div class="bg-[#18181b]/80 p-2 md:p-3 text-center font-pixel text-xs md:text-sm lg:text-base text-white border-b border-[#27272a]">${teams}</div>` : ''}
                         <div class="flex-grow p-0 border-t border-[#27272a] md:border-0">
                             <div class="w-full overflow-x-auto pb-2">
                                 <div class="min-w-[600px]">
-                                    <div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-transparent border-b border-[#27272a]">
+                                    <div class="grid grid-cols-12 gap-0 font-pixel text-xs md:text-sm lg:text-base text-slate-500 p-1.5 md:p-2 text-center bg-transparent border-b border-[#27272a]">
                                         ${groupHeaderHtml}
                                     </div>
                                     ${gamesHtml || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}
