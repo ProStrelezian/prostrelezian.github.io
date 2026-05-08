@@ -101,17 +101,21 @@ class ZlanDashboard {
             if (teamText) {
                 let cleanTeam = teamText.replace(/TEAM\s*:/i, '').trim();
                 let avatarHtml = this.avatarUrl ? `
-                    <div class="flex justify-center mb-5 md:mb-8 mt-4">
-                        <img src="${this.avatarUrl}" alt="Avatar" class="h-[80px] md:h-[160px] lg:h-[240px] w-auto max-w-full border-[3px] border-[var(--pixel-orange)] shadow-[6px_6px_0px_rgba(0,0,0,0.8)] object-cover">
+                    <div class="flex-shrink-0">
+                        <img src="${this.avatarUrl}" alt="Avatar" class="h-[80px] md:h-[140px] lg:h-[180px] w-auto max-w-full border-[3px] border-[var(--pixel-orange)] shadow-[6px_6px_0px_rgba(0,0,0,0.8)] object-cover">
                     </div>
-                ` : '<div class="mt-4"></div>';
+                ` : '';
 
                 htmlChunks.team = `
                     <section class="mb-6 md:mb-12 flex justify-center w-full px-2 md:px-0">
-                        <div class="pixel-card border-b-4 px-4 py-5 md:px-8 md:p-10 w-full max-w-[920px]" style="border-bottom-color: var(--pixel-orange); text-align: center;">
-                            <h1 class="text-[var(--pixel-orange)] font-text text-lg md:text-2xl mb-1.5 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1>
-                            ${avatarHtml}
-                            <p class="text-lg md:text-4xl font-pixel text-white tracking-wider">${cleanTeam}</p>
+                        <div class="pixel-card border-b-4 px-4 py-5 md:px-8 md:p-8 w-full max-w-[920px]" style="border-bottom-color: var(--pixel-orange);">
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-5 md:gap-8">
+                                ${avatarHtml}
+                                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                                    <h1 class="text-[var(--pixel-orange)] font-text text-base md:text-xl lg:text-2xl mb-2 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1>
+                                    <p class="text-2xl md:text-4xl lg:text-5xl font-pixel text-white tracking-wider leading-snug">${cleanTeam}</p>
+                                </div>
+                            </div>
                         </div>
                     </section>`;
             }
@@ -119,12 +123,18 @@ class ZlanDashboard {
             // --- 2. RÉSULTAT FINAL ---
             if (isLastRow) {
                 let finalRankText = r0 || row.find(c => c?.trim()) || "";
-                if (finalRankText?.trim()) {
-                    let isWin = ["WIN", "1ER", "GAGNÉ", "OUI", "TOP 1"].some(kw => has(finalRankText, kw));
+                
+                // Si la dernière ligne est un entête de phase (pas un vrai message final), on génère le message
+                if (has(finalRankText, "QUALIFIÉ") || has(finalRankText, "WIN ?") || has(finalRankText, "PHASE") || has(finalRankText, "JEUX")) {
+                    finalRankText = state.tournamentWon ? "CHAMPIONS !" : "ÉLIMINÉ";
+                }
+
+                if (finalRankText?.trim() && state.tournamentOver) {
+                    let isWin = state.tournamentWon || ["WIN", "1ER", "GAGNÉ", "OUI", "TOP 1", "CHAMPIONS"].some(kw => has(finalRankText, kw));
                     if (isWin) state.tournamentWon = true;
 
-                    let colorVar = state.tournamentWon ? "var(--pixel-green)" : (state.tournamentOver ? "var(--pixel-red)" : "var(--pixel-green)");
-                    let bgColor = state.tournamentWon ? "rgba(100, 255, 218, 0.05)" : (state.tournamentOver ? "rgba(229, 57, 53, 0.05)" : "rgba(100, 255, 218, 0.05)");
+                    let colorVar = state.tournamentWon ? "var(--pixel-green)" : "var(--pixel-red)";
+                    let bgColor = state.tournamentWon ? "rgba(100, 255, 218, 0.05)" : "rgba(229, 57, 53, 0.05)";
 
                     htmlChunks.finalRank = `
                         <section class="pixel-animate-enter mt-6 md:mt-12 mb-10 md:mb-16 flex justify-center w-full px-2 md:px-0" style="animation-delay: ${animDelay}s;">
