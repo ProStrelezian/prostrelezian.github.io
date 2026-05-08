@@ -226,7 +226,7 @@ class ZlanDashboard {
     renderGroupBlock(data, start, lastIndex, state, blueCount) {
         let groupTitle = data[start].find(c => isGroupPhase(c)) || data[start][0];
         let tTitle = "", teams = "", cTitle = "", contre = "", games = [], qStatus = "", qScore = "";
-        let isF = has(groupTitle, "PHASE FINALE"), isE = has(groupTitle, "ÉLIMINATOIRE"), isR = has(groupTitle, "PHASE A") || has(groupTitle, "PHASE À");
+        let isF = has(groupTitle, "PHASE FINALE"), isE = has(groupTitle, "ÉLIMINATOIRE");
         let j = start + 1;
         while (j < data.length && !isGroupPhase(data[j])) {
             let sub = data[j];
@@ -254,8 +254,9 @@ class ZlanDashboard {
             if (j === lastIndex) { j++; break; }
             j++;
         }
-        let hC = isF ? "pixel-header-violet" : (isR ? "pixel-header-red" : "pixel-header-blue"), tC = isF ? "var(--pixel-violet)" : (isR ? "var(--pixel-red)" : "var(--pixel-blue)");
-        if (!isF && !isR) { tC = ["#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"][blueCount % 5]; blueCount++; }
+        let hC = isF ? "pixel-header-violet" : "pixel-header-blue";
+        let tC = isF ? "var(--pixel-violet)" : ["#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af"][blueCount % 5];
+        if (!isF) blueCount++;
         let gH = games.map((g, idx) => {
             let res = isF ? (g.placeJeu || g.place) : g.place;
             let pc = has(res, "EN ATTENTE") ? "#94a3b8" : (has(res, "GAGNÉ") || has(res, "VICTOIRE") ? "var(--pixel-green)" : (has(res, "PERDU") || has(res, "DÉFAITE") ? "var(--pixel-red)" : tC));
