@@ -168,7 +168,7 @@
             grid-template-rows: 1fr 1fr;
         }
 
-        @media (min-width: 1280px) {
+    @media (min-width: 1024px) {
             .layout-2 {
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: 1fr;
@@ -199,7 +199,7 @@
             }
         }
 
-        @media (max-width: 1279px) {
+    @media (max-width: 1023px) {
             .layout-3 {
                 grid-template-columns: 1fr;
                 grid-template-rows: 1fr 1fr 1fr;
@@ -223,20 +223,35 @@
 
         @media (max-width: 767px) {
             .layout-4 {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(4, 1fr);
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
             }
 
             .layout-5 {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(5, 1fr);
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr 1fr;
+            }
+            .layout-5 > .stream-card:not([style*="display: none"]):first-of-type {
+                grid-column: span 2;
             }
 
             .layout-6 {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(6, 1fr);
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr 1fr;
             }
         }
+
+    /* Compact layout for laptop screens (1366x768 or smaller heights) */
+    @media (max-height: 800px) and (min-width: 1024px) {
+        #main-header { margin-bottom: 1rem !important; padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+        #mt-title { margin-bottom: 1rem !important; }
+        #mt-title > div:nth-child(2) { margin-top: 0.5rem !important; font-size: 0.875rem !important; }
+        #stream-controls { margin-bottom: 1rem !important; }
+        .stream-card header { padding: 0.15rem 0.5rem !important; }
+        #mt-videos, #mt-chat {
+            height: calc(100vh - 160px) !important;
+        }
+    }
 
         /* Fullscreen Layout Overrides (Mobile First) */
         body.is-fullscreen #mt-videos.layout-1 {
@@ -313,6 +328,10 @@
             filter: drop-shadow(0 0 5px rgba(255,255,255,0.6));
         }
 
+        #mt-videos.has-focus .stream-card:not(.is-focused) header {
+            display: none !important;
+        }
+
         [id^="title-stream-"] {
             transition: all 0.3s ease;
         }
@@ -336,11 +355,11 @@
                 grid-template-columns: 4fr 1fr !important;
             }
             
-            #mt-videos.has-focus.layout-2, body.is-fullscreen #mt-videos.has-focus.layout-2 { grid-template-rows: 1fr !important; }
-            #mt-videos.has-focus.layout-3, body.is-fullscreen #mt-videos.has-focus.layout-3 { grid-template-rows: repeat(2, 1fr) !important; }
-            #mt-videos.has-focus.layout-4, body.is-fullscreen #mt-videos.has-focus.layout-4 { grid-template-rows: repeat(3, 1fr) !important; }
-            #mt-videos.has-focus.layout-5, body.is-fullscreen #mt-videos.has-focus.layout-5 { grid-template-rows: repeat(4, 1fr) !important; }
-            #mt-videos.has-focus.layout-6, body.is-fullscreen #mt-videos.has-focus.layout-6 { grid-template-rows: repeat(5, 1fr) !important; }
+            #mt-videos.has-focus.layout-2, body.is-fullscreen #mt-videos.has-focus.layout-2 { grid-template-rows: minmax(0, 1fr) !important; }
+            #mt-videos.has-focus.layout-3, body.is-fullscreen #mt-videos.has-focus.layout-3 { grid-template-rows: repeat(2, minmax(0, 1fr)) !important; }
+            #mt-videos.has-focus.layout-4, body.is-fullscreen #mt-videos.has-focus.layout-4 { grid-template-rows: repeat(3, minmax(0, 1fr)) !important; }
+            #mt-videos.has-focus.layout-5, body.is-fullscreen #mt-videos.has-focus.layout-5 { grid-template-rows: repeat(4, minmax(0, 1fr)) !important; }
+            #mt-videos.has-focus.layout-6, body.is-fullscreen #mt-videos.has-focus.layout-6 { grid-template-rows: repeat(5, minmax(0, 1fr)) !important; }
 
 
             #mt-videos.has-focus .stream-card {
@@ -357,16 +376,18 @@
         @media (max-width: 1023px) {
             #mt-videos.has-focus,
             body.is-fullscreen #mt-videos.has-focus {
-                display: flex !important;
-                flex-direction: column !important;
+                display: grid !important;
+                grid-template-columns: repeat(auto-fit, minmax(30%, 1fr)) !important;
+                grid-auto-rows: max-content !important;
             }
             #mt-videos.has-focus .stream-card {
-                flex: 1 1 0 !important;
+                height: 120px !important;
                 order: 2 !important;
-                height: auto !important;
             }
             #mt-videos.has-focus .stream-card.is-focused {
-                flex: 3 1 0 !important;
+                grid-column: 1 / -1 !important;
+                height: auto !important;
+                aspect-ratio: 16/9 !important;
                 order: 1 !important;
             }
         }
@@ -424,7 +445,7 @@
         </div>
     </header>
 
-    <main class="w-[98%] 2xl:w-[95%] mx-auto px-0 md:px-3 pb-12">
+    <main class="w-[98%] 2xl:w-[95%] mx-auto px-0 md:px-2 pb-8 md:pb-12">
         <div id="mt-title" class="flex flex-col items-center justify-center mb-10 px-3 md:px-0">
             <div class="font-pixel text-lg md:text-2xl lg:text-3xl tracking-widest text-center drop-shadow-[0_0_8px_var(--pixel-violet)]"
                 style="color: var(--pixel-violet)">
@@ -477,9 +498,9 @@
             </button>
         </div>
 
-        <div id="mt-layout" class="flex flex-col xl:flex-row gap-2 md:gap-3 items-start">
+        <div id="mt-layout" class="flex flex-col lg:flex-row gap-2 md:gap-3 items-start">
             <!-- Videos Container -->
-            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)]">
+            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full lg:w-[calc(100%-280px)] xl:w-[calc(100%-320px)] lg:h-[calc(100vh-140px)]">
                 <!-- Stream slots will be managed effectively by DOM nodes below -->
                 <!-- Stream 1 -->
                 <div id="card-stream-1" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card" style="border: 2px solid var(--pixel-orange);" draggable="true">
@@ -579,7 +600,7 @@
             </div>
 
             <!-- Merged Chat Container -->
-            <div id="mt-chat" class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)]" style="border: 2px solid var(--pixel-violet);">
+            <div id="mt-chat" class="pixel-card bg-[#0f0f13] flex flex-col w-full lg:w-[280px] xl:w-[320px] h-[500px] lg:h-[calc(100vh-140px)]" style="border: 2px solid var(--pixel-violet);">
                 <header class="pixel-header-violet px-1 py-1 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#09090b] gap-1.5 relative">
                     <div class="w-full flex justify-between items-center px-2 py-0.5 border-b border-[var(--pixel-violet)]/20 mb-0.5">
                         <span class="text-[8px] font-pixel text-slate-600 uppercase">Twitch Chat System</span>
@@ -1097,14 +1118,6 @@
         })();
 
         // Start Application
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', MultitwitchApp.init);
-        } else {
-            MultitwitchApp.init();
-        }
-    </script>
-</body>
-</html> // Start Application
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', MultitwitchApp.init);
         } else {
