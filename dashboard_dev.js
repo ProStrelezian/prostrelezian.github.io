@@ -338,19 +338,36 @@ class ZlanDashboard {
 
                         if (presentIdx !== -1) {
                             teamsTitle = subRow[presentIdx];
-                            let potentialTeams = subRow.slice(presentIdx + 1).find(c => c.trim() !== "" && !has(c, "CONTRE"));
+                            let potentialTeams = subRow.slice(presentIdx + 1).find(c => c && c.trim() !== "" && !has(c, "CONTRE"));
                             if (potentialTeams) teams = potentialTeams;
                         }
                         if (contreIdx !== -1) {
                             contreTitle = subRow[contreIdx];
-                            let potentialContre = subRow.slice(contreIdx + 1).find(c => c.trim() !== "" && !has(c, "TEAMS PRÉSENTES"));
+                            let potentialContre = subRow.slice(contreIdx + 1).find(c => c && c.trim() !== "" && !has(c, "TEAMS PRÉSENTES"));
                             if (potentialContre) contre = potentialContre;
                         }
-                    } else if (subRow[0] && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
+                    } else if (subRow.some(c => c && c.trim() !== "") && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
                         if (games.length === 0 && !teams && !contre) {
-                            teams = subRow[0];
-                        } else if ((subRow[4] && subRow[4].trim() !== "") || (subRow[7] && subRow[7].trim() !== "") || (!((subRow[0].includes(" - ") || subRow[0].includes(" & ")) && subRow[0].length > 20) && subRow[0].length < 50)) {
-                            games.push({ name: subRow[0], placeJeu: subRow[4] || subRow[3] || '', place: subRow[7] || subRow[6] || '', heure: subRow[8] || subRow[9] || '' });
+                            let vals = subRow.filter(c => c && c.trim() !== "");
+                            if (contreTitle && teamsTitle) {
+                                if (vals.length >= 2) {
+                                    contre = vals[0];
+                                    teams = vals[1];
+                                } else if (vals.length === 1) {
+                                    let idx = subRow.findIndex(c => c && c.trim() === vals[0]);
+                                    if (idx < 3) contre = vals[0];
+                                    else teams = vals[0];
+                                }
+                            } else {
+                                teams = vals[0] || "";
+                            }
+                        } else {
+                            let name = String(subRow[0] || "");
+                            if (name.trim() !== "") {
+                                if ((subRow[4] && subRow[4].trim() !== "") || (subRow[7] && subRow[7].trim() !== "") || (!((name.includes(" - ") || name.includes(" & ")) && name.length > 20) && name.length < 50)) {
+                                    games.push({ name: name, placeJeu: subRow[4] || subRow[3] || '', place: subRow[7] || subRow[6] || '', heure: subRow[8] || subRow[9] || '' });
+                                }
+                            }
                         }
                     }
                     j++;
@@ -514,8 +531,8 @@ class ZlanDashboard {
             ["", "", "QUALIFIÉ ?", "OUI", "2-1"],
             [""],
             ["PHASE À 4 - POULE DE TEST"],
-            ["CONTRE QUI ?", "LES TARDTARDS", "TEAMS PRÉSENTES", "LES MOCKERS"],
-            ["LES BONS GROS MOCKERS"],
+            ["CONTRE QUI ?", "", "", "TEAMS PRÉSENTES"],
+            ["LES TARDTARDS", "", "", "LES MOCKERS"],
             ["JEUX", "", "", "", "RÉSULTAT DU JEU", "", "", "PLACE", "LIVE"],
             ["GEOGUESSR", "", "", "", "21000 PTS", "", "", "2ÈME", "18:00"],
             ["VALORANT", "", "", "", "13-11", "", "", "1ER", "19:00"],
