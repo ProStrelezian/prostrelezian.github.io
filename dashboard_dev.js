@@ -83,44 +83,21 @@ class ZlanDashboard {
             if (teamText) {
                 let cleanTeam = teamText.replace(/TEAM\s*:/i, '').trim();
                 let avatarHtml = this.avatarUrl ? `
-                    <div class="relative shrink-0 mb-4 md:mb-0">
-                        <img src="${this.avatarUrl}" alt="Avatar" class="h-[120px] md:h-[200px] lg:h-[240px] w-auto max-w-full border-4 border-[var(--pixel-orange)] shadow-[8px_8px_0px_rgba(0,0,0,0.8)] object-cover bg-black p-1">
-                        <div class="absolute -bottom-3 -right-3 bg-[var(--pixel-orange)] text-black font-pixel text-[10px] md:text-xs px-2 py-1 border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,0.8)]">
-                            P1
-                        </div>
+                    <div class="shrink-0 mb-4 md:mb-0 md:mr-8">
+                        <img src="${this.avatarUrl}" alt="Avatar" class="h-[100px] md:h-[140px] lg:h-[180px] w-auto max-w-full border-2 border-[#27272a] shadow-[4px_4px_0px_rgba(0,0,0,0.5)] object-cover bg-[#18181b]">
                     </div>
-                ` : '<div class="mt-4"></div>';
+                ` : '';
 
                 htmlChunks.team = `
-                    <section class="mb-8 md:mb-16 flex justify-center w-full px-2 md:px-0">
-                        <div class="w-full max-w-[920px] relative">
-                            <!-- Decorative corners -->
-                            <div class="absolute -top-2 -left-2 w-6 h-6 border-t-4 border-l-4 border-[var(--pixel-orange)] z-10"></div>
-                            <div class="absolute -top-2 -right-2 w-6 h-6 border-t-4 border-r-4 border-[var(--pixel-orange)] z-10"></div>
-                            <div class="absolute -bottom-2 -left-2 w-6 h-6 border-b-4 border-l-4 border-[var(--pixel-orange)] z-10"></div>
-                            <div class="absolute -bottom-2 -right-2 w-6 h-6 border-b-4 border-r-4 border-[var(--pixel-orange)] z-10"></div>
-                            
-                            <div class="pixel-card border-4 bg-[#09090b] relative overflow-hidden" style="border-color: #27272a;">
-                                <!-- Arcade Scanline overlay -->
-                                <div class="absolute inset-0 pointer-events-none opacity-[0.03] z-0" style="background: repeating-linear-gradient(transparent, transparent 2px, white 3px, white 3px);"></div>
-                                
-                                <header class="pixel-header-orange py-2 px-4 text-center border-b-[3px] border-[var(--pixel-orange)] relative z-10">
-                                    <span class="text-[var(--pixel-orange)] font-pixel text-lg md:text-2xl tracking-widest drop-shadow-[0_0_8px_var(--pixel-orange)] animate-pulse">>>> PLAYER SELECT <<<</span>
-                                </header>
-                                
-                                <div class="flex flex-col md:flex-row items-center justify-center p-6 md:p-10 gap-8 md:gap-12 relative z-10">
-                                    ${avatarHtml}
-                                    
-                                    <div class="flex flex-col items-center md:items-start text-center md:text-left">
-                                        <h2 class="text-slate-500 font-text text-xl md:text-3xl mb-2 uppercase tracking-widest">JOUEURS ENGAGÉS</h2>
-                                        <p class="text-2xl md:text-4xl lg:text-5xl font-pixel tracking-widest text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
-                                            ${cleanTeam}
-                                        </p>
-                                        <div class="mt-6 flex flex-wrap justify-center md:justify-start gap-3">
-                                            <span class="bg-[#18181b] text-[var(--pixel-orange)] border border-[var(--pixel-orange)] px-3 py-1.5 font-text text-sm md:text-xl shadow-[4px_4px_0px_rgba(0,0,0,0.8)]">STATUS: ONLINE</span>
-                                            <span class="bg-[#18181b] text-[var(--pixel-green)] border border-[var(--pixel-green)] px-3 py-1.5 font-text text-sm md:text-xl shadow-[4px_4px_0px_rgba(0,0,0,0.8)] animate-pulse">PRESS START</span>
-                                        </div>
-                                    </div>
+                    <section class="mb-8 md:mb-12 flex justify-center w-full px-2 md:px-0">
+                        <div class="w-full max-w-[800px]">
+                            <div class="pixel-card bg-[#0f0f13] border-t-0 border-r-0 border-b-0 border-l-4 border-[#27272a] border-l-[var(--pixel-orange)] flex flex-col md:flex-row items-center p-5 md:p-8">
+                                ${avatarHtml}
+                                <div class="flex flex-col items-center md:items-start text-center md:text-left flex-1">
+                                    <div class="text-[var(--pixel-orange)] font-text text-sm md:text-lg mb-1 tracking-widest">>>> ÉQUIPE</div>
+                                    <h2 class="text-xl md:text-3xl lg:text-4xl font-pixel tracking-widest text-white">
+                                        ${cleanTeam}
+                                    </h2>
                                 </div>
                             </div>
                         </div>
