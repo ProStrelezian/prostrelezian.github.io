@@ -144,6 +144,7 @@ const MultitwitchApp = (function () {
                     if (SLOTS[sourceSlot].chatBtn) SLOTS[sourceSlot].chatBtn.style.order = state.visualOrder[sourceSlot];
                     if (SLOTS[targetSlot].chatBtn) SLOTS[targetSlot].chatBtn.style.order = state.visualOrder[targetSlot];
                     
+                    updateLayout();
                     syncURL(); // Mettre à jour l'URL avec le nouvel ordre
                 };
 
@@ -255,16 +256,30 @@ const MultitwitchApp = (function () {
     function updateLayout() {
         if (!DOM.mtVideos) return;
         let activeCount = 0;
+        let lowestOrder = Infinity;
+        let firstSlot = null;
 
         for (let i = 1; i <= state.maxSlots; i++) {
             const card = SLOTS[i].card;
             if (card) {
                 const isActive = !!state.channels[i];
-                if (isActive) activeCount++;
+                if (isActive) {
+                    activeCount++;
+                    if (state.visualOrder[i] < lowestOrder) {
+                        lowestOrder = state.visualOrder[i];
+                        firstSlot = i;
+                    }
+                }
                 // Avoid unnecessary reflows by checking first
                 if (isActive && card.style.display !== 'flex') card.style.display = 'flex';
                 if (!isActive && card.style.display !== 'none') card.style.display = 'none';
+                
+                card.classList.remove('is-visual-first');
             }
+        }
+        
+        if (firstSlot && SLOTS[firstSlot].card) {
+            SLOTS[firstSlot].card.classList.add('is-visual-first');
         }
         
         DOM.mtVideos.classList.remove('layout-0', 'layout-1', 'layout-2', 'layout-3', 'layout-4', 'layout-5', 'layout-6');

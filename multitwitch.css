@@ -152,7 +152,7 @@ body.chat-hidden.is-fullscreen #mt-videos {
     grid-template-rows: 1fr 1fr;
 }
 
-.container-lg.layout-3:not(.has-focus)>.stream-card:not([style*="display: none"]):first-of-type {
+.container-lg.layout-3:not(.has-focus)>.stream-card.is-visual-first {
     grid-column: span 2;
 }
 
@@ -200,7 +200,7 @@ body.chat-hidden.is-fullscreen #mt-videos {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
 }
-.container-sm.layout-5:not(.has-focus) > .stream-card:not([style*="display: none"]):first-of-type {
+.container-sm.layout-5:not(.has-focus) > .stream-card.is-visual-first {
     grid-column: span 2;
 }
 
@@ -243,8 +243,8 @@ body.is-fullscreen #mt-videos.container-md.layout-3 {
     grid-template-columns: 1fr !important;
     grid-template-rows: 1fr 1fr 1fr !important;
 }
-body.is-fullscreen #mt-videos.container-sm.layout-3:not(.has-focus)>.stream-card:not([style*="display: none"]):first-of-type,
-body.is-fullscreen #mt-videos.container-md.layout-3:not(.has-focus)>.stream-card:not([style*="display: none"]):first-of-type {
+body.is-fullscreen #mt-videos.container-sm.layout-3:not(.has-focus)>.stream-card.is-visual-first,
+body.is-fullscreen #mt-videos.container-md.layout-3:not(.has-focus)>.stream-card.is-visual-first {
     grid-column: auto !important;
 }
 
@@ -252,7 +252,7 @@ body.is-fullscreen #mt-videos.container-lg.layout-3 {
     grid-template-columns: 1fr 1fr !important;
     grid-template-rows: 1fr 1fr !important;
 }
-body.is-fullscreen #mt-videos.container-lg.layout-3:not(.has-focus)>.stream-card:not([style*="display: none"]):first-of-type {
+body.is-fullscreen #mt-videos.container-lg.layout-3:not(.has-focus)>.stream-card.is-visual-first {
     grid-column: span 2 !important;
 }
 
@@ -267,8 +267,8 @@ body.is-fullscreen #mt-videos.container-md.layout-5 {
     grid-template-columns: 1fr 1fr !important;
     grid-template-rows: 1fr 1fr 1fr !important;
 }
-body.is-fullscreen #mt-videos.container-sm.layout-5:not(.has-focus)>.stream-card:not([style*="display: none"]):first-of-type,
-body.is-fullscreen #mt-videos.container-md.layout-5:not(.has-focus)>.stream-card:not([style*="display: none"]):first-of-type {
+body.is-fullscreen #mt-videos.container-sm.layout-5:not(.has-focus)>.stream-card.is-visual-first,
+body.is-fullscreen #mt-videos.container-md.layout-5:not(.has-focus)>.stream-card.is-visual-first {
     grid-column: span 2 !important;
 }
 
@@ -276,7 +276,7 @@ body.is-fullscreen #mt-videos.container-lg.layout-5 {
     grid-template-columns: 1fr 1fr 1fr !important;
     grid-template-rows: 1fr 1fr !important;
 }
-body.is-fullscreen #mt-videos.container-lg.layout-5:not(.has-focus)>.stream-card:not([style*="display: none"]):first-of-type {
+body.is-fullscreen #mt-videos.container-lg.layout-5:not(.has-focus)>.stream-card.is-visual-first {
     grid-column: auto !important;
 }
 
