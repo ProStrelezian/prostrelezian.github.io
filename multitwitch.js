@@ -130,6 +130,9 @@ const MultitwitchApp = (function () {
                 
                 if (sourceSlot === targetSlot || !sourceSlot) return;
 
+                // Télémétrie : Analyse du Drag & Drop
+                if (window.plausible) window.plausible('Drag and Drop', { props: { action: 'reorder' } });
+
                 const performSwap = () => {
                     const tempOrder = state.visualOrder[sourceSlot];
                     state.visualOrder[sourceSlot] = state.visualOrder[targetSlot];
@@ -277,8 +280,10 @@ const MultitwitchApp = (function () {
         const performFocus = () => {
             if (state.focusedSlot === slot) {
                 state.focusedSlot = null;
+                if (window.plausible) window.plausible('Focus Mode', { props: { state: 'disabled' } });
             } else {
                 state.focusedSlot = slot;
+                if (window.plausible) window.plausible('Focus Mode', { props: { state: 'enabled' } });
             }
             renderFocus();
         };
@@ -458,6 +463,9 @@ const MultitwitchApp = (function () {
                 alert(`La chaîne Twitch "${newChannel}" n'existe pas.`);
                 return;
             }
+            
+            // Télémétrie : Analyse des chaînes les plus ajoutées
+            if (window.plausible) window.plausible('Stream Added', { props: { channel: newChannel } });
             
             updateStream(emptySlot, newChannel, true);
             DOM.addInput.value = '';
