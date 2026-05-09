@@ -6,11 +6,49 @@ const MultitwitchApp = (function () {
         draggedSlot: null,
         maxSlots: 6,
         activeChatTab: null,
-        focusedSlot: null
+        focusedSlot: null,
+        visualOrder: { 1: 10, 2: 20, 3: 30, 4: 40, 5: 50, 6: 60 }
     };
 
     const DOM = {}; // Cached DOM nodes
     const SLOTS = {}; // Cached per-slot nodes
+
+    function loadTwitchAPI() {
+        return new Promise((resolve, reject) => {
+            if (window.Twitch) {
+                resolve(window.Twitch);
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://player.twitch.tv/js/embed/v1.js';
+            script.async = true;
+            script.onload = () => resolve(window.Twitch);
+            script.onerror = () => reject(new Error('Failed to load Twitch API'));
+            document.head.appendChild(script);
+        });
+    }
+
+    function initResizeObserver() {
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const width = entry.contentRect.width;
+                const target = entry.target;
+                
+                target.classList.remove('container-sm', 'container-md', 'container-lg');
+                
+                if (width >= 650) {
+                    target.classList.add('container-lg');
+                } else if (width >= 450) {
+                    target.classList.add('container-md');
+                } else {
+                    target.classList.add('container-sm');
+                }
+            }
+        });
+        if (DOM.mtVideos) {
+            resizeObserver.observe(DOM.mtVideos);
+        }
+    }
 
     function initDOM() {
         DOM.mtVideos = document.getElementById('mt-videos');
@@ -28,6 +66,9 @@ const MultitwitchApp = (function () {
                 title: document.getElementById(`title-stream-${i}`),
                 chatBtn: document.querySelector(`.chat-tab-btn[data-target="${i}"]`)
             };
+            SLOTS[i].card.style.order = state.visualOrder[i];
+            SLOTS[i].card.style.viewTransitionName = `card-${i}`;
+            if (SLOTS[i].chatBtn) SLOTS[i].chatBtn.style.order = state.visualOrder[i];
         }
     }
 
@@ -89,18 +130,24 @@ const MultitwitchApp = (function () {
                 
                 if (sourceSlot === targetSlot || !sourceSlot) return;
 
-                const sourceChannel = state.channels[sourceSlot];
-                const targetChannel = state.channels[targetSlot];
-                
-                updateStream(sourceSlot, targetChannel, false);
-                updateStream(targetSlot, sourceChannel, false);
+                const performSwap = () => {
+                    const tempOrder = state.visualOrder[sourceSlot];
+                    state.visualOrder[sourceSlot] = state.visualOrder[targetSlot];
+                    state.visualOrder[targetSlot] = tempOrder;
+                    
+                    SLOTS[sourceSlot].card.style.order = state.visualOrder[sourceSlot];
+                    SLOTS[targetSlot].card.style.order = state.visualOrder[targetSlot];
+                    
+                    if (SLOTS[sourceSlot].chatBtn) SLOTS[sourceSlot].chatBtn.style.order = state.visualOrder[sourceSlot];
+                    if (SLOTS[targetSlot].chatBtn) SLOTS[targetSlot].chatBtn.style.order = state.visualOrder[targetSlot];
+                    
+                    syncURL(); // Mettre à jour l'URL avec le nouvel ordre
+                };
 
-                if (state.focusedSlot === sourceSlot) {
-                    state.focusedSlot = targetSlot;
-                    renderFocus();
-                } else if (state.focusedSlot === targetSlot) {
-                    state.focusedSlot = sourceSlot;
-                    renderFocus();
+                if (document.startViewTransition) {
+                    document.startViewTransition(() => performSwap());
+                } else {
+                    performSwap();
                 }
             });
 
@@ -188,7 +235,11 @@ const MultitwitchApp = (function () {
     }
 
     function syncURL() {
-        const activeStreams = Object.values(state.channels).filter(c => c);
+        const activeStreams = Object.keys(state.channels)
+            .filter(slot => state.channels[slot])
+            .sort((a, b) => state.visualOrder[a] - state.visualOrder[b])
+            .map(slot => state.channels[slot]);
+            
         const url = new URL(window.location.href);
         if (activeStreams.length > 0) {
             url.searchParams.set('streams', activeStreams.join(','));
@@ -223,12 +274,20 @@ const MultitwitchApp = (function () {
     }
 
     function toggleFocus(slot) {
-        if (state.focusedSlot === slot) {
-            state.focusedSlot = null;
+        const performFocus = () => {
+            if (state.focusedSlot === slot) {
+                state.focusedSlot = null;
+            } else {
+                state.focusedSlot = slot;
+            }
+            renderFocus();
+        };
+
+        if (document.startViewTransition) {
+            document.startViewTransition(() => performFocus());
         } else {
-            state.focusedSlot = slot;
+            performFocus();
         }
-        renderFocus();
     }
 
     function renderFocus() {
@@ -363,7 +422,7 @@ const MultitwitchApp = (function () {
         }
     }
 
-    function addStream() {
+    async function addStream() {
         const newChannel = DOM.addInput.value.trim().toLowerCase();
         if (!newChannel) return;
 
@@ -380,21 +439,60 @@ const MultitwitchApp = (function () {
             }
         }
         
-        if (emptySlot) {
+        if (!emptySlot) {
+            alert("Vous avez déjà 6 streams actifs !");
+            return;
+        }
+
+        const btn = document.getElementById('add-stream-btn');
+        const oldBtnText = btn.textContent;
+        btn.textContent = "VERIF...";
+        btn.disabled = true;
+        DOM.addInput.disabled = true;
+
+        try {
+            const response = await fetch(`https://decapi.me/twitch/id/${newChannel}`);
+            const text = await response.text();
+
+            if (text.toLowerCase().includes("user not found") || text.includes("Error:")) {
+                alert(`La chaîne Twitch "${newChannel}" n'existe pas.`);
+                return;
+            }
+            
             updateStream(emptySlot, newChannel, true);
             DOM.addInput.value = '';
-        } else {
-            alert("Vous avez déjà 6 streams actifs !");
+        } catch (error) {
+            console.error("Erreur lors de la vérification Twitch:", error);
+            // En cas d'erreur de l'API tiers, on ajoute quand même par précaution
+            updateStream(emptySlot, newChannel, true);
+            DOM.addInput.value = '';
+        } finally {
+            btn.textContent = oldBtnText;
+            btn.disabled = false;
+            DOM.addInput.disabled = false;
+            DOM.addInput.focus();
         }
     }
 
     function resetStreams() {
         if (confirm("Voulez-vous vraiment réinitialiser les streams pour n'afficher que TheGuill84 et Nykho ?")) {
             const initial = { 1: 'theguill84', 2: 'nykho', 3: '', 4: '', 5: '', 6: '' };
-            for (let i = 1; i <= state.maxSlots; i++) {
-                updateStream(i, initial[i], false);
+            
+            const performReset = () => {
+                for (let i = 1; i <= state.maxSlots; i++) {
+                    state.visualOrder[i] = i * 10;
+                    SLOTS[i].card.style.order = state.visualOrder[i];
+                    if (SLOTS[i].chatBtn) SLOTS[i].chatBtn.style.order = state.visualOrder[i];
+                    updateStream(i, initial[i], false);
+                }
+                switchChat(1);
+            };
+
+            if (document.startViewTransition) {
+                document.startViewTransition(() => performReset());
+            } else {
+                performReset();
             }
-            switchChat(1);
         }
     }
 
@@ -423,6 +521,7 @@ const MultitwitchApp = (function () {
     function initializeApp() {
         initDOM();
         bindEvents();
+        initResizeObserver();
 
         // Load Chat Preferences
         if (localStorage.getItem('zlan_mt_chat_hidden') === 'true') {
@@ -449,12 +548,7 @@ const MultitwitchApp = (function () {
         // Initial layout setup required before adding streams
         updateLayout();
 
-        // Delay Twitch embed initialization slightly if TMI is still loading to prioritize main thread
-        const loadInitialStreams = () => {
-            if (typeof Twitch === 'undefined') {
-                setTimeout(loadInitialStreams, 100);
-                return;
-            }
+        loadTwitchAPI().then(() => {
             let firstActive = null;
             for (let i = 1; i <= state.maxSlots; i++) {
                 if (initial[i]) {
@@ -463,8 +557,10 @@ const MultitwitchApp = (function () {
                 }
             }
             if (firstActive) switchChat(firstActive);
-        };
-        setTimeout(loadInitialStreams, 50); // Minor delay for UI thread yielding
+        }).catch(err => {
+            console.error(err);
+            alert("Erreur lors du chargement du lecteur Twitch.");
+        });
     }
 
     return { init: initializeApp };
