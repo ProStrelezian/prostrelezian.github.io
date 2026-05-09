@@ -28,6 +28,7 @@ class ZlanDashboard {
         this.useMockData = useMockData;
         this.isFetching = false;
         this.lastRawData = "";
+        this.countdownInterval = null;
 
         this.init();
         if (this.enableTwitchLive) {
@@ -95,6 +96,34 @@ class ZlanDashboard {
     handleData(data) {
         if (!data || !data.length) return;
         this.buildDashboard(data);
+    }
+
+    startCountdown(targetDate) {
+        if (this.countdownInterval) clearInterval(this.countdownInterval);
+
+        const updateTimer = () => {
+            const now = Date.now();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                clearInterval(this.countdownInterval);
+                this.init(); // Relance la construction complète quand le temps est écoulé
+                return;
+            }
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+            const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+            const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+
+            const timerEls = document.querySelectorAll('.countdown-timer');
+            timerEls.forEach(el => {
+                el.innerHTML = `OUVERTURE : <span class="text-white">${d}J ${h}H ${m}M ${s}S</span>`;
+            });
+        };
+
+        updateTimer();
+        this.countdownInterval = setInterval(updateTimer, 1000);
     }
 
     buildDashboard(data) {
@@ -183,7 +212,6 @@ class ZlanDashboard {
                     } else {
                         timeline.carre.finished = timeline.carre.finished && isFinished;
                     }
-                    // Forcer l'ancre vers la phase à 4 équipes si elle est trouvée
                     if (has(groupTitle, "4 ÉQUIPES") || has(groupTitle, "4 EQUIPES")) {
                         timeline.carre.target = articleId;
                     }
@@ -196,7 +224,6 @@ class ZlanDashboard {
                         timeline.eliminatoire.finished = timeline.eliminatoire.finished && isFinished;
                     }
                     timeline.eliminatoire.completedMatches += completedCount;
-                    // Forcer l'ancre vers la phase à 32 équipes si elle est trouvée
                     if (has(groupTitle, "32 ÉQUIPES") || has(groupTitle, "PHASE ÉLIMINATOIRE (32 ÉQUIPES)")) {
                         timeline.eliminatoire.target = articleId;
                     }
@@ -213,10 +240,70 @@ class ZlanDashboard {
 
         const container = document.getElementById('dashboard-container');
         if (container) {
-            const trackerHtml = this.renderTracker(timeline, state, gameStats);
-            const fullHtml = htmlChunks.team + trackerHtml + htmlChunks.seeding + htmlChunks.knockout + (htmlChunks.groups ? `<div>${htmlChunks.groups}</div>` : '') + htmlChunks.finalRank;
-            if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
-                container.innerHTML = fullHtml;
+            // Date de déverrouillage : 15 mai 2026 à 19:00:00 (Heure de Paris)
+            const unlockDate = new Date('2026-05-15T19:00:00+02:00').getTime();
+            const now = Date.now();
+
+            if (now < unlockDate) {
+                // Cadre de suivi verrouillé
+                let lockOverlay = `
+                <div class="absolute inset-0 z-50 backdrop-blur-md bg-black/75 flex flex-col items-center justify-center border-4 border-[var(--pixel-red)] transition-all" style="box-shadow: inset 0 0 60px rgba(229,57,53,0.15);">
+                    <div class="absolute top-0 left-0 w-full h-2" style="background: repeating-linear-gradient(45deg, transparent, transparent 15px, var(--pixel-red) 15px, var(--pixel-red) 30px);"></div>
+                    <div class="absolute bottom-0 left-0 w-full h-2" style="background: repeating-linear-gradient(-45deg, transparent, transparent 15px, var(--pixel-red) 15px, var(--pixel-red) 30px);"></div>
+                    
+                    <div class="mb-5 relative animate-bounce flex justify-center w-full">
+                        <svg width="60" height="80" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 10px rgba(229,57,53,0.8));">
+                            <path d="M7 10V6C7 3.23858 9.23858 1 12 1C14.7614 1 17 3.23858 17 6V10" stroke="var(--pixel-red)" stroke-width="2.5" stroke-linecap="square"/>
+                            <rect x="4" y="10" width="16" height="15" fill="#09090b" stroke="var(--pixel-red)" stroke-width="2.5" stroke-linejoin="round"/>
+                            <path d="M12 15V19" stroke="var(--pixel-red)" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="12" cy="15" r="1.5" fill="var(--pixel-red)"/>
+                        </svg>
+                    </div>
+                    
+                    <h2 class="font-pixel text-xl md:text-3xl text-[var(--pixel-red)] mb-3 tracking-widest text-center uppercase" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.8);">ACCÈS RESTREINT</h2>
+                    <p class="font-text text-sm md:text-base text-slate-300 text-center uppercase tracking-widest mb-6 px-4 text-balance">Le début des hostilités est fixé au 15 mai 2026 à 19h00.</p>
+                    
+                    <div class="bg-[#18181b] border-2 border-[var(--pixel-red)] px-5 py-3 font-pixel text-[var(--pixel-red)] text-sm md:text-xl lg:text-2xl shadow-[4px_4px_0px_rgba(229,57,53,0.6)] countdown-timer tracking-widest">
+                        CALCUL EN COURS...
+                    </div>
+                </div>
+                `;
+
+                let lockedBlock = `
+                <section class="mt-8 md:mt-12 mb-8 md:mb-12 flex justify-center w-full px-2 md:px-0 pixel-animate-enter relative">
+                    <div class="w-full max-w-[920px] pixel-card bg-[#09090b] relative flex flex-col items-center overflow-hidden min-h-[350px] md:min-h-[400px] justify-center border-[3px] md:border-4 border-[#27272a]">
+                        <div class="absolute inset-0 opacity-[0.15] pointer-events-none flex flex-col items-center justify-center grayscale select-none">
+                            <div class="font-pixel text-[10px] md:text-sm text-slate-500 mb-6 border border-slate-700 px-4 py-2">>> SUIVI DU TOURNOI <<</div>
+                            <div class="w-[85%] h-6 border-[3px] border-slate-700 p-0.5 mb-8">
+                                <div class="w-[0%] h-full bg-slate-500"></div>
+                            </div>
+                            <div class="flex gap-4 md:gap-8">
+                                <div class="w-24 h-8 border-2 border-slate-700"></div>
+                                <div class="w-24 h-8 border-2 border-slate-700"></div>
+                                <div class="w-24 h-8 border-2 border-slate-700"></div>
+                            </div>
+                        </div>
+                        ${lockOverlay}
+                    </div>
+                </section>
+                `;
+
+                // On n'affiche QUE le header de la team et le bloc verrouillé. Tout ce qui est en dessous est ignoré.
+                const fullHtml = htmlChunks.team + lockedBlock;
+                if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
+                    container.innerHTML = fullHtml;
+                    this.startCountdown(unlockDate);
+                }
+            } else {
+                // Comportement normal si la date est dépassée
+                if (this.countdownInterval) {
+                    clearInterval(this.countdownInterval);
+                }
+                const trackerHtml = this.renderTracker(timeline, state, gameStats);
+                const fullHtml = htmlChunks.team + trackerHtml + htmlChunks.seeding + htmlChunks.knockout + (htmlChunks.groups ? `<div>${htmlChunks.groups}</div>` : '') + htmlChunks.finalRank;
+                if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
+                    container.innerHTML = fullHtml;
+                }
             }
         }
     }
@@ -366,9 +453,6 @@ class ZlanDashboard {
             { id: "finale", label: "FINALE", target: timeline.finale.target, exists: timeline.finale.exists, finished: timeline.finale.finished }
         ];
 
-        // Calcul de progression pondéré selon les critères utilisateur :
-        // Seeding: 2*3% (6%), Knockout: 6*4% (24%), Elim: 7*5% (35%), Carré: 5*4% (20%)
-        // Total phases = 85%. Reste 15% pour la finale (7 matchs).
         let seedingProg = (timeline.seeding.completedMatches || 0) * 3;
         let knockoutProg = (timeline.knockout.completedMatches || 0) * 4;
         let elimProg = (timeline.eliminatoire.completedMatches || 0) * 5;
@@ -405,10 +489,9 @@ class ZlanDashboard {
             } else {
                 statusClass = "text-slate-500 border-[#27272a] opacity-60 bg-[#09090b]";
             }
-            
+
             let iconSvg = "";
             if (s.id === "finale" && (isActive || s.finished)) {
-                // Icône Trophée pour la finale avec animation spéciale
                 iconSvg = `<svg class="w-2.5 h-2.5 md:w-3.5 md:h-3.5 ${isActive ? 'animate-bounce' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="${isActive ? 'filter: drop-shadow(0 0 5px var(--pixel-violet));' : ''}"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l9-5-9-5-9 5 9 5zm0 0v6m0 0l9-5-9-5-9 5 9 5zm0 0v6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 21h6"></path></svg>`;
             } else if (s.finished) {
                 iconSvg = `<svg class="w-2.5 h-2.5 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
@@ -433,19 +516,17 @@ class ZlanDashboard {
             `;
         }).join('');
 
-        // Marqueurs de transitions de phases
         const phaseTransitions = [
-            { pos: 6, color: "rgba(100,255,218,0.2)" },  // Fin Seeding
-            { pos: 30, color: "rgba(100,255,218,0.2)" }, // Fin Knockout
-            { pos: 65, color: "rgba(100,255,218,0.2)" }, // Fin Elim
-            { pos: 85, color: "var(--pixel-violet)" }    // Début Finale
+            { pos: 6, color: "rgba(100,255,218,0.2)" },
+            { pos: 30, color: "rgba(100,255,218,0.2)" },
+            { pos: 65, color: "rgba(100,255,218,0.2)" },
+            { pos: 85, color: "var(--pixel-violet)" }
         ];
         let phaseMarkersHtml = phaseTransitions.map(m => `
             <div class="absolute top-0 h-full w-[1px] z-10" style="left: ${m.pos}%; background-color: ${m.color}; opacity: 0.5;"></div>
         `).join('');
 
-        // Génération des 7 marqueurs pour la finale (répartis sur les derniers 15%)
-        let finaleTicks = Array.from({length: 7}).map((_, i) => {
+        let finaleTicks = Array.from({ length: 7 }).map((_, i) => {
             let isLast = i === 6;
             let pos = 85 + ((i + 1) * (15 / 7));
             if (pos > 100) pos = 100;
@@ -477,10 +558,10 @@ class ZlanDashboard {
                             <div class="flex flex-col items-center">
                                 <span class="font-pixel text-[10px] md:text-base text-[var(--pixel-green)] bg-[rgba(100,255,218,0.1)] px-3 md:px-4 py-1 rounded-sm border border-[var(--pixel-green)] shadow-[0_0_8px_rgba(100,255,218,0.2)] mb-1.5">${progress}%</span>
                                 <span class="font-pixel text-[8px] md:text-[11px] text-slate-400 uppercase tracking-tighter">
-                                    ${state.tournamentWon ? 
-                                        '<span class="text-[var(--pixel-violet)] animate-pulse">TOURNOI TERMINÉ</span>' : 
-                                        `<span class="text-[var(--pixel-green)] opacity-70">PHASE ACTUELLE :</span> ${phaseName}`
-                                    }
+                                    ${state.tournamentWon ?
+                '<span class="text-[var(--pixel-violet)] animate-pulse">TOURNOI TERMINÉ</span>' :
+                `<span class="text-[var(--pixel-green)] opacity-70">PHASE ACTUELLE :</span> ${phaseName}`
+            }
                                 </span>
                             </div>
                             <div class="font-pixel text-[8px] md:text-[10px] text-[var(--pixel-violet)] uppercase tracking-widest flex flex-col items-center gap-1 md:gap-1.5 w-16 md:w-20">
@@ -489,7 +570,6 @@ class ZlanDashboard {
                             </div>
                         </div>
                         <div class="h-4 md:h-6 w-full bg-[#0f0f13] border-[3px] border-[#27272a] relative p-[2px] rounded-sm shadow-inner overflow-hidden">
-                            <!-- Marqueurs de phases et finale -->
                             ${phaseMarkersHtml}
                             <div class="absolute top-0 left-0 w-full h-full z-10 pointer-events-none">
                                 ${finaleTicks}
