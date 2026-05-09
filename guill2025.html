@@ -17,6 +17,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    
+    <!-- Analytics respectueux de la vie privée (Plausible) -->
+    <script defer data-domain="prostrelezian.github.io" src="https://plausible.io/js/script.js"></script>
+    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
 </head>
 
 <body class="min-h-screen pb-20 overflow-x-clip">
@@ -153,7 +157,7 @@
 
     <footer
         class="w-full text-center py-6 mt-10 border-t-2 border-[#27272a] text-slate-500 font-text text-xs md:text-sm px-3">
-        <p>@2025 <span id="strelezian-secret" class="cursor-pointer hover:text-white transition-colors" title="🤫">Strelezian</span><span id="visit-counter" class="hidden text-[var(--pixel-green)] ml-2">| VUES : <span id="visit-count">...</span></span> - Archive ZLAN 2025. Ceci n'est pas un site officiel de la ZLAN.</p>
+        <p>@2025 <span class="cursor-pointer hover:text-white transition-colors" title="🤫">Strelezian</span> - Archive ZLAN 2025. Ceci n'est pas un site officiel de la ZLAN.</p>
     </footer>
 
     <button id="scrollTopBtn"
@@ -165,7 +169,6 @@
     </button>
 
     <script src="./dashboard.js" defer></script>
-    <script src="./counter.js" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // On passe l'URL encodée, et false car c'est une archive (pas de Twitch)
