@@ -98,22 +98,6 @@ body.is-fullscreen iframe {
     background-color: #000000 !important;
 }
 
-body.is-fullscreen #mt-chat {
-    background-color: #0f0f13 !important;
-}
-
-body.is-fullscreen #mt-chat>div {
-    background-color: transparent !important;
-}
-
-#mt-chat::before {
-    display: none !important;
-}
-
-#mt-chat {
-    box-shadow: none !important;
-}
-
 body.is-fullscreen #stream-controls {
     display: none !important;
 }
@@ -217,9 +201,16 @@ body.chat-hidden.is-fullscreen #mt-videos {
     #stream-controls { margin-bottom: 1rem !important; }
     .stream-card header { padding: 0.15rem 0.5rem !important; }
     #mt-videos, #mt-chat {
-        height: calc(100vh - 160px) !important;
+        height: calc(100vh - 210px) !important;
     }
 }
+
+/* Allow slight scrolling but page content barely exceeds viewport */
+html, body {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 
 /* Fullscreen Layout Overrides (Container Query Logic applies here too) */
 body.is-fullscreen #mt-videos.layout-1 {
@@ -290,7 +281,6 @@ body.is-fullscreen #mt-videos.container-lg.layout-6 {
     grid-template-rows: 1fr 1fr !important;
 }
 
-
 /* Focus Layout Support */
 #mt-videos.has-focus {
     display: grid !important;
@@ -330,7 +320,6 @@ body.is-fullscreen #mt-videos.container-lg.layout-6 {
     font-size: 0.75rem !important;
 }
 
-
 #mt-videos.has-focus.container-lg,
 body.is-fullscreen #mt-videos.has-focus.container-lg {
     grid-template-columns: 4fr 1fr !important;
@@ -341,7 +330,6 @@ body.is-fullscreen #mt-videos.has-focus.container-lg {
 #mt-videos.has-focus.container-lg.layout-4, body.is-fullscreen #mt-videos.has-focus.container-lg.layout-4 { grid-template-rows: repeat(3, minmax(0, 1fr)) !important; }
 #mt-videos.has-focus.container-lg.layout-5, body.is-fullscreen #mt-videos.has-focus.container-lg.layout-5 { grid-template-rows: repeat(4, minmax(0, 1fr)) !important; }
 #mt-videos.has-focus.container-lg.layout-6, body.is-fullscreen #mt-videos.has-focus.container-lg.layout-6 { grid-template-rows: repeat(5, minmax(0, 1fr)) !important; }
-
 
 #mt-videos.has-focus.container-lg .stream-card {
     grid-column: 2 !important;

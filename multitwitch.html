@@ -11,10 +11,8 @@
     <meta name="description" content="Multitwitch en direct pour suivre TheGuill84 et Nykho pendant la ZLAN 2026.">
     <title>Zultitwitch</title>
     
-    <!-- Preconnect to Twitch domains to speed up connections -->
     <link rel="preconnect" href="https://player.twitch.tv" crossorigin>
     <link rel="preconnect" href="https://www.twitch.tv" crossorigin>
-    <link rel="preconnect" href="https://irc-ws.chat.twitch.tv" crossorigin>
 
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -29,7 +27,7 @@
     <link rel="stylesheet" href="./multitwitch.css">
 </head>
 
-<body class="min-h-screen pb-20 overflow-x-clip">
+<body class="min-h-screen overflow-x-clip">
 
     <header id="main-header"
         class="py-2 sm:py-3 lg:py-4 px-2 sm:px-3 lg:px-4 border-b-4 border-[#27272a] mb-6 md:mb-10 bg-[#09090b]/95 backdrop-blur-md sticky top-0 z-50 transition-all duration-500 ease-in-out shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
@@ -131,17 +129,25 @@
                 </svg>
                 <span>RESET (GUILL & NYKHO)</span>
             </button>
+            <button id="guide-btn"
+                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-green)] text-[var(--pixel-green)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-green)] hover:text-black transition-colors duration-300 flex items-center gap-2">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>GUIDE</span>
+            </button>
         </div>
 
         <div id="mt-layout" class="flex flex-col lg:flex-row gap-2 md:gap-3 items-start">
             <!-- Videos Container -->
-            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full lg:w-[calc(100%-280px)] xl:w-[calc(100%-320px)] lg:h-[calc(100vh-140px)]">
+            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full lg:w-[calc(100%-280px)] xl:w-[calc(100%-320px)] lg:h-[calc(100vh-190px)]">
                 <!-- Stream slots will be managed effectively by DOM nodes below -->
                 <!-- Stream 1 -->
                 <div id="card-stream-1" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card" style="border: 2px solid var(--pixel-orange);" draggable="true">
                     <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[var(--pixel-orange)] bg-black/50 cursor-move">
                         <div id="title-stream-1" class="text-[var(--pixel-orange)] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
                         <div class="flex items-center gap-2 md:gap-3">
+                            <button class="play-pause-btn text-slate-400 hover:text-[var(--pixel-orange)] transition-colors" data-slot="1" title="Lire/Pause">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
                             <button class="focus-stream-btn text-slate-400 hover:text-white transition-transform" data-slot="1" title="Mettre en évidence">
                                 <svg class="w-3 h-3 md:w-3.5 md:h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                             </button>
@@ -158,6 +164,9 @@
                     <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#9146FF] bg-black/50 cursor-move">
                         <div id="title-stream-2" class="text-[#9146FF] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
                         <div class="flex items-center gap-2 md:gap-3">
+                            <button class="play-pause-btn text-slate-400 hover:text-[#9146FF] transition-colors" data-slot="2" title="Lire/Pause">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
                             <button class="focus-stream-btn text-slate-400 hover:text-white transition-transform" data-slot="2" title="Mettre en évidence">
                                 <svg class="w-3 h-3 md:w-3.5 md:h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                             </button>
@@ -174,6 +183,9 @@
                     <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[var(--pixel-green)] bg-black/50 cursor-move">
                         <div id="title-stream-3" class="text-[var(--pixel-green)] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
                         <div class="flex items-center gap-2 md:gap-3">
+                            <button class="play-pause-btn text-slate-400 hover:text-[var(--pixel-green)] transition-colors" data-slot="3" title="Lire/Pause">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
                             <button class="focus-stream-btn text-slate-400 hover:text-white transition-transform" data-slot="3" title="Mettre en évidence">
                                 <svg class="w-3 h-3 md:w-3.5 md:h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                             </button>
@@ -190,6 +202,9 @@
                     <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#3b82f6] bg-black/50 cursor-move">
                         <div id="title-stream-4" class="text-[#3b82f6] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
                         <div class="flex items-center gap-2 md:gap-3">
+                            <button class="play-pause-btn text-slate-400 hover:text-[#3b82f6] transition-colors" data-slot="4" title="Lire/Pause">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
                             <button class="focus-stream-btn text-slate-400 hover:text-white transition-transform" data-slot="4" title="Mettre en évidence">
                                 <svg class="w-3 h-3 md:w-3.5 md:h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                             </button>
@@ -206,6 +221,9 @@
                     <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#ef4444] bg-black/50 cursor-move">
                         <div id="title-stream-5" class="text-[#ef4444] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
                         <div class="flex items-center gap-2 md:gap-3">
+                            <button class="play-pause-btn text-slate-400 hover:text-[#ef4444] transition-colors" data-slot="5" title="Lire/Pause">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
                             <button class="focus-stream-btn text-slate-400 hover:text-white transition-transform" data-slot="5" title="Mettre en évidence">
                                 <svg class="w-3 h-3 md:w-3.5 md:h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                             </button>
@@ -222,6 +240,9 @@
                     <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b border-[#eab308] bg-black/50 cursor-move">
                         <div id="title-stream-6" class="text-[#eab308] font-pixel text-xs md:text-sm uppercase truncate pr-2"></div>
                         <div class="flex items-center gap-2 md:gap-3">
+                            <button class="play-pause-btn text-slate-400 hover:text-[#eab308] transition-colors" data-slot="6" title="Lire/Pause">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
                             <button class="focus-stream-btn text-slate-400 hover:text-white transition-transform" data-slot="6" title="Mettre en évidence">
                                 <svg class="w-3 h-3 md:w-3.5 md:h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                             </button>
@@ -235,7 +256,7 @@
             </div>
 
             <!-- Merged Chat Container -->
-            <div id="mt-chat" class="pixel-card bg-[#0f0f13] flex flex-col w-full lg:w-[280px] xl:w-[320px] h-[500px] lg:h-[calc(100vh-140px)]" style="border: 2px solid var(--pixel-violet);">
+            <div id="mt-chat" class="pixel-card bg-[#0f0f13] flex flex-col w-full lg:w-[280px] xl:w-[320px] h-[500px] lg:h-[calc(100vh-190px)]" style="border: 2px solid var(--pixel-violet);">
                 <header class="pixel-header-violet px-1 py-1 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#09090b] gap-1.5 relative">
                     <div class="w-full flex justify-between items-center px-2 py-0.5 border-b border-[var(--pixel-violet)]/20 mb-0.5">
                         <span class="text-[8px] font-pixel text-slate-600 uppercase">Twitch Chat System</span>
@@ -262,62 +283,50 @@
                 </div>
             </div>
         </div>
-    </main>
 
-    <section class="w-[98%] 2xl:w-[95%] mx-auto px-2 md:px-3 mb-8">
-        <div class="pixel-card w-full max-w-[1200px] mx-auto bg-[#0f0f13] p-4 md:p-8" style="border: 2px solid var(--pixel-violet);">
-            <header class="text-center mb-6 md:mb-10">
-                <h2 class="font-pixel text-[var(--pixel-violet)] text-lg md:text-2xl mb-3 tracking-widest drop-shadow-[0_0_8px_rgba(145,70,255,0.4)]">GUIDE DU MULTITWITCH</h2>
-                <p class="font-text text-sm md:text-base text-slate-300 max-w-3xl mx-auto">Bienvenue ! Cette page vous permet de suivre simultanément jusqu'à <span class="text-white font-bold">6 streams</span> différents de manière optimisée.</p>
-            </header>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 font-text text-sm md:text-base text-slate-300 text-left">
-                <!-- AJOUTER -->
-                <div class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors">
-                    <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2">
-                        <span class="text-[var(--pixel-violet)]">➕</span> AJOUTER UN STREAM
-                    </h3>
-                    <p class="text-slate-400">Utilisez la barre en haut pour intégrer la chaîne de votre choix (tapez juste le pseudo). Vous pouvez aussi <span class="text-slate-200">glisser-déposer</span> les fenêtres pour les réorganiser !</p>
-                </div>
-
-                <!-- PLEIN ECRAN -->
-                <div class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors">
-                    <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2">
-                        <span class="text-[var(--pixel-violet)]">📺</span> PLEIN ÉCRAN & GRILLE
-                    </h3>
-                    <p class="text-slate-400">Le mode Plein Écran masque l'interface pour laisser place aux vidéos. La grille s'adaptera <span class="text-slate-200">automatiquement</span> de manière optimale selon le nombre de streams actifs.</p>
-                </div>
-
-                <!-- FOCUS -->
-                <div class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors">
-                    <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2">
-                        <span class="text-[var(--pixel-violet)]">⭐</span> MODE FOCUS
-                    </h3>
-                    <p class="text-slate-400">Cliquez sur l'étoile dans l'en-tête d'un stream pour le mettre en <span class="text-slate-200 font-bold">FOCUS</span> : il prendra 80% de l'écran pendant que les autres s'empileront intelligemment sur le côté !</p>
-                </div>
-
-                <!-- TCHAT -->
-                <div class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors">
-                    <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2">
-                        <span class="text-[var(--pixel-violet)]">💬</span> TCHAT INTÉGRÉ
-                    </h3>
-                    <p class="text-slate-400">Cliquez sur les onglets pour basculer entre les tchats. <br><span class="text-[var(--pixel-red)] text-xs mt-1 inline-block">Bug de connexion ?</span> Utilisez le bouton <span class="text-white bg-[var(--pixel-violet)] px-1 rounded text-[10px]">FIX CONNEXION</span> en haut à droite du tchat.</p>
-                </div>
-
-                <!-- SAUVEGARDE -->
-                <div class="bg-[#18181b] border-l-4 border-[var(--pixel-green)] p-4 hover:bg-white/5 transition-colors md:col-span-2 max-w-3xl mx-auto w-full">
-                    <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2">
-                        <span class="text-[var(--pixel-green)]">💾</span> SAUVEGARDE AUTO
-                    </h3>
-                    <p class="text-slate-400">Quittez la page et revenez quand vous le souhaitez, vous retrouverez toujours vos streams configurés <span class="text-slate-200">exactement comme vous les avez laissés !</span></p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="w-full text-center py-6 mt-10 border-t-2 border-[#27272a] text-slate-500 font-text text-xs md:text-sm px-3">
+    <footer class="w-full text-center py-6 mt-4 border-t-2 border-[#27272a] text-slate-500 font-text text-xs md:text-sm px-3">
         <p>@2026 <span class="cursor-pointer hover:text-white transition-colors" title="🤫">Strelezian</span> - Ceci n'est pas un site officiel de la ZLAN et n'est en aucun cas lié à ses créateurs. Tous droits réservés.</p>
     </footer>
+
+    </main>
+
+    <!-- Guide Overlay Modal -->
+    <div id="guide-overlay" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm overflow-y-auto" style="display:none;">
+        <div class="w-[95%] max-w-[1200px] mx-auto my-8 md:my-16">
+            <div class="pixel-card bg-[#0f0f13] p-4 md:p-8 relative" style="border: 2px solid var(--pixel-violet);">
+                <button id="guide-close-btn" class="absolute top-3 right-3 text-slate-400 hover:text-white font-pixel text-lg md:text-xl px-2 py-1 hover:bg-white/10 rounded transition-colors" title="Fermer">✕</button>
+                <header class="text-center mb-6 md:mb-10">
+                    <h2 class="font-pixel text-[var(--pixel-violet)] text-lg md:text-2xl mb-3 tracking-widest drop-shadow-[0_0_8px_rgba(145,70,255,0.4)]">GUIDE DU MULTITWITCH</h2>
+                    <p class="font-text text-sm md:text-base text-slate-300 max-w-3xl mx-auto">Bienvenue ! Cette page vous permet de suivre simultanément jusqu'à <span class="text-white font-bold">6 streams</span> différents de manière optimisée.</p>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 font-text text-sm md:text-base text-slate-300 text-left">
+                    <div class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors">
+                        <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2"><span class="text-[var(--pixel-violet)]">➕</span> AJOUTER UN STREAM</h3>
+                        <p class="text-slate-400">Utilisez la barre en haut pour intégrer la chaîne de votre choix (tapez juste le pseudo). Vous pouvez aussi <span class="text-slate-200">glisser-déposer</span> les fenêtres pour les réorganiser !</p>
+                    </div>
+                    <div class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors">
+                        <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2"><span class="text-[var(--pixel-violet)]">📺</span> PLEIN ÉCRAN & GRILLE</h3>
+                        <p class="text-slate-400">Le mode Plein Écran masque l'interface pour laisser place aux vidéos. La grille s'adaptera <span class="text-slate-200">automatiquement</span> de manière optimale selon le nombre de streams actifs.</p>
+                    </div>
+                    <div class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors">
+                        <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2"><span class="text-[var(--pixel-violet)]">⭐</span> MODE FOCUS</h3>
+                        <p class="text-slate-400">Cliquez sur l'étoile dans l'en-tête d'un stream pour le mettre en <span class="text-slate-200 font-bold">FOCUS</span> : il prendra 80% de l'écran pendant que les autres s'empileront intelligemment sur le côté !</p>
+                    </div>
+                    <div class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors">
+                        <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2"><span class="text-[var(--pixel-violet)]">💬</span> TCHAT INTÉGRÉ</h3>
+                        <p class="text-slate-400">Cliquez sur les onglets pour basculer entre les tchats. <br><span class="text-[var(--pixel-red)] text-xs mt-1 inline-block">Bug de connexion ?</span> Utilisez le bouton <span class="text-white bg-[var(--pixel-violet)] px-1 rounded text-[10px]">FIX CONNEXION</span> en haut à droite du tchat.</p>
+                    </div>
+                    <div class="bg-[#18181b] border-l-4 border-[var(--pixel-green)] p-4 hover:bg-white/5 transition-colors md:col-span-2 max-w-3xl mx-auto w-full">
+                        <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2"><span class="text-[var(--pixel-green)]">💾</span> SAUVEGARDE AUTO</h3>
+                        <p class="text-slate-400">Quittez la page et revenez quand vous le souhaitez, vous retrouverez toujours vos streams configurés <span class="text-slate-200">exactement comme vous les avez laissés !</span></p>
+                    </div>
+                </div>
+                <footer class="w-full text-center pt-6 mt-8 border-t border-[#27272a] text-slate-500 font-text text-xs">
+                    <p>@2026 <span class="cursor-pointer hover:text-white transition-colors" title="🤫">Strelezian</span> - Ceci n'est pas un site officiel de la ZLAN et n'est en aucun cas lié à ses créateurs.</p>
+                </footer>
+            </div>
+        </div>
+    </div>
 
     <script src="./multitwitch.js" defer></script>
 </body>

@@ -2,7 +2,6 @@
 const MultitwitchApp = (function () {
     const state = {
         channels: { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '' },
-        players: {},
         draggedSlot: null,
         maxSlots: 6,
         activeChatTab: null,
@@ -12,21 +11,6 @@ const MultitwitchApp = (function () {
 
     const DOM = {}; // Cached DOM nodes
     const SLOTS = {}; // Cached per-slot nodes
-
-    function loadTwitchAPI() {
-        return new Promise((resolve, reject) => {
-            if (window.Twitch) {
-                resolve(window.Twitch);
-                return;
-            }
-            const script = document.createElement('script');
-            script.src = 'https://player.twitch.tv/js/embed/v1.js';
-            script.async = true;
-            script.onload = () => resolve(window.Twitch);
-            script.onerror = () => reject(new Error('Failed to load Twitch API'));
-            document.head.appendChild(script);
-        });
-    }
 
     function initResizeObserver() {
         const resizeObserver = new ResizeObserver(entries => {
@@ -86,6 +70,18 @@ const MultitwitchApp = (function () {
             window.open('https://www.twitch.tv/login', '_blank', 'width=500,height=600');
         });
 
+        // Guide overlay toggle
+        const guideOverlay = document.getElementById('guide-overlay');
+        document.getElementById('guide-btn').addEventListener('click', () => {
+            guideOverlay.style.display = 'flex';
+        });
+        document.getElementById('guide-close-btn').addEventListener('click', () => {
+            guideOverlay.style.display = 'none';
+        });
+        guideOverlay.addEventListener('click', (e) => {
+            if (e.target === guideOverlay) guideOverlay.style.display = 'none';
+        });
+
         // Event delegation for stream card controls
         document.querySelectorAll('.remove-stream-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -106,6 +102,14 @@ const MultitwitchApp = (function () {
         DOM.chatTabs.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 switchChat(e.currentTarget.dataset.target);
+            });
+        });
+
+        // Play/Pause buttons — toggles the player iframe on/off
+        document.querySelectorAll('.play-pause-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const slot = parseInt(e.currentTarget.dataset.slot);
+                togglePlay(slot);
             });
         });
 
@@ -207,31 +211,11 @@ const MultitwitchApp = (function () {
         return parents;
     }
 
-    function updateAudio() {
-        let audioSlot = null;
-        // 1. Prioritize focused stream
-        if (state.focusedSlot && state.channels[state.focusedSlot]) {
-            audioSlot = state.focusedSlot;
-        } else {
-            // 2. Otherwise use the first active stream
-            for (let i = 1; i <= state.maxSlots; i++) {
-                if (state.channels[i]) {
-                    audioSlot = i;
-                    break;
-                }
-            }
-        }
-
-        // Apply mute/unmute
-        for (let i = 1; i <= state.maxSlots; i++) {
-            if (state.players[i]) {
-                if (i === audioSlot) {
-                    state.players[i].setMuted(false);
-                } else {
-                    state.players[i].setMuted(true);
-                }
-            }
-        }
+    // Build the raw Twitch player iframe URL
+    function getPlayerSrc(channel) {
+        const parents = getTwitchParents();
+        const parentParams = parents.map(p => 'parent=' + p).join('&');
+        return 'https://player.twitch.tv/?channel=' + channel + '&' + parentParams + '&muted=true&autoplay=true';
     }
 
     function saveChannels() {
@@ -321,43 +305,82 @@ const MultitwitchApp = (function () {
                 activeCard.classList.add('is-focused');
             }
         }
-        
-        updateAudio();
     }
 
-    function updateStream(slot, channelName, switchChatToThis = false) {
+    // Toggle a stream on/off (play/pause equivalent)
+    function togglePlay(slot) {
+        if (!state.channels[slot]) return;
+
+        const slotDOM = SLOTS[slot];
+        const existingIframe = document.getElementById('iframe-player-' + slot);
+
+        if (existingIframe) {
+            // "Pause" = remove the iframe
+            existingIframe.remove();
+            // Update button to show play icon
+            const btn = document.querySelector('.play-pause-btn[data-slot="' + slot + '"]');
+            if (btn) {
+                btn.innerHTML = '<svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            }
+        } else {
+            // "Play" = create the iframe again
+            createPlayerIframe(slot, state.channels[slot]);
+            // Update button to show pause icon
+            const btn = document.querySelector('.play-pause-btn[data-slot="' + slot + '"]');
+            if (btn) {
+                btn.innerHTML = '<svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            }
+        }
+    }
+
+    // Create a raw Twitch player iframe (no v1.js, no auto-pause)
+    function createPlayerIframe(slot, channel) {
+        const container = SLOTS[slot].player;
+        if (!container) return;
+
+        // Remove any existing player iframe
+        const existing = document.getElementById('iframe-player-' + slot);
+        if (existing) existing.remove();
+
+        const iframe = document.createElement('iframe');
+        iframe.id = 'iframe-player-' + slot;
+        iframe.src = getPlayerSrc(channel);
+        iframe.className = 'absolute inset-0 w-full h-full';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allowfullscreen', 'true');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('allow', 'autoplay; fullscreen');
+        container.appendChild(iframe);
+    }
+
+    function updateStream(slot, channelName, switchChatToThis) {
+        if (switchChatToThis === undefined) switchChatToThis = false;
         const newChannel = channelName ? channelName.trim().toLowerCase() : '';
         const oldChannel = state.channels[slot];
 
-        if (newChannel === oldChannel && state.players[slot]) return;
+        if (newChannel === oldChannel && document.getElementById('iframe-player-' + slot)) return;
 
         const slotDOM = SLOTS[slot];
-        let chatIframe = document.getElementById(`iframe-chat-${slot}`);
+        let chatIframe = document.getElementById('iframe-chat-' + slot);
 
         const parents = getTwitchParents();
-        const parentParams = parents.map(p => `parent=${p}`).join('&');
+        const parentParams = parents.map(function(p) { return 'parent=' + p; }).join('&');
 
         if (newChannel) {
-            // Embed Player
-            if (!state.players[slot] && window.Twitch) {
-                state.players[slot] = new Twitch.Player(`player-stream-${slot}`, {
-                    channel: newChannel,
-                    width: '100%',
-                    height: '100%',
-                    muted: true,
-                    parent: parents
-                });
-                state.players[slot].addEventListener(Twitch.Player.READY, updateAudio);
-            } else if (state.players[slot]) {
-                state.players[slot].setChannel(newChannel);
-            }
-
+            // Create player iframe (raw, no v1.js)
+            createPlayerIframe(slot, newChannel);
             if (slotDOM.player) slotDOM.player.classList.remove('invisible');
 
-            // Dynamically create or update iframe
+            // Reset play/pause button to pause icon
+            const ppBtn = document.querySelector('.play-pause-btn[data-slot="' + slot + '"]');
+            if (ppBtn) {
+                ppBtn.innerHTML = '<svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            }
+
+            // Dynamically create or update chat iframe
             if (!chatIframe) {
                 chatIframe = document.createElement('iframe');
-                chatIframe.id = `iframe-chat-${slot}`;
+                chatIframe.id = 'iframe-chat-' + slot;
                 chatIframe.className = 'w-full h-full';
                 chatIframe.style.display = 'none';
                 chatIframe.setAttribute('frameborder', '0');
@@ -365,7 +388,7 @@ const MultitwitchApp = (function () {
                 DOM.chatIframesContainer.appendChild(chatIframe);
             }
             
-            const newSrc = `https://www.twitch.tv/embed/${newChannel}/chat?${parentParams}&darkpopout`;
+            var newSrc = 'https://www.twitch.tv/embed/' + newChannel + '/chat?' + parentParams + '&darkpopout';
             if (chatIframe.src !== newSrc) chatIframe.src = newSrc;
 
             if (slotDOM.chatBtn) {
@@ -379,7 +402,6 @@ const MultitwitchApp = (function () {
                 slotDOM.player.innerHTML = '';
                 slotDOM.player.classList.add('invisible');
             }
-            delete state.players[slot];
 
             if (chatIframe) {
                 chatIframe.remove(); // Completely remove to free memory
@@ -389,7 +411,7 @@ const MultitwitchApp = (function () {
                 slotDOM.chatBtn.classList.add('hidden');
                 if (state.activeChatTab == slot) {
                     // Find next available
-                    let nextSlot = Object.keys(state.channels).find(k => state.channels[k] && k != slot);
+                    var nextSlot = Object.keys(state.channels).find(function(k) { return state.channels[k] && k != slot; });
                     switchChat(nextSlot || null);
                 }
             }
@@ -404,7 +426,6 @@ const MultitwitchApp = (function () {
         state.channels[slot] = newChannel;
         saveChannels();
         updateLayout();
-        updateAudio();
         syncURL();
 
         if (newChannel && switchChatToThis) {
@@ -419,10 +440,10 @@ const MultitwitchApp = (function () {
         state.activeChatTab = target;
 
         if (oldTarget) {
-            const oldIframe = document.getElementById(`iframe-chat-${oldTarget}`);
+            const oldIframe = document.getElementById('iframe-chat-' + oldTarget);
             if (oldIframe) oldIframe.style.display = 'none';
             
-            const oldBtn = SLOTS[oldTarget]?.chatBtn;
+            const oldBtn = SLOTS[oldTarget] && SLOTS[oldTarget].chatBtn;
             if (oldBtn) {
                 oldBtn.classList.remove('text-[var(--pixel-violet)]');
                 oldBtn.classList.add('text-slate-500');
@@ -430,10 +451,10 @@ const MultitwitchApp = (function () {
         }
 
         if (target) {
-            const iframe = document.getElementById(`iframe-chat-${target}`);
+            const iframe = document.getElementById('iframe-chat-' + target);
             if (iframe) iframe.style.display = 'block';
             
-            const activeBtn = SLOTS[target]?.chatBtn;
+            const activeBtn = SLOTS[target] && SLOTS[target].chatBtn;
             if (activeBtn) {
                 activeBtn.classList.remove('text-slate-500');
                 activeBtn.classList.add('text-[var(--pixel-violet)]');
@@ -471,11 +492,11 @@ const MultitwitchApp = (function () {
         DOM.addInput.disabled = true;
 
         try {
-            const response = await fetch(`https://decapi.me/twitch/id/${newChannel}`);
+            const response = await fetch('https://decapi.me/twitch/id/' + newChannel);
             const text = await response.text();
 
             if (text.toLowerCase().includes("user not found") || text.includes("Error:")) {
-                alert(`La chaîne Twitch "${newChannel}" n'existe pas.`);
+                alert('La chaîne Twitch "' + newChannel + '" n\'existe pas.');
                 return;
             }
             
@@ -533,10 +554,10 @@ const MultitwitchApp = (function () {
     function toggleChat() {
         const isHidden = document.body.classList.toggle('chat-hidden');
         if (isHidden) {
-            DOM.toggleChatBtn.innerHTML = `<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> <span>AVEC TCHAT</span>`;
+            DOM.toggleChatBtn.innerHTML = '<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> <span>AVEC TCHAT</span>';
             localStorage.setItem('zlan_mt_chat_hidden', 'true');
         } else {
-            DOM.toggleChatBtn.innerHTML = `<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg> <span>SANS TCHAT</span>`;
+            DOM.toggleChatBtn.innerHTML = '<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg> <span>SANS TCHAT</span>';
             localStorage.setItem('zlan_mt_chat_hidden', 'false');
         }
     }
@@ -571,19 +592,15 @@ const MultitwitchApp = (function () {
         // Initial layout setup required before adding streams
         updateLayout();
 
-        loadTwitchAPI().then(() => {
-            let firstActive = null;
-            for (let i = 1; i <= state.maxSlots; i++) {
-                if (initial[i]) {
-                    updateStream(i, initial[i], false);
-                    if (!firstActive) firstActive = i;
-                }
+        // No need to wait for Twitch API — we use raw iframes
+        let firstActive = null;
+        for (let i = 1; i <= state.maxSlots; i++) {
+            if (initial[i]) {
+                updateStream(i, initial[i], false);
+                if (!firstActive) firstActive = i;
             }
-            if (firstActive) switchChat(firstActive);
-        }).catch(err => {
-            console.error(err);
-            alert("Erreur lors du chargement du lecteur Twitch.");
-        });
+        }
+        if (firstActive) switchChat(firstActive);
     }
 
     return { init: initializeApp };
