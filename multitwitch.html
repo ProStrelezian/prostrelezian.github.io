@@ -4,20 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <script>
-        // ANTI-PAUSE : Contourne la détection de visibilité du navigateur
+        // ANTI-PAUSE & WAKE LOCK
         (function() {
+            // 1. WAKE LOCK : Garde l'onglet actif au niveau du système
+            let wakeLock = null;
+            const requestWakeLock = async () => {
+                if ('wakeLock' in navigator) {
+                    try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
+                }
+            };
+            requestWakeLock();
+
+            // 2. SPOOFING : On ment au navigateur sur la visibilité
             const spoof = () => {
                 Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
                 Object.defineProperty(document, 'hidden', { get: () => false, configurable: true });
             };
             spoof();
-            // Bloque les événements de changement de visibilité
+
+            // 3. EVENT BLOCKING : On intercepte les événements de mise en veille
+            // On laisse passer visibilitychange seulement pour notre propre WakeLock si besoin
+            window.addEventListener('visibilitychange', (e) => {
+                if (document.visibilityState === 'visible') requestWakeLock();
+                e.stopImmediatePropagation();
+            }, true);
+            
             document.addEventListener('visibilitychange', (e) => e.stopImmediatePropagation(), true);
-            window.addEventListener('visibilitychange', (e) => e.stopImmediatePropagation(), true);
-            // Bloque l'événement de perte de focus
             window.addEventListener('blur', (e) => e.stopImmediatePropagation(), true);
-            // Force le maintien de l'état au cas où Twitch essaierait de le redéfinir
-            setInterval(spoof, 1000);
+
+            // 4. HEARTBEAT : Cookie actif
+            setInterval(() => {
+                document.cookie = "zlan_active=" + Date.now() + "; path=/; max-age=60; SameSite=Lax";
+            }, 10000);
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,6 +50,14 @@
     <link rel="preconnect" href="https://www.twitch.tv" crossorigin>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: true,
+            }
+        }
+    </script>
+    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -172,7 +198,7 @@
                         </div>
                     </header>
                     <div id="container-stream-1" class="w-full bg-[#18181b] flex-grow relative min-h-0">
-                        <div id="player-stream-1" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10 invisible"></div>
+                        <div id="player-stream-1" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(245,158,11,0.1)] z-10"></div>
                     </div>
                 </div>
 
@@ -191,7 +217,7 @@
                         </div>
                     </header>
                     <div id="container-stream-2" class="w-full bg-[#18181b] flex-grow relative min-h-0">
-                        <div id="player-stream-2" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10 invisible"></div>
+                        <div id="player-stream-2" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(145,70,255,0.1)] z-10"></div>
                     </div>
                 </div>
 
@@ -210,7 +236,7 @@
                         </div>
                     </header>
                     <div id="container-stream-3" class="w-full bg-[#18181b] flex-grow relative min-h-0">
-                        <div id="player-stream-3" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(100,255,218,0.1)] z-10 invisible"></div>
+                        <div id="player-stream-3" class="absolute inset-0 w-full h-full shadow-[0_0_10px_rgba(100,255,218,0.1)] z-10"></div>
                     </div>
                 </div>
 
@@ -229,7 +255,7 @@
                         </div>
                     </header>
                     <div id="container-stream-4" class="w-full bg-[#18181b] flex-grow relative min-h-0">
-                        <div id="player-stream-4" class="absolute inset-0 w-full h-full z-10 invisible"></div>
+                        <div id="player-stream-4" class="absolute inset-0 w-full h-full z-10"></div>
                     </div>
                 </div>
 
@@ -248,7 +274,7 @@
                         </div>
                     </header>
                     <div id="container-stream-5" class="w-full bg-[#18181b] flex-grow relative min-h-0">
-                        <div id="player-stream-5" class="absolute inset-0 w-full h-full z-10 invisible"></div>
+                        <div id="player-stream-5" class="absolute inset-0 w-full h-full z-10"></div>
                     </div>
                 </div>
 
@@ -267,7 +293,7 @@
                         </div>
                     </header>
                     <div id="container-stream-6" class="w-full bg-[#18181b] flex-grow relative min-h-0">
-                        <div id="player-stream-6" class="absolute inset-0 w-full h-full z-10 invisible"></div>
+                        <div id="player-stream-6" class="absolute inset-0 w-full h-full z-10"></div>
                     </div>
                 </div>
             </div>
