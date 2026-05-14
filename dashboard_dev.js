@@ -183,7 +183,6 @@ class ZlanDashboard {
                     } else {
                         timeline.carre.finished = timeline.carre.finished && isFinished;
                     }
-                    // Forcer l'ancre vers la phase à 4 équipes si elle est trouvée
                     if (has(groupTitle, "4 ÉQUIPES") || has(groupTitle, "4 EQUIPES")) {
                         timeline.carre.target = articleId;
                     }
@@ -196,7 +195,6 @@ class ZlanDashboard {
                         timeline.eliminatoire.finished = timeline.eliminatoire.finished && isFinished;
                     }
                     timeline.eliminatoire.completedMatches += completedCount;
-                    // Forcer l'ancre vers la phase à 32 équipes si elle est trouvée
                     if (has(groupTitle, "32 ÉQUIPES") || has(groupTitle, "PHASE ÉLIMINATOIRE (32 ÉQUIPES)")) {
                         timeline.eliminatoire.target = articleId;
                     }
@@ -250,8 +248,11 @@ class ZlanDashboard {
         while (j < data.length && !has(String(data[j][0] || ""), "PHASE DE KNOCKOUT")) {
             let sub = data[j];
             if (sub[0] && !has(sub[0], "JEUX")) games.push({ name: sub[0], place: sub[3], heure: sub[9] || sub[10] || '' });
-            let sIdx = sub.findIndex(c => has(c, ">> SEEDING"));
-            if (sIdx !== -1) seedingScore = sub.slice(sIdx + 1).find(v => v.trim() !== "") || "";
+            let sIdx = sub.findIndex(c => has(c, ">> SEEDING") || has(c, "SEED FINALE") || has(c, "CLASSEMENT FINAL"));
+            if (sIdx !== -1) {
+                let found = sub.slice(sIdx + 1).find(v => v && String(v).trim() !== "");
+                if (found) seedingScore = found;
+            }
             if (j === lastIndex) { j++; break; }
             j++;
         }
@@ -260,7 +261,10 @@ class ZlanDashboard {
 
     renderSeedingBlock(games, score) {
         let gHtml = games.map((g, idx) => `<div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}"><div class="col-span-2 font-pixel text-[9px] md:text-base lg:text-xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center" style="color: var(--pixel-orange);">${g.name}</div><div class="col-span-2 font-text text-sm md:text-xl lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>` : ''}</div>`).join('');
-        return `<section id="section-seeding" class="pixel-card mt-6 mx-2 md:mx-0"><header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[500px]"><div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]"><div class="col-span-2">JEUX</div><div class="col-span-2">PLACE</div>${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${score ? `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${has(score, 'EN ATTENTE') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};"><span class="font-pixel text-xl md:text-5xl" style="color: ${has(score, 'EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${score}</span></div></div>` : ''}</section>`;
+        const displayScore = score || "EN ATTENTE...";
+        const isWaiting = has(displayScore, 'EN ATTENTE');
+        const scoreFooter = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${isWaiting ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};"><span class="font-pixel text-xl md:text-5xl" style="color: ${isWaiting ? '#94a3b8' : 'var(--pixel-orange)'};">${displayScore}</span></div></div>`;
+        return `<section id="section-seeding" class="pixel-card mt-6 mx-2 md:mx-0"><header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[500px]"><div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]"><div class="col-span-2">JEUX</div><div class="col-span-2">PLACE</div>${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${scoreFooter}</section>`;
     }
 
     parseKnockout(data, start, lastIndex, state) {
@@ -324,7 +328,12 @@ class ZlanDashboard {
             } else if (sub.some(c => (c || '').trim()) && !has(sub[0], "JEUX") && !has(sub[0], "PHASE")) {
                 const isVal = (teams && has(sub[0], teams)) || (contre && has(sub[0], contre)) || ((sub[0] || '').trim() === "???");
                 if (!isVal && (sub[0] || '').trim()) {
-                    if ((sub[4] || '').trim() || (sub[7] || '').trim() || sub[0].length < 50) games.push({ name: sub[0], placeJeu: sub[4] || sub[3] || '', place: sub[7] || sub[6] || '', heure: sub[8] || sub[9] || '' });
+                    let pJ = sub[4] || sub[3] || sub[5] || sub[6] || "";
+                    let p = sub[7] || sub[6] || sub[5] || sub[4] || "";
+                    if (pJ === p) p = sub[7] || sub[6] || ""; // Avoid duplication if same column picked
+                    if (pJ.trim() || p.trim() || sub[0].length < 50) {
+                        games.push({ name: sub[0], placeJeu: pJ, place: p, heure: sub[8] || sub[9] || sub[10] || '' });
+                    }
                 }
             }
             if (j === lastIndex) { j++; break; }
@@ -343,7 +352,29 @@ class ZlanDashboard {
         }).join('');
         let hH = isF ? (this.is2026 ? `<div class="col-span-7">JEUX</div><div class="col-span-3">RÉSULTATS</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-8">JEUX</div><div class="col-span-4">RÉSULTATS</div>`) : (isE ? `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS SUR LE JEU</div><div class="col-span-4">WIN?</div>` : (this.is2026 ? `<div class="col-span-4">JEUX</div><div class="col-span-3">RÉSULTATS DU JEU</div><div class="col-span-3">PLACE</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS DU JEU</div><div class="col-span-4">PLACE</div>`));
         let qH = ""; if (qStatus) { let isO = has(qStatus, "OUI") || has(qStatus, "WIN"); let bg = isO ? "rgba(100, 255, 218, 0.1)" : (has(qStatus, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)"); let tr = isO ? "var(--pixel-green)" : (has(qStatus, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)"); qH = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">${isF ? "WIN ?" : "QUALIFIÉ ?"}</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bg};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tr};">${qStatus}</span></div>${qScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: ${tC};">${qScore}</span></div>` : ''}</div>`; }
-        let tH = (cTitle && tTitle) ? `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]"><div class="flex-1 flex flex-col md:border-r-2 border-[#27272a]"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div><div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div></div><div class="flex-1 flex flex-col"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div><div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div></div></div>` : (tTitle || teams ? `${tTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>` : ''}${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}` : '');
+        let tH = "";
+        if (cTitle && tTitle) {
+            tH = `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]">
+                    <div class="w-full md:w-[30%] flex-none flex flex-col md:border-r-2 border-[#27272a]">
+                        <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div>
+                        <div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>
+                        <div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div>
+                    </div>
+                  </div>`;
+        } else if (tTitle || teams || cTitle || contre) {
+            const title = tTitle || cTitle || "";
+            const val = teams || contre || "";
+            const isRed = !!cTitle;
+            const bg = isRed ? "rgba(229,57,53,0.1)" : "rgba(245,158,11,0.15)";
+            const color = isRed ? "var(--pixel-red)" : "var(--pixel-orange)";
+            tH = `<div class="border-b-2 border-[#27272a]">
+                    ${title ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${title}</div>` : ''}
+                    <div class="p-2 md:p-4 text-center font-pixel text-sm md:text-xl h-full flex items-center justify-center" style="background: ${bg}; color: ${color};">${val}</div>
+                  </div>`;
+        }
         let articleId = isF ? "section-finale" : (isR ? `section-carre-${redCount}` : `section-eliminatoire-${blueCount}`);
         let chunk = `<article id="${articleId}" class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0"><header class="${hC} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${tC};">${groupTitle}</h2></header>${tH}<div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[600px]"><div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div>${gH || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}</div></div></div>${qH}</article>`;
 
@@ -352,7 +383,7 @@ class ZlanDashboard {
             return res && String(res).trim() !== "" && !has(res, "???") && !has(res, "ATTENTE");
         }).length;
 
-        return { chunk, nextIndex: j, blueCount, qStatus, gamesCount: games.length, completedCount };
+        return { chunk, nextIndex: j, blueCount, redCount, qStatus, gamesCount: games.length, completedCount, articleId };
     }
 
     renderTracker(timeline, state, gameStats) {
@@ -366,9 +397,6 @@ class ZlanDashboard {
             { id: "finale", label: "FINALE", target: timeline.finale.target, exists: timeline.finale.exists, finished: timeline.finale.finished }
         ];
 
-        // Calcul de progression pondéré selon les critères utilisateur :
-        // Seeding: 2*3% (6%), Knockout: 6*4% (24%), Elim: 7*5% (35%), Carré: 5*4% (20%)
-        // Total phases = 85%. Reste 15% pour la finale (7 matchs).
         let seedingProg = (timeline.seeding.completedMatches || 0) * 3;
         let knockoutProg = (timeline.knockout.completedMatches || 0) * 4;
         let elimProg = (timeline.eliminatoire.completedMatches || 0) * 5;
@@ -405,10 +433,9 @@ class ZlanDashboard {
             } else {
                 statusClass = "text-slate-500 border-[#27272a] opacity-60 bg-[#09090b]";
             }
-            
+
             let iconSvg = "";
             if (s.id === "finale" && (isActive || s.finished)) {
-                // Icône Trophée pour la finale avec animation spéciale
                 iconSvg = `<svg class="w-2.5 h-2.5 md:w-3.5 md:h-3.5 ${isActive ? 'animate-bounce' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="${isActive ? 'filter: drop-shadow(0 0 5px var(--pixel-violet));' : ''}"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l9-5-9-5-9 5 9 5zm0 0v6m0 0l9-5-9-5-9 5 9 5zm0 0v6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 21h6"></path></svg>`;
             } else if (s.finished) {
                 iconSvg = `<svg class="w-2.5 h-2.5 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
@@ -433,19 +460,17 @@ class ZlanDashboard {
             `;
         }).join('');
 
-        // Marqueurs de transitions de phases
         const phaseTransitions = [
-            { pos: 6, color: "rgba(100,255,218,0.2)" },  // Fin Seeding
-            { pos: 30, color: "rgba(100,255,218,0.2)" }, // Fin Knockout
-            { pos: 65, color: "rgba(100,255,218,0.2)" }, // Fin Elim
-            { pos: 85, color: "var(--pixel-violet)" }    // Début Finale
+            { pos: 6, color: "rgba(100,255,218,0.2)" },
+            { pos: 30, color: "rgba(100,255,218,0.2)" },
+            { pos: 65, color: "rgba(100,255,218,0.2)" },
+            { pos: 85, color: "var(--pixel-violet)" }
         ];
         let phaseMarkersHtml = phaseTransitions.map(m => `
             <div class="absolute top-0 h-full w-[1px] z-10" style="left: ${m.pos}%; background-color: ${m.color}; opacity: 0.5;"></div>
         `).join('');
 
-        // Génération des 7 marqueurs pour la finale (répartis sur les derniers 15%)
-        let finaleTicks = Array.from({length: 7}).map((_, i) => {
+        let finaleTicks = Array.from({ length: 7 }).map((_, i) => {
             let isLast = i === 6;
             let pos = 85 + ((i + 1) * (15 / 7));
             if (pos > 100) pos = 100;
@@ -477,10 +502,10 @@ class ZlanDashboard {
                             <div class="flex flex-col items-center">
                                 <span class="font-pixel text-[10px] md:text-base text-[var(--pixel-green)] bg-[rgba(100,255,218,0.1)] px-3 md:px-4 py-1 rounded-sm border border-[var(--pixel-green)] shadow-[0_0_8px_rgba(100,255,218,0.2)] mb-1.5">${progress}%</span>
                                 <span class="font-pixel text-[8px] md:text-[11px] text-slate-400 uppercase tracking-tighter">
-                                    ${state.tournamentWon ? 
-                                        '<span class="text-[var(--pixel-violet)] animate-pulse">TOURNOI TERMINÉ</span>' : 
-                                        `<span class="text-[var(--pixel-green)] opacity-70">PHASE ACTUELLE :</span> ${phaseName}`
-                                    }
+                                    ${state.tournamentWon ?
+                '<span class="text-[var(--pixel-violet)] animate-pulse">TOURNOI TERMINÉ</span>' :
+                `<span class="text-[var(--pixel-green)] opacity-70">PHASE ACTUELLE :</span> ${phaseName}`
+            }
                                 </span>
                             </div>
                             <div class="font-pixel text-[8px] md:text-[10px] text-[var(--pixel-violet)] uppercase tracking-widest flex flex-col items-center gap-1 md:gap-1.5 w-16 md:w-20">
@@ -489,7 +514,6 @@ class ZlanDashboard {
                             </div>
                         </div>
                         <div class="h-4 md:h-6 w-full bg-[#0f0f13] border-[3px] border-[#27272a] relative p-[2px] rounded-sm shadow-inner overflow-hidden">
-                            <!-- Marqueurs de phases et finale -->
                             ${phaseMarkersHtml}
                             <div class="absolute top-0 left-0 w-full h-full z-10 pointer-events-none">
                                 ${finaleTicks}
