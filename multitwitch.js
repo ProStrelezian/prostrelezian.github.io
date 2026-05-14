@@ -79,11 +79,6 @@ const MultitwitchApp = (function () {
 
         DOM.chatTabs = document.querySelectorAll('.chat-tab-btn');
         DOM.streamCards = document.querySelectorAll('.stream-card');
-<<<<<<< HEAD
-=======
-        DOM.fullscreenBtn = document.getElementById('fullscreen-btn');
-        DOM.guideBtn = document.getElementById('guide-btn');
->>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
 
         for (let i = 1; i <= state.maxSlots; i++) {
             SLOTS[i] = {
@@ -569,16 +564,12 @@ const MultitwitchApp = (function () {
             }
 
             const newSrc = 'https://www.twitch.tv/embed/' + newChannel + '/chat?' + parentParams + '&darkpopout';
-<<<<<<< HEAD
             chatIframe.dataset.src = newSrc; // On stocke l'URL sans la charger
 
             // Lazy Loading : on ne charge l'iframe que si c'est l'onglet de tchat actif
             if (state.activeChatTab == slot && chatIframe.src !== newSrc) {
                 chatIframe.src = newSrc;
             }
-=======
-            if (chatIframe.src !== newSrc) chatIframe.src = newSrc;
->>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
 
             if (slotDOM.chatBtn) {
                 slotDOM.chatBtn.textContent = newChannel.toUpperCase();
@@ -604,10 +595,7 @@ const MultitwitchApp = (function () {
 
             if (chatIframe) {
                 chatIframe.src = ''; // Libère la mémoire
-<<<<<<< HEAD
                 chatIframe.removeAttribute('data-src');
-=======
->>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
                 chatIframe.remove();
             }
 

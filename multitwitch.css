@@ -242,11 +242,7 @@ body.chat-hidden.is-fullscreen #mt-videos {
 
     #mt-videos,
     #mt-chat {
-<<<<<<< HEAD
-        t height: calc(105vh - 210px) !important;
-=======
-        height: calc(92vh - 210px) !important;
->>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
+        height: calc(105vh - 210px) !important;
     }
 }
 
