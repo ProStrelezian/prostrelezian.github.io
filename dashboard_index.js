@@ -1,4 +1,4 @@
-// dashboard_dev.js
+// dashboard_index.js
 /**
  * ZLAN Dashboard 2026 - Optimized Core Logic
  * Author: Antigravity AI
@@ -300,7 +300,26 @@ class ZlanDashboard {
                     clearInterval(this.countdownInterval);
                 }
                 const trackerHtml = this.renderTracker(timeline, state, gameStats);
-                const fullHtml = htmlChunks.team + trackerHtml + htmlChunks.seeding + htmlChunks.knockout + (htmlChunks.groups ? `<div>${htmlChunks.groups}</div>` : '') + htmlChunks.finalRank;
+                
+                // Construction conditionnelle pour ne pas encombrer le dashboard
+                let fullHtml = htmlChunks.team + trackerHtml + htmlChunks.seeding;
+
+                // On affiche le Knockout si le Seeding est fini OU si le Knockout a commencé
+                if (timeline.seeding.finished || timeline.knockout.completedMatches > 0) {
+                    fullHtml += htmlChunks.knockout;
+                }
+
+                // On affiche les Groupes si le Knockout est fini OU si un match de groupe est complété
+                const groupStarted = gameStats.completed > (timeline.seeding.completedMatches + timeline.knockout.completedMatches);
+                if (timeline.knockout.finished || groupStarted) {
+                    if (htmlChunks.groups) fullHtml += `<div>${htmlChunks.groups}</div>`;
+                }
+
+                // On affiche le rang final uniquement si le tournoi est fini
+                if (state.tournamentOver) {
+                    fullHtml += htmlChunks.finalRank;
+                }
+
                 if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
                     container.innerHTML = fullHtml;
                 }
@@ -337,8 +356,11 @@ class ZlanDashboard {
         while (j < data.length && !has(String(data[j][0] || ""), "PHASE DE KNOCKOUT")) {
             let sub = data[j];
             if (sub[0] && !has(sub[0], "JEUX")) games.push({ name: sub[0], place: sub[3], heure: sub[9] || sub[10] || '' });
-            let sIdx = sub.findIndex(c => has(c, ">> SEEDING"));
-            if (sIdx !== -1) seedingScore = sub.slice(sIdx + 1).find(v => v.trim() !== "") || "";
+            let sIdx = sub.findIndex(c => has(c, ">> SEEDING") || has(c, "SEED FINALE") || has(c, "CLASSEMENT FINAL"));
+            if (sIdx !== -1) {
+                let found = sub.slice(sIdx + 1).find(v => v && String(v).trim() !== "");
+                if (found) seedingScore = found;
+            }
             if (j === lastIndex) { j++; break; }
             j++;
         }
@@ -347,7 +369,10 @@ class ZlanDashboard {
 
     renderSeedingBlock(games, score) {
         let gHtml = games.map((g, idx) => `<div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}"><div class="col-span-2 font-pixel text-[9px] md:text-base lg:text-xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center" style="color: var(--pixel-orange);">${g.name}</div><div class="col-span-2 font-text text-sm md:text-xl lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>` : ''}</div>`).join('');
-        return `<section id="section-seeding" class="pixel-card mt-6 mx-2 md:mx-0"><header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[500px]"><div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]"><div class="col-span-2">JEUX</div><div class="col-span-2">PLACE</div>${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${score ? `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${has(score, 'EN ATTENTE') ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};"><span class="font-pixel text-xl md:text-5xl" style="color: ${has(score, 'EN ATTENTE') ? '#94a3b8' : 'var(--pixel-orange)'};">${score}</span></div></div>` : ''}</section>`;
+        const displayScore = score || "EN ATTENTE";
+        const isWaiting = has(displayScore, 'EN ATTENTE');
+        const scoreFooter = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${isWaiting ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};"><span class="font-pixel text-xl md:text-5xl" style="color: ${isWaiting ? '#94a3b8' : 'var(--pixel-orange)'};">${displayScore}</span></div></div>`;
+        return `<section id="section-seeding" class="pixel-card mt-6 mx-2 md:mx-0"><header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[500px]"><div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]"><div class="col-span-2">JEUX</div><div class="col-span-2">PLACE</div>${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${scoreFooter}</section>`;
     }
 
     parseKnockout(data, start, lastIndex, state) {
@@ -411,7 +436,12 @@ class ZlanDashboard {
             } else if (sub.some(c => (c || '').trim()) && !has(sub[0], "JEUX") && !has(sub[0], "PHASE")) {
                 const isVal = (teams && has(sub[0], teams)) || (contre && has(sub[0], contre)) || ((sub[0] || '').trim() === "???");
                 if (!isVal && (sub[0] || '').trim()) {
-                    if ((sub[4] || '').trim() || (sub[7] || '').trim() || sub[0].length < 50) games.push({ name: sub[0], placeJeu: sub[4] || sub[3] || '', place: sub[7] || sub[6] || '', heure: sub[8] || sub[9] || '' });
+                    let pJ = sub[4] || sub[3] || sub[5] || sub[6] || "";
+                    let p = sub[7] || sub[6] || sub[5] || sub[4] || "";
+                    if (pJ === p) p = sub[7] || sub[6] || ""; // Avoid duplication if same column picked
+                    if (pJ.trim() || p.trim() || sub[0].length < 50) {
+                        games.push({ name: sub[0], placeJeu: pJ, place: p, heure: sub[8] || sub[9] || sub[10] || '' });
+                    }
                 }
             }
             if (j === lastIndex) { j++; break; }
@@ -430,7 +460,29 @@ class ZlanDashboard {
         }).join('');
         let hH = isF ? (this.is2026 ? `<div class="col-span-7">JEUX</div><div class="col-span-3">RÉSULTATS</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-8">JEUX</div><div class="col-span-4">RÉSULTATS</div>`) : (isE ? `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS SUR LE JEU</div><div class="col-span-4">WIN?</div>` : (this.is2026 ? `<div class="col-span-4">JEUX</div><div class="col-span-3">RÉSULTATS DU JEU</div><div class="col-span-3">PLACE</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS DU JEU</div><div class="col-span-4">PLACE</div>`));
         let qH = ""; if (qStatus) { let isO = has(qStatus, "OUI") || has(qStatus, "WIN"); let bg = isO ? "rgba(100, 255, 218, 0.1)" : (has(qStatus, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)"); let tr = isO ? "var(--pixel-green)" : (has(qStatus, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)"); qH = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">${isF ? "WIN ?" : "QUALIFIÉ ?"}</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bg};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tr};">${qStatus}</span></div>${qScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: ${tC};">${qScore}</span></div>` : ''}</div>`; }
-        let tH = (cTitle && tTitle) ? `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]"><div class="flex-1 flex flex-col md:border-r-2 border-[#27272a]"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div><div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div></div><div class="flex-1 flex flex-col"><div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div><div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div></div></div>` : (tTitle || teams ? `${tTitle ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>` : ''}${teams ? `<div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] border-b-2 border-[#27272a]">${teams}</div>` : ''}` : '');
+        let tH = "";
+        if (cTitle && tTitle) {
+            tH = `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]">
+                    <div class="w-full md:w-[30%] flex-none flex flex-col md:border-r-2 border-[#27272a]">
+                        <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div>
+                        <div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>
+                        <div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div>
+                    </div>
+                  </div>`;
+        } else if (tTitle || teams || cTitle || contre) {
+            const title = tTitle || cTitle || "";
+            const val = teams || contre || "";
+            const isRed = !!cTitle;
+            const bg = isRed ? "rgba(229,57,53,0.1)" : "rgba(245,158,11,0.15)";
+            const color = isRed ? "var(--pixel-red)" : "var(--pixel-orange)";
+            tH = `<div class="border-b-2 border-[#27272a]">
+                    ${title ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${title}</div>` : ''}
+                    <div class="p-2 md:p-4 text-center font-pixel text-sm md:text-xl h-full flex items-center justify-center" style="background: ${bg}; color: ${color};">${val}</div>
+                  </div>`;
+        }
         let articleId = isF ? "section-finale" : (isR ? `section-carre-${redCount}` : `section-eliminatoire-${blueCount}`);
         let chunk = `<article id="${articleId}" class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0"><header class="${hC} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${tC};">${groupTitle}</h2></header>${tH}<div class="flex-grow bg-[#0f0f13] p-2 md:p-0 border-t border-[#27272a] md:border-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[600px]"><div class="grid grid-cols-12 gap-0 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-2 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div>${gH || '<div class="p-6 md:p-8 text-center text-slate-600 font-text text-lg md:text-2xl pt-8 md:pt-10">EN ATTENTE...</div>'}</div></div></div>${qH}</article>`;
 
@@ -439,7 +491,7 @@ class ZlanDashboard {
             return res && String(res).trim() !== "" && !has(res, "???") && !has(res, "ATTENTE");
         }).length;
 
-        return { chunk, nextIndex: j, blueCount, qStatus, gamesCount: games.length, completedCount };
+        return { chunk, nextIndex: j, blueCount, redCount, qStatus, gamesCount: games.length, completedCount, articleId };
     }
 
     renderTracker(timeline, state, gameStats) {
