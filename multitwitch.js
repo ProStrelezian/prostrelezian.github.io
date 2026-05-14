@@ -2,12 +2,15 @@
 const MultitwitchApp = (function () {
     const state = {
         channels: { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '' },
+        userPaused: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false },
         draggedSlot: null,
         maxSlots: 6,
         activeChatTab: null,
         focusedSlot: null,
         visualOrder: { 1: 10, 2: 20, 3: 30, 4: 40, 5: 50, 6: 60 },
-        players: {} // Store Twitch SDK instances
+        players: {}, // Contient les instances du SDK Twitch
+        heartbeatInterval: null,
+        fightIntervals: {}
     };
 
     const DOM = {}; // Cached DOM nodes
@@ -43,6 +46,7 @@ const MultitwitchApp = (function () {
         DOM.chatTabs = document.querySelectorAll('.chat-tab-btn');
         DOM.streamCards = document.querySelectorAll('.stream-card');
         DOM.fullscreenBtn = document.getElementById('fullscreen-btn');
+        DOM.guideBtn = document.getElementById('guide-btn');
 
         for (let i = 1; i <= state.maxSlots; i++) {
             SLOTS[i] = {
@@ -73,7 +77,7 @@ const MultitwitchApp = (function () {
 
         // Guide overlay toggle
         const guideOverlay = document.getElementById('guide-overlay');
-        document.getElementById('guide-btn').addEventListener('click', () => {
+        DOM.guideBtn.addEventListener('click', () => {
             guideOverlay.style.display = 'flex';
         });
         document.getElementById('guide-close-btn').addEventListener('click', () => {
@@ -200,6 +204,24 @@ const MultitwitchApp = (function () {
         });
     }
 
+    function startHeartbeat() {
+        if (state.heartbeatInterval) clearInterval(state.heartbeatInterval);
+
+        state.heartbeatInterval = setInterval(() => {
+            // Le script dans le HTML empêche déjà la mise en veille, mais c'est une sécurité.
+            if (document.hidden) return;
+
+            Object.keys(state.players).forEach(slot => {
+                try {
+                    const p = state.players[slot];
+                    if (p && typeof p.getPaused === 'function' && p.getPaused() && !state.userPaused[slot]) {
+                        p.play();
+                    }
+                } catch (e) { /* Ignore les erreurs des lecteurs corrompus */ }
+            });
+        }, 2000); // Vérification toutes les 2 secondes
+    }
+
     function getTwitchParents() {
         const host = window.location.hostname;
         const parents = ['localhost', '127.0.0.1', 'prostrelezian.github.io', 'zlan.guill.tv'];
@@ -207,10 +229,13 @@ const MultitwitchApp = (function () {
         return parents;
     }
 
+    function getParentParams() {
+        return getTwitchParents().map(p => 'parent=' + p).join('&');
+    }
+
     // Build the raw Twitch player iframe URL
     function getPlayerSrc(channel, muted = true) {
-        const parents = getTwitchParents();
-        const parentParams = parents.map(p => 'parent=' + p).join('&');
+        const parentParams = getParentParams();
         return 'https://player.twitch.tv/?channel=' + channel + '&' + parentParams + '&muted=' + muted + '&autoplay=true';
     }
 
@@ -303,19 +328,21 @@ const MultitwitchApp = (function () {
         }
     }
 
-    // Toggle a stream on/off (play/pause)
+    // Toggle a stream on/off
     function togglePlay(slot) {
         const player = state.players[slot];
-        if (!player || !player.getPaused) return;
+        if (!player || typeof player.getPaused !== 'function') return;
 
         const btn = document.querySelector('.play-pause-btn[data-slot="' + slot + '"]');
-        
+
         try {
             if (!player.getPaused()) {
                 player.pause();
+                state.userPaused[slot] = true;
                 if (btn) btn.innerHTML = '<svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
             } else {
                 player.play();
+                state.userPaused[slot] = false;
                 if (btn) btn.innerHTML = '<svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
             }
         } catch (e) {
@@ -323,7 +350,7 @@ const MultitwitchApp = (function () {
         }
     }
 
-    // Create a Twitch player using the official SDK (allows programmatic control)
+    // Create a Twitch player using the official SDK
     async function createPlayerSDK(slot, channel) {
         if (!window.Twitch || !window.Twitch.Player) {
             console.error("[Twitch] SDK not found. Retrying in 1s...");
@@ -334,75 +361,57 @@ const MultitwitchApp = (function () {
         const container = SLOTS[slot].player;
         if (!container) return;
 
-        // 1. Nettoyage et préparation visuelle
+        // 1. Préparation visuelle
         container.classList.remove('invisible');
         container.style.setProperty('display', 'block', 'important');
-        container.style.setProperty('visibility', 'visible', 'important');
-        container.style.setProperty('opacity', '1', 'important');
 
-        // 2. Attente de rendu réel pour éviter "autoplay violation"
-        await new Promise(resolve => {
-            if (container.offsetWidth > 0 && container.offsetHeight > 0) return resolve();
-            const observer = new ResizeObserver(() => {
-                if (container.offsetWidth > 0) {
-                    observer.disconnect();
-                    resolve();
-                }
-            });
-            observer.observe(container);
-            setTimeout(resolve, 1000); // Timeout sécurité
-        });
-
-        // 3. Destruction propre de l'ancienne instance
+        // 2. Nettoyage des anciennes instances
+        if (state.fightIntervals[slot]) {
+            clearInterval(state.fightIntervals[slot]);
+            state.fightIntervals[slot] = null;
+        }
         if (state.players[slot]) {
-            try {
-                // On ne peut pas "détruire" proprement le SDK sans vider le DOM
-                state.players[slot] = null;
-            } catch(e) {}
+            state.players[slot] = null;
             delete state.players[slot];
         }
+        const oldPlayerIframe = container.querySelector('iframe');
+        if (oldPlayerIframe) {
+            oldPlayerIframe.src = '';
+        }
+        container.innerHTML = '';
 
-        container.innerHTML = ''; // Hard reset du DOM
-
+        // 3. Création du nouveau lecteur
         const options = {
             width: '100%',
             height: '100%',
             channel: channel,
             parent: getTwitchParents(),
-            muted: slot !== 1,
+            muted: slot !== 1, // Son activé uniquement pour le premier slot par défaut
             autoplay: true
         };
 
         try {
             const player = new Twitch.Player(container, options);
             state.players[slot] = player;
-            
-            // Écouteur de sécurité : force la lecture une fois prêt
+            state.userPaused[slot] = false;
+
             player.addEventListener(Twitch.Player.READY, () => {
-                player.setQuality('auto');
-                player.play();
+                if (state.players[slot]) {
+                    state.players[slot].setQuality('auto');
+                    state.players[slot].play();
+                }
+            });
+
+            // Le moteur ANTI-PAUSE
+            player.addEventListener(Twitch.Player.PAUSE, () => {
+                if (state.userPaused[slot] || !state.players[slot]) return;
+
+                // On force la lecture immédiatement
+                if (typeof player.play === 'function') player.play();
             });
         } catch (err) {
             console.error(`[Twitch] Failed to init slot ${slot}:`, err);
         }
-    }
-
-    // HEARTBEAT ROBUSTE : Relance les lives et nettoie les erreurs
-    function startHeartbeat() {
-        setInterval(() => {
-            Object.keys(state.players).forEach(slot => {
-                try {
-                    const p = state.players[slot];
-                    // On ne force le Play que si le lecteur est bien chargé et en pause
-                    if (p && p.getPaused && p.getPaused()) {
-                        // Vérifie qu'on n'est pas en train de bufferiser
-                        p.play();
-                    }
-                } catch (e) {
-                    // Si une instance est corrompue, on l'ignore silencieusement
-                }
-            });
-        }, 2000);
     }
 
     function updateStream(slot, channelName, switchChatToThis) {
@@ -415,18 +424,16 @@ const MultitwitchApp = (function () {
         const slotDOM = SLOTS[slot];
         let chatIframe = document.getElementById('iframe-chat-' + slot);
 
-        const parents = getTwitchParents();
-        const parentParams = parents.map(function (p) { return 'parent=' + p; }).join('&');
+        const parentParams = getParentParams();
 
         if (newChannel) {
             // 1. On prépare le state et le layout immédiatement
+            state.userPaused[slot] = false;
             state.channels[slot] = newChannel;
             updateLayout();
 
-            // 2. Délai plus long et vérification de rendu
-            setTimeout(() => {
-                createPlayerSDK(slot, newChannel);
-            }, 300);
+            // 2. Lancement du lecteur SDK
+            createPlayerSDK(slot, newChannel);
 
             // Reset play/pause button to pause icon
             const ppBtn = document.querySelector('.play-pause-btn[data-slot="' + slot + '"]');
@@ -445,7 +452,7 @@ const MultitwitchApp = (function () {
                 DOM.chatIframesContainer.appendChild(chatIframe);
             }
 
-            var newSrc = 'https://www.twitch.tv/embed/' + newChannel + '/chat?' + parentParams + '&darkpopout';
+            const newSrc = 'https://www.twitch.tv/embed/' + newChannel + '/chat?' + parentParams + '&darkpopout';
             if (chatIframe.src !== newSrc) chatIframe.src = newSrc;
 
             if (slotDOM.chatBtn) {
@@ -455,13 +462,23 @@ const MultitwitchApp = (function () {
             if (slotDOM.title) slotDOM.title.textContent = newChannel.toUpperCase();
         } else {
             // Remove stream
+            state.channels[slot] = '';
+            updateLayout();
+
             if (slotDOM.player) {
+                if (state.fightIntervals[slot]) {
+                    clearInterval(state.fightIntervals[slot]);
+                    state.fightIntervals[slot] = null;
+                }
+                const oldIframe = slotDOM.player.querySelector('iframe');
+                if (oldIframe) oldIframe.src = ''; // Libère la mémoire
                 slotDOM.player.innerHTML = '';
                 slotDOM.player.classList.add('invisible');
                 if (state.players[slot]) delete state.players[slot];
             }
 
             if (chatIframe) {
+                chatIframe.src = ''; // Libère la mémoire
                 chatIframe.remove();
             }
 
@@ -622,7 +639,17 @@ const MultitwitchApp = (function () {
         initDOM();
         bindEvents();
         initResizeObserver();
-        startHeartbeat(); // Start the anti-pause engine
+
+        startHeartbeat(); // Démarre le moteur anti-pause
+
+        // Clignotement du bouton Guide lors des 2 premières visites
+        let visits = parseInt(localStorage.getItem('zlan_mt_visits') || '0', 10);
+        visits++;
+        localStorage.setItem('zlan_mt_visits', visits.toString());
+        if (visits <= 2 && DOM.guideBtn) {
+            DOM.guideBtn.classList.add('animate-pulse', 'shadow-[0_0_15px_var(--pixel-green)]');
+            DOM.guideBtn.addEventListener('click', () => DOM.guideBtn.classList.remove('animate-pulse', 'shadow-[0_0_15px_var(--pixel-green)]'), { once: true });
+        }
 
         // Load Chat Preferences
         if (localStorage.getItem('zlan_mt_chat_hidden') === 'true') {
@@ -649,7 +676,6 @@ const MultitwitchApp = (function () {
         // Initial layout setup required before adding streams
         updateLayout();
 
-        // No need to wait for Twitch API — we use raw iframes
         let firstActive = null;
         for (let i = 1; i <= state.maxSlots; i++) {
             if (initial[i]) {
