@@ -19,11 +19,15 @@ class ZlanDashboard {
         this.avatarUrl = avatarUrl;
         this.is2026 = is2026Format;
         this.isFetching = false;
+        this.twitchInterval = null;
+        this.syncTimeout = null;
 
         this.init();
         if (this.enableTwitchLive) {
             this.checkTwitchLive();
-            setInterval(() => this.checkTwitchLive(), 120000);
+            this.twitchInterval = setInterval(() => {
+                if (!document.hidden) this.checkTwitchLive();
+            }, 120000);
         }
     }
 
@@ -42,14 +46,16 @@ class ZlanDashboard {
                 complete: (results) => {
                     if (results?.data) this.buildDashboard(results.data);
                     this.isFetching = false;
-                    setTimeout(() => this.init(), 30000);
+                    if (this.syncTimeout) clearTimeout(this.syncTimeout);
+                    this.syncTimeout = setTimeout(() => this.init(), 30000);
                 },
                 error: (err) => {
                     console.error(err);
                     const timeString = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     statusEl.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-red)] shadow-[0_0_8px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)" class="whitespace-nowrap">ERREUR PARSE (${timeString})</span>`;
                     this.isFetching = false;
-                    setTimeout(() => this.init(), 30000);
+                    if (this.syncTimeout) clearTimeout(this.syncTimeout);
+                    this.syncTimeout = setTimeout(() => this.init(), 30000);
                 }
             });
         } catch (error) {
@@ -57,7 +63,8 @@ class ZlanDashboard {
             const timeString = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             statusEl.innerHTML = `<span class="w-2.5 h-2.5 bg-[var(--pixel-red)] shadow-[0_0_8px_rgba(229,57,53,1)]"></span> <span style="color: var(--pixel-red)" class="whitespace-nowrap">HORS LIGNE (${timeString})</span>`;
             this.isFetching = false;
-            setTimeout(() => this.init(), 30000);
+            if (this.syncTimeout) clearTimeout(this.syncTimeout);
+            this.syncTimeout = setTimeout(() => this.init(), 30000);
         }
     }
 

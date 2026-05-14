@@ -2,12 +2,15 @@
 const MultitwitchApp = (function () {
     const state = {
         channels: { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '' },
+        userPaused: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false },
         draggedSlot: null,
         maxSlots: 6,
         activeChatTab: null,
         focusedSlot: null,
         visualOrder: { 1: 10, 2: 20, 3: 30, 4: 40, 5: 50, 6: 60 },
-        players: {} // Store Twitch SDK instances
+        players: {}, // Contient les instances du SDK Twitch
+        heartbeatInterval: null,
+        fightIntervals: {}
     };
 
     const DOM = {}; // Cached DOM nodes
@@ -40,9 +43,47 @@ const MultitwitchApp = (function () {
         DOM.chatIframesContainer = document.getElementById('chat-iframes-container');
         DOM.addInput = document.getElementById('add-stream-input');
         DOM.toggleChatBtn = document.getElementById('toggle-chat-btn');
+        DOM.fullscreenBtn = document.getElementById('fullscreen-btn');
+        DOM.guideBtn = document.getElementById('guide-btn');
+        if (document.getElementById('floating-exit-fs-btn')) DOM.floatingExitFsBtn = document.getElementById('floating-exit-fs-btn');
+
+        // Nettoyage HTML : Génération dynamique des 6 slots vidéo
+        if (DOM.mtVideos && DOM.mtVideos.children.length === 0) {
+            const colors = { 1: 'var(--pixel-orange)', 2: '#9146FF', 3: 'var(--pixel-green)', 4: '#3b82f6', 5: '#ef4444', 6: '#eab308' };
+            let cardsHtml = '';
+            for (let i = 1; i <= state.maxSlots; i++) {
+                const color = colors[i];
+                cardsHtml += `
+                <div id="card-stream-${i}" class="pixel-card bg-[#0f0f13] flex-col min-h-0 stream-card hidden" style="border: 2px solid ${color};" draggable="true">
+                    <header class="px-2 py-1 flex justify-between items-center shrink-0 border-b bg-black/50 cursor-move" style="border-bottom-color: ${color};">
+                        <div id="title-stream-${i}" class="font-pixel text-xs md:text-sm uppercase truncate pr-2" style="color: ${color};"></div>
+                        <div class="flex items-center gap-2 md:gap-3">
+                            <button class="play-pause-btn text-slate-400 hover:text-white transition-colors" data-slot="${i}" title="Lire/Pause">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+                            </button>
+                            <button class="focus-stream-btn text-slate-400 hover:text-white transition-transform" data-slot="${i}" title="Mettre en évidence">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                                </svg>
+                            </button>
+                            <button class="remove-stream-btn text-[10px] md:text-xs text-gray-500 hover:text-red-500 font-pixel" data-slot="${i}">X</button>
+                        </div>
+                    </header>
+                    <div id="container-stream-${i}" class="w-full bg-[#18181b] flex-grow relative min-h-0">
+                        <div id="player-stream-${i}" class="absolute inset-0 w-full h-full z-10 invisible" style="box-shadow: 0 0 15px color-mix(in srgb, ${color} 15%, transparent);"></div>
+                    </div>
+                </div>`;
+            }
+            DOM.mtVideos.innerHTML = cardsHtml;
+        }
+
         DOM.chatTabs = document.querySelectorAll('.chat-tab-btn');
         DOM.streamCards = document.querySelectorAll('.stream-card');
+<<<<<<< HEAD
+=======
         DOM.fullscreenBtn = document.getElementById('fullscreen-btn');
+        DOM.guideBtn = document.getElementById('guide-btn');
+>>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
 
         for (let i = 1; i <= state.maxSlots; i++) {
             SLOTS[i] = {
@@ -73,7 +114,7 @@ const MultitwitchApp = (function () {
 
         // Guide overlay toggle
         const guideOverlay = document.getElementById('guide-overlay');
-        document.getElementById('guide-btn').addEventListener('click', () => {
+        DOM.guideBtn.addEventListener('click', () => {
             guideOverlay.style.display = 'flex';
         });
         document.getElementById('guide-close-btn').addEventListener('click', () => {
@@ -163,6 +204,68 @@ const MultitwitchApp = (function () {
             card.addEventListener('dragend', () => {
                 DOM.streamCards.forEach(c => c.style.opacity = '1');
             });
+
+            // --- Fonctionnalités Avancées (Tactile & Double Clic) ---
+            const header = card.querySelector('header');
+            if (header) {
+                // Raccourci Focus : Double clic sur l'en-tête
+                header.addEventListener('dblclick', () => {
+                    const slot = parseInt(card.id.split('-').pop());
+                    toggleFocus(slot);
+                });
+
+                // Drag & Drop Mobile / Tactile (L'API native est ignorée par iOS/Android)
+                header.addEventListener('touchstart', (e) => {
+                    if (e.touches.length > 1) return; // Ignore le multi-touch
+                    state.draggedSlot = parseInt(card.id.split('-').pop());
+                    card.style.opacity = '0.5';
+                }, { passive: true });
+
+                header.addEventListener('touchmove', (e) => {
+                    if (e.cancelable) e.preventDefault(); // Empêche le scroll de page pendant qu'on glisse la carte
+                }, { passive: false });
+
+                header.addEventListener('touchend', (e) => {
+                    card.style.opacity = '1';
+                    if (!state.draggedSlot) return;
+
+                    const touch = e.changedTouches[0];
+                    // Détecte la carte au-dessus de laquelle le doigt s'est levé
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (!dropTarget) {
+                        state.draggedSlot = null;
+                        return;
+                    }
+
+                    const targetCard = dropTarget.closest('.stream-card');
+                    if (targetCard) {
+                        const targetSlot = parseInt(targetCard.id.split('-').pop());
+                        const sourceSlot = state.draggedSlot;
+
+                        if (sourceSlot !== targetSlot && sourceSlot) {
+                            if (window.plausible) window.plausible('Drag and Drop', { props: { action: 'reorder_touch' } });
+
+                            const performSwap = () => {
+                                const tempOrder = state.visualOrder[sourceSlot];
+                                state.visualOrder[sourceSlot] = state.visualOrder[targetSlot];
+                                state.visualOrder[targetSlot] = tempOrder;
+
+                                SLOTS[sourceSlot].card.style.order = state.visualOrder[sourceSlot];
+                                SLOTS[targetSlot].card.style.order = state.visualOrder[targetSlot];
+
+                                if (SLOTS[sourceSlot].chatBtn) SLOTS[sourceSlot].chatBtn.style.order = state.visualOrder[sourceSlot];
+                                if (SLOTS[targetSlot].chatBtn) SLOTS[targetSlot].chatBtn.style.order = state.visualOrder[targetSlot];
+
+                                updateLayout();
+                                syncURL();
+                            };
+                            if (document.startViewTransition) document.startViewTransition(() => performSwap());
+                            else performSwap();
+                        }
+                    }
+                    state.draggedSlot = null;
+                });
+            }
         });
 
         // Mobile menu
@@ -200,6 +303,24 @@ const MultitwitchApp = (function () {
         });
     }
 
+    function startHeartbeat() {
+        if (state.heartbeatInterval) clearInterval(state.heartbeatInterval);
+
+        state.heartbeatInterval = setInterval(() => {
+            // Le script dans le HTML empêche déjà la mise en veille, mais c'est une sécurité.
+            if (document.hidden) return;
+
+            Object.keys(state.players).forEach(slot => {
+                try {
+                    const p = state.players[slot];
+                    if (p && typeof p.getPaused === 'function' && p.getPaused() && !state.userPaused[slot]) {
+                        p.play();
+                    }
+                } catch (e) { /* Ignore les erreurs des lecteurs corrompus */ }
+            });
+        }, 2000); // Vérification toutes les 2 secondes
+    }
+
     function getTwitchParents() {
         const host = window.location.hostname;
         const parents = ['localhost', '127.0.0.1', 'prostrelezian.github.io', 'zlan.guill.tv'];
@@ -207,10 +328,13 @@ const MultitwitchApp = (function () {
         return parents;
     }
 
+    function getParentParams() {
+        return getTwitchParents().map(p => 'parent=' + p).join('&');
+    }
+
     // Build the raw Twitch player iframe URL
     function getPlayerSrc(channel, muted = true) {
-        const parents = getTwitchParents();
-        const parentParams = parents.map(p => 'parent=' + p).join('&');
+        const parentParams = getParentParams();
         return 'https://player.twitch.tv/?channel=' + channel + '&' + parentParams + '&muted=' + muted + '&autoplay=true';
     }
 
@@ -288,6 +412,23 @@ const MultitwitchApp = (function () {
         } else {
             performFocus();
         }
+
+        // Mitraillette Anti-Pause pendant l'animation de Focus (1 seconde)
+        // Le lecteur Twitch tente de couper la vidéo pendant toute la durée du redimensionnement CSS.
+        // On force la lecture 20 fois (toutes les 50ms) pour couvrir toute l'animation et son atterrissage.
+        let attempts = 0;
+        const focusFight = setInterval(() => {
+            if (attempts++ > 20) {
+                clearInterval(focusFight);
+                return;
+            }
+            Object.keys(state.players).forEach(s => {
+                const p = state.players[s];
+                if (p && typeof p.play === 'function' && !state.userPaused[s]) {
+                    try { p.play(); } catch (e) { }
+                }
+            });
+        }, 50);
     }
 
     function renderFocus() {
@@ -303,19 +444,21 @@ const MultitwitchApp = (function () {
         }
     }
 
-    // Toggle a stream on/off (play/pause)
+    // Toggle a stream on/off
     function togglePlay(slot) {
         const player = state.players[slot];
-        if (!player || !player.getPaused) return;
+        if (!player || typeof player.getPaused !== 'function') return;
 
         const btn = document.querySelector('.play-pause-btn[data-slot="' + slot + '"]');
-        
+
         try {
             if (!player.getPaused()) {
                 player.pause();
+                state.userPaused[slot] = true;
                 if (btn) btn.innerHTML = '<svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
             } else {
                 player.play();
+                state.userPaused[slot] = false;
                 if (btn) btn.innerHTML = '<svg class="w-3 h-3 md:w-3.5 md:h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
             }
         } catch (e) {
@@ -323,7 +466,7 @@ const MultitwitchApp = (function () {
         }
     }
 
-    // Create a Twitch player using the official SDK (allows programmatic control)
+    // Create a Twitch player using the official SDK
     async function createPlayerSDK(slot, channel) {
         if (!window.Twitch || !window.Twitch.Player) {
             console.error("[Twitch] SDK not found. Retrying in 1s...");
@@ -334,75 +477,57 @@ const MultitwitchApp = (function () {
         const container = SLOTS[slot].player;
         if (!container) return;
 
-        // 1. Nettoyage et préparation visuelle
+        // 1. Préparation visuelle
         container.classList.remove('invisible');
         container.style.setProperty('display', 'block', 'important');
-        container.style.setProperty('visibility', 'visible', 'important');
-        container.style.setProperty('opacity', '1', 'important');
 
-        // 2. Attente de rendu réel pour éviter "autoplay violation"
-        await new Promise(resolve => {
-            if (container.offsetWidth > 0 && container.offsetHeight > 0) return resolve();
-            const observer = new ResizeObserver(() => {
-                if (container.offsetWidth > 0) {
-                    observer.disconnect();
-                    resolve();
-                }
-            });
-            observer.observe(container);
-            setTimeout(resolve, 1000); // Timeout sécurité
-        });
-
-        // 3. Destruction propre de l'ancienne instance
+        // 2. Nettoyage des anciennes instances
+        if (state.fightIntervals[slot]) {
+            clearInterval(state.fightIntervals[slot]);
+            state.fightIntervals[slot] = null;
+        }
         if (state.players[slot]) {
-            try {
-                // On ne peut pas "détruire" proprement le SDK sans vider le DOM
-                state.players[slot] = null;
-            } catch(e) {}
+            state.players[slot] = null;
             delete state.players[slot];
         }
+        const oldPlayerIframe = container.querySelector('iframe');
+        if (oldPlayerIframe) {
+            oldPlayerIframe.src = '';
+        }
+        container.innerHTML = '';
 
-        container.innerHTML = ''; // Hard reset du DOM
-
+        // 3. Création du nouveau lecteur
         const options = {
             width: '100%',
             height: '100%',
             channel: channel,
             parent: getTwitchParents(),
-            muted: slot !== 1,
+            muted: slot !== 1, // Son activé uniquement pour le premier slot par défaut
             autoplay: true
         };
 
         try {
             const player = new Twitch.Player(container, options);
             state.players[slot] = player;
-            
-            // Écouteur de sécurité : force la lecture une fois prêt
+            state.userPaused[slot] = false;
+
             player.addEventListener(Twitch.Player.READY, () => {
-                player.setQuality('auto');
-                player.play();
+                if (state.players[slot]) {
+                    state.players[slot].setQuality('auto');
+                    state.players[slot].play();
+                }
+            });
+
+            // Le moteur ANTI-PAUSE
+            player.addEventListener(Twitch.Player.PAUSE, () => {
+                if (state.userPaused[slot] || !state.players[slot]) return;
+
+                // On force la lecture immédiatement
+                if (typeof player.play === 'function') player.play();
             });
         } catch (err) {
             console.error(`[Twitch] Failed to init slot ${slot}:`, err);
         }
-    }
-
-    // HEARTBEAT ROBUSTE : Relance les lives et nettoie les erreurs
-    function startHeartbeat() {
-        setInterval(() => {
-            Object.keys(state.players).forEach(slot => {
-                try {
-                    const p = state.players[slot];
-                    // On ne force le Play que si le lecteur est bien chargé et en pause
-                    if (p && p.getPaused && p.getPaused()) {
-                        // Vérifie qu'on n'est pas en train de bufferiser
-                        p.play();
-                    }
-                } catch (e) {
-                    // Si une instance est corrompue, on l'ignore silencieusement
-                }
-            });
-        }, 2000);
     }
 
     function updateStream(slot, channelName, switchChatToThis) {
@@ -415,18 +540,16 @@ const MultitwitchApp = (function () {
         const slotDOM = SLOTS[slot];
         let chatIframe = document.getElementById('iframe-chat-' + slot);
 
-        const parents = getTwitchParents();
-        const parentParams = parents.map(function (p) { return 'parent=' + p; }).join('&');
+        const parentParams = getParentParams();
 
         if (newChannel) {
             // 1. On prépare le state et le layout immédiatement
+            state.userPaused[slot] = false;
             state.channels[slot] = newChannel;
             updateLayout();
 
-            // 2. Délai plus long et vérification de rendu
-            setTimeout(() => {
-                createPlayerSDK(slot, newChannel);
-            }, 300);
+            // 2. Lancement du lecteur SDK
+            createPlayerSDK(slot, newChannel);
 
             // Reset play/pause button to pause icon
             const ppBtn = document.querySelector('.play-pause-btn[data-slot="' + slot + '"]');
@@ -445,8 +568,17 @@ const MultitwitchApp = (function () {
                 DOM.chatIframesContainer.appendChild(chatIframe);
             }
 
-            var newSrc = 'https://www.twitch.tv/embed/' + newChannel + '/chat?' + parentParams + '&darkpopout';
+            const newSrc = 'https://www.twitch.tv/embed/' + newChannel + '/chat?' + parentParams + '&darkpopout';
+<<<<<<< HEAD
+            chatIframe.dataset.src = newSrc; // On stocke l'URL sans la charger
+
+            // Lazy Loading : on ne charge l'iframe que si c'est l'onglet de tchat actif
+            if (state.activeChatTab == slot && chatIframe.src !== newSrc) {
+                chatIframe.src = newSrc;
+            }
+=======
             if (chatIframe.src !== newSrc) chatIframe.src = newSrc;
+>>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
 
             if (slotDOM.chatBtn) {
                 slotDOM.chatBtn.textContent = newChannel.toUpperCase();
@@ -455,13 +587,27 @@ const MultitwitchApp = (function () {
             if (slotDOM.title) slotDOM.title.textContent = newChannel.toUpperCase();
         } else {
             // Remove stream
+            state.channels[slot] = '';
+            updateLayout();
+
             if (slotDOM.player) {
+                if (state.fightIntervals[slot]) {
+                    clearInterval(state.fightIntervals[slot]);
+                    state.fightIntervals[slot] = null;
+                }
+                const oldIframe = slotDOM.player.querySelector('iframe');
+                if (oldIframe) oldIframe.src = ''; // Libère la mémoire
                 slotDOM.player.innerHTML = '';
                 slotDOM.player.classList.add('invisible');
                 if (state.players[slot]) delete state.players[slot];
             }
 
             if (chatIframe) {
+                chatIframe.src = ''; // Libère la mémoire
+<<<<<<< HEAD
+                chatIframe.removeAttribute('data-src');
+=======
+>>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
                 chatIframe.remove();
             }
 
@@ -543,33 +689,27 @@ const MultitwitchApp = (function () {
 
         const btn = document.getElementById('add-stream-btn');
         const oldBtnText = btn.textContent;
-        btn.textContent = "VERIF...";
-        btn.disabled = true;
-        DOM.addInput.disabled = true;
+        btn.textContent = "AJOUT...";
+        DOM.addInput.value = '';
 
+        // Ajout optimiste instantané (Bypass API)
+        updateStream(emptySlot, newChannel, true);
+        if (window.plausible) window.plausible('Stream Added', { props: { channel: newChannel } });
+
+        // Vérification API silencieuse en arrière-plan (au cas où la chaîne n'existe vraiment pas)
         try {
             const response = await fetch('https://decapi.me/twitch/id/' + newChannel);
             const text = await response.text();
 
             if (text.toLowerCase().includes("user not found") || text.includes("Error:")) {
+                updateStream(emptySlot, ''); // Rétropédalage
                 alert('La chaîne Twitch "' + newChannel + '" n\'existe pas.');
-                return;
             }
 
-            // Télémétrie : Analyse des chaînes les plus ajoutées
-            if (window.plausible) window.plausible('Stream Added', { props: { channel: newChannel } });
-
-            updateStream(emptySlot, newChannel, true);
-            DOM.addInput.value = '';
         } catch (error) {
-            console.error("Erreur lors de la vérification Twitch:", error);
-            // En cas d'erreur de l'API tiers, on ajoute quand même par précaution
-            updateStream(emptySlot, newChannel, true);
-            DOM.addInput.value = '';
+            console.warn("Vérification Twitch ignorée (erreur serveur tiers). Le stream reste actif.", error);
         } finally {
             btn.textContent = oldBtnText;
-            btn.disabled = false;
-            DOM.addInput.disabled = false;
             DOM.addInput.focus();
         }
     }
@@ -622,7 +762,17 @@ const MultitwitchApp = (function () {
         initDOM();
         bindEvents();
         initResizeObserver();
-        startHeartbeat(); // Start the anti-pause engine
+
+        startHeartbeat(); // Démarre le moteur anti-pause
+
+        // Clignotement du bouton Guide lors des 2 premières visites
+        let visits = parseInt(localStorage.getItem('zlan_mt_visits') || '0', 10);
+        visits++;
+        localStorage.setItem('zlan_mt_visits', visits.toString());
+        if (visits <= 2 && DOM.guideBtn) {
+            DOM.guideBtn.classList.add('animate-pulse', 'shadow-[0_0_15px_var(--pixel-green)]');
+            DOM.guideBtn.addEventListener('click', () => DOM.guideBtn.classList.remove('animate-pulse', 'shadow-[0_0_15px_var(--pixel-green)]'), { once: true });
+        }
 
         // Load Chat Preferences
         if (localStorage.getItem('zlan_mt_chat_hidden') === 'true') {
@@ -649,7 +799,6 @@ const MultitwitchApp = (function () {
         // Initial layout setup required before adding streams
         updateLayout();
 
-        // No need to wait for Twitch API — we use raw iframes
         let firstActive = null;
         for (let i = 1; i <= state.maxSlots; i++) {
             if (initial[i]) {

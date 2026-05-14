@@ -11,7 +11,6 @@
     <meta name="description" content="Multitwitch en direct pour suivre TheGuill84 et Nykho pendant la ZLAN 2026.">
     <title>Zultitwitch</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
     <script src="./tmi.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -313,10 +312,6 @@
             <div class="mt-4 font-text text-sm md:text-xl text-slate-500 text-center max-w-2xl">
                 Suivez simultanément jusqu'à 6 streams en direct sur une seule page !
             </div>
-            <button id="fullscreen-btn"
-                class="mt-6 px-6 py-2 bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] font-pixel text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.8)]">
-                📺 PLEIN ÉCRAN
-            </button>
         </div>
 
         <!-- Stream Controls -->
@@ -329,6 +324,16 @@
                 <button onclick="addStream()"
                     class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300">AJOUTER</button>
             </div>
+            <button onclick="resetStreams()" id="reset-btn"
+                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                <span>RESET (GUILL & NYKHO)</span>
+            </button>
             <button onclick="toggleChat()" id="toggle-chat-btn"
                 class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
                 <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -338,6 +343,10 @@
                     </path>
                 </svg>
                 <span>SANS TCHAT</span>
+            </button>
+            <button id="fullscreen-btn"
+                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
+                📺 PLEIN ÉCRAN
             </button>
             <button onclick="shareLayout()" id="share-btn"
                 class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
@@ -349,21 +358,15 @@
                 </svg>
                 <span>PARTAGER</span>
             </button>
-            <button onclick="resetStreams()" id="reset-btn"
-                class="bg-[var(--pixel-gray)] border-2 border-[var(--pixel-violet)] text-[var(--pixel-violet)] px-3 py-1.5 font-pixel text-xs md:text-sm hover:bg-[var(--pixel-violet)] hover:text-white transition-colors duration-300 flex items-center gap-2">
-                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                    </path>
-                </svg>
-                <span>RESET (GUILL & NYKHO)</span>
-            </button>
         </div>
 
         <div id="mt-layout" class="flex flex-col xl:flex-row gap-2 md:gap-3 items-start">
             <!-- Videos Container -->
-            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(100vh-150px)]">
+<<<<<<< HEAD
+            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(105vh-150px)]">
+=======
+            <div id="mt-videos" class="flex-grow grid gap-2 md:gap-3 w-full xl:w-3/4 xl:h-[calc(92vh-150px)]">
+>>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
                 <!-- Stream 1 -->
                 <div id="card-stream-1" class="pixel-card bg-[#0f0f13] flex flex-col min-h-0 stream-card"
                     style="border: 2px solid var(--pixel-orange);" draggable="true"
@@ -482,16 +485,24 @@
 
             <!-- Merged Chat Container -->
             <div id="mt-chat"
-                class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(100vh-150px)]"
+<<<<<<< HEAD
+                class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(105vh-150px)]"
+=======
+                class="pixel-card bg-[#0f0f13] flex flex-col w-full xl:w-1/4 h-[500px] xl:h-[calc(92vh-150px)]"
+>>>>>>> b697a957df5a6ac0861b6be5cf900810d1c9bb7f
                 style="border: 2px solid var(--pixel-violet);">
                 <header
                     class="pixel-header-violet px-1 py-1 flex flex-wrap justify-center items-center shrink-0 border-b border-[var(--pixel-violet)] bg-[#09090b] gap-1.5 relative">
-                    <div class="w-full flex justify-between items-center px-2 py-0.5 border-b border-[var(--pixel-violet)]/20 mb-0.5">
+                    <div
+                        class="w-full flex justify-between items-center px-2 py-0.5 border-b border-[var(--pixel-violet)]/20 mb-0.5">
                         <span class="text-[8px] font-pixel text-slate-600 uppercase">Twitch Chat System</span>
-                        <button onclick="window.open('https://www.twitch.tv/login', '_blank', 'width=500,height=600')" 
-                                title="Si vous n'arrivez pas à écrire, cliquez ici pour vous connecter sur Twitch.tv" 
-                                class="text-[9px] font-pixel text-[var(--pixel-violet)] hover:text-white transition-colors flex items-center gap-1 bg-[var(--pixel-violet)]/10 px-1.5 py-0.5 rounded shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
-                            <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                        <button onclick="window.open('https://www.twitch.tv/login', '_blank', 'width=500,height=600')"
+                            title="Si vous n'arrivez pas à écrire, cliquez ici pour vous connecter sur Twitch.tv"
+                            class="text-[9px] font-pixel text-[var(--pixel-violet)] hover:text-white transition-colors flex items-center gap-1 bg-[var(--pixel-violet)]/10 px-1.5 py-0.5 rounded shadow-[2px_2px_0px_rgba(0,0,0,0.5)]">
+                            <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+                            </svg>
                             FIX CONNEXION
                         </button>
                     </div>
@@ -513,24 +524,25 @@
                 </header>
                 <div class="flex-grow w-full bg-[#18181b] relative z-20">
                     <div id="merged-chat"
-                        class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1" style="display: none;">
+                        class="w-full h-full overflow-y-auto overflow-x-hidden break-words font-text text-xs md:text-sm flex flex-col gap-1 pr-1 pb-1 p-1"
+                        style="display: none;">
                         <div id="chat-loading" class="text-slate-500 animate-pulse text-center mt-4 font-pixel text-xs">
                             Connexion aux tchats...</div>
                     </div>
 
                     <!-- Iframes individuels avec attributs de robustesse pour la connexion -->
-                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-5" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
-                    <iframe id="iframe-chat-6" style="display: none;" class="w-full h-full" src=""
-                        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-1" style="display: none;" class="w-full h-full" src="" frameborder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-2" style="display: none;" class="w-full h-full" src="" frameborder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-3" style="display: none;" class="w-full h-full" src="" frameborder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-4" style="display: none;" class="w-full h-full" src="" frameborder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-5" style="display: none;" class="w-full h-full" src="" frameborder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
+                    <iframe id="iframe-chat-6" style="display: none;" class="w-full h-full" src="" frameborder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access"></iframe>
                 </div>
             </div>
         </div>
@@ -550,8 +562,13 @@
                     pour ne vous laisser que les vidéos ! La mise en page de la grille s'adaptera toujours
                     automatiquement de manière optimale selon le nombre de vidéos actives.</p>
                 <p>👉 Le tchat unifié "ALL" fusionne par défaut les messages de tous les canaux actifs pour ne rien
-                    manquer de l'ambiance globale. Vous pouvez aussi cliquer sur les onglets des chaînes individuelles pour interagir directement.</p>
-                <p>🔑 <span class="text-[var(--pixel-violet)] font-bold">Problème de connexion au tchat ?</span> Si le bouton "Connexion" dans le tchat ne fonctionne pas, cliquez sur le bouton <span class="text-white bg-[var(--pixel-violet)] px-1 rounded">FIX CONNEXION</span> en haut à droite du tchat. Cela ouvrira Twitch dans un nouvel onglet pour valider votre session. Revenez ensuite ici et rafraîchissez la page !</p>
+                    manquer de l'ambiance globale. Vous pouvez aussi cliquer sur les onglets des chaînes individuelles
+                    pour interagir directement.</p>
+                <p>🔑 <span class="text-[var(--pixel-violet)] font-bold">Problème de connexion au tchat ?</span> Si le
+                    bouton "Connexion" dans le tchat ne fonctionne pas, cliquez sur le bouton <span
+                        class="text-white bg-[var(--pixel-violet)] px-1 rounded">FIX CONNEXION</span> en haut à droite
+                    du tchat. Cela ouvrira Twitch dans un nouvel onglet pour valider votre session. Revenez ensuite ici
+                    et rafraîchissez la page !</p>
 
                 <p>💾 <span class="text-[var(--pixel-green)] font-bold">Sauvegarde auto :</span> quittez la page et
                     revenez quand vous le souhaitez, vous retrouverez toujours vos streams configurés exactement comme
@@ -612,13 +629,13 @@
             const host = window.location.hostname;
             const hostWithPort = window.location.host; // Inclut le port pour le local (ex: localhost:3000)
             const parents = ['localhost', '127.0.0.1', 'strelezian.github.io', 'prostrelezian.github.io', 'zlan.guill.tv'];
-            
+
             if (host && !parents.includes(host)) parents.push(host);
             if (hostWithPort && hostWithPort.includes(':')) {
                 const p = hostWithPort.split(':')[0];
                 if (!parents.includes(p)) parents.push(p);
             }
-            
+
             const parentParams = parents.map(p => `parent=${p}`).join('&');
 
             if (newChannel) {
