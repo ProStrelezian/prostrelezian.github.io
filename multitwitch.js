@@ -194,6 +194,7 @@ const MultitwitchApp = (function () {
                 } else {
                     performSwap();
                 }
+                triggerAntiPauseMitraillette();
             });
 
             card.addEventListener('dragend', () => {
@@ -256,6 +257,7 @@ const MultitwitchApp = (function () {
                             };
                             if (document.startViewTransition) document.startViewTransition(() => performSwap());
                             else performSwap();
+                            triggerAntiPauseMitraillette();
                         }
                     }
                     state.draggedSlot = null;
@@ -408,13 +410,14 @@ const MultitwitchApp = (function () {
             performFocus();
         }
 
-        // Mitraillette Anti-Pause pendant l'animation de Focus (1 seconde)
-        // Le lecteur Twitch tente de couper la vidéo pendant toute la durée du redimensionnement CSS.
-        // On force la lecture 20 fois (toutes les 50ms) pour couvrir toute l'animation et son atterrissage.
+        triggerAntiPauseMitraillette();
+    }
+
+    function triggerAntiPauseMitraillette() {
         let attempts = 0;
-        const focusFight = setInterval(() => {
+        const fight = setInterval(() => {
             if (attempts++ > 20) {
-                clearInterval(focusFight);
+                clearInterval(fight);
                 return;
             }
             Object.keys(state.players).forEach(s => {
@@ -508,7 +511,7 @@ const MultitwitchApp = (function () {
 
             player.addEventListener(Twitch.Player.READY, () => {
                 if (state.players[slot]) {
-                    state.players[slot].setQuality('auto');
+                    state.players[slot].setQuality('480p');
                     state.players[slot].play();
                 }
             });
@@ -621,6 +624,9 @@ const MultitwitchApp = (function () {
         if (newChannel && switchChatToThis) {
             switchChat(slot);
         }
+
+        // Déclenche l'anti-pause pour contrer les coupures dues au redimensionnement de la grille
+        triggerAntiPauseMitraillette();
     }
 
     function switchChat(target) {
@@ -726,6 +732,7 @@ const MultitwitchApp = (function () {
             } else {
                 performReset();
             }
+            triggerAntiPauseMitraillette();
         }
     }
 
