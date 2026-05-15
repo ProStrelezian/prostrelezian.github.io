@@ -642,7 +642,12 @@ const MultitwitchApp = (function () {
 
         if (target) {
             const iframe = document.getElementById('iframe-chat-' + target);
-            if (iframe) iframe.style.display = 'block';
+            if (iframe) {
+                iframe.style.display = 'block';
+                if (iframe.getAttribute('src') !== iframe.dataset.src) {
+                    iframe.src = iframe.dataset.src;
+                }
+            }
 
             const activeBtn = SLOTS[target] && SLOTS[target].chatBtn;
             if (activeBtn) {
