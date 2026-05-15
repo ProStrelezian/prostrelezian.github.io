@@ -107,3 +107,43 @@ body::before {
     0% { width: 5%; }
     100% { width: 100%; }
 }
+
+/* Animations d'entrée séquentielles */
+@keyframes pixel-enter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pixel-animate-enter {
+    animation: pixel-enter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+}
+
+/* Bandeau déroulant (Marquee) */
+.pixel-marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    width: 100%;
+}
+
+.pixel-marquee span {
+    display: inline-block;
+    animation: pixel-marquee-anim 30s linear infinite;
+    padding-right: 50px;
+}
+
+@keyframes pixel-marquee-anim {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.pixel-marquee:hover span {
+    animation-play-state: paused;
+}

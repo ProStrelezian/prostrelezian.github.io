@@ -127,19 +127,28 @@ class ZlanDashboard {
     }
 
     buildDashboard(data) {
-        let htmlChunks = { team: "", seeding: "", knockout: "", groups: "", finalRank: "" };
+        let htmlChunks = { team: "", finalRank: "" };
+        let htmlPhases = "";
+
         let state = { tournamentOver: false, tournamentWon: false };
         let timeline = {
-            seeding: { exists: false, finished: false, target: "section-seeding", completedMatches: 0 },
-            knockout: { exists: false, finished: false, target: "section-knockout", completedMatches: 0 },
-            eliminatoire: { exists: false, finished: false, target: "", completedMatches: 0 },
-            carre: { exists: false, finished: false, target: "", completedMatches: 0 },
-            finale: { exists: false, finished: false, target: "section-finale", completedMatches: 0 }
+            seeding: { exists: false, finished: false, qualified: false, unlocked: false, target: "section-seeding", completedMatches: 0 },
+            knockout: { exists: false, finished: false, qualified: false, unlocked: false, target: "section-knockout", completedMatches: 0 },
+            eliminatoire: { exists: false, finished: false, qualified: false, unlocked: false, target: "", completedMatches: 0 },
+            carre: { exists: false, finished: false, qualified: false, unlocked: false, target: "section-carre-1", completedMatches: 0 },
+            finale: { exists: false, finished: false, qualified: false, unlocked: false, target: "section-finale", completedMatches: 0 }
         };
         let gameStats = { total: 0, completed: 0 };
+
+        let showNextPhase = true;
+        let explicitElimination = false; // Passe à true si on lit un "NON" dans une phase
+        let finaleFinished = false; // Passe à true si on lit "OUI" ou "NON" dans la finale
+
         let bluePhaseCount = 0;
         let redPhaseCount = 0;
         let lastValidRowIndex = -1;
+
+        // Détection de la dernière ligne valide
         for (let r = data.length - 1; r >= 0; r--) {
             if (data[r] && data[r].some(c => c && String(c).trim() !== "")) {
                 lastValidRowIndex = r;
@@ -147,16 +156,20 @@ class ZlanDashboard {
             }
         }
 
+        let animDelay = 0;
+        const wrap = (html) => {
+            if (!html || html.trim() === "") return "";
+            const res = `<div class="pixel-animate-enter" style="animation-delay: ${animDelay}s;">${html}</div>`;
+            animDelay += 0.15;
+            return res;
+        };
+
         for (let i = 0; i < data.length; i++) {
             const row = data[i];
             const r0 = String(row[0] || "");
-            const isLastRow = (i === lastValidRowIndex);
 
-            if (isLastRow) {
-                htmlChunks.finalRank = this.renderFinalRankBlock(row, r0, state);
-            }
-
-            if (state.tournamentOver && !isLastRow) continue;
+            // Ignore les lignes entièrement vides
+            if (!row || !row.some(c => (c || "").trim() !== "")) continue;
 
             let teamText = row.find(c => has(c, "TEAM :") || has(c, "TEAM:"));
             if (teamText) {
@@ -164,31 +177,52 @@ class ZlanDashboard {
             }
             else if (has(r0, "PHASE DE SEEDING")) {
                 let { games, seedingScore, nextIndex } = this.parseSeeding(data, i, lastValidRowIndex);
-                htmlChunks.seeding = this.renderSeedingBlock(games, seedingScore);
-                let phaseTotal = games.length;
-                let phaseCompleted = games.filter(g => g.place && String(g.place).trim() !== "" && !has(g.place, "???") && !has(g.place, "ATTENTE")).length;
 
                 timeline.seeding.exists = true;
-                timeline.seeding.finished = phaseTotal > 0 && phaseCompleted === phaseTotal;
-                timeline.seeding.completedMatches = phaseCompleted;
+                timeline.seeding.unlocked = showNextPhase;
+                timeline.seeding.completedMatches = games.filter(g => g.place && String(g.place).trim() !== "" && !has(g.place, "???") && !has(g.place, "ATTENTE")).length;
+                timeline.seeding.finished = games.length > 0 && timeline.seeding.completedMatches === games.length;
 
-                gameStats.total += phaseTotal;
-                gameStats.completed += phaseCompleted;
+                let isQualif = has(seedingScore, "OUI") || has(seedingScore, "WIN") || has(seedingScore, "TOP");
+                if (has(seedingScore, "NON")) explicitElimination = true;
+
+                timeline.seeding.qualified = isQualif;
+
+                if (showNextPhase) {
+                    htmlPhases += wrap(this.renderSeedingBlock(games, seedingScore));
+                    showNextPhase = isQualif;
+
+                    gameStats.total += games.length;
+                    gameStats.completed += timeline.seeding.completedMatches;
+                } else {
+                    showNextPhase = false;
+                }
 
                 i = nextIndex - 1;
             }
             else if (has(r0, "PHASE DE KNOCKOUT")) {
                 let { games, qualif, score, nextIndex } = this.parseKnockout(data, i, lastValidRowIndex, state);
-                htmlChunks.knockout = this.renderKnockoutBlock(games, qualif, score);
-                let phaseTotal = games.length;
-                let phaseCompleted = games.filter(g => g.resultat && String(g.resultat).trim() !== "" && !has(g.resultat, "???") && !has(g.resultat, "ATTENTE")).length;
 
                 timeline.knockout.exists = true;
-                timeline.knockout.finished = phaseTotal > 0 && phaseCompleted === phaseTotal;
+                timeline.knockout.unlocked = showNextPhase;
+                let phaseCompleted = games.filter(g => g.resultat && String(g.resultat).trim() !== "" && !has(g.resultat, "???") && !has(g.resultat, "ATTENTE")).length;
+                timeline.knockout.finished = games.length > 0 && phaseCompleted === games.length;
                 timeline.knockout.completedMatches = phaseCompleted;
 
-                gameStats.total += phaseTotal;
-                gameStats.completed += phaseCompleted;
+                let isQualif = has(qualif, "OUI") || has(qualif, "WIN") || has(qualif, "TOP");
+                if (has(qualif, "NON")) explicitElimination = true;
+
+                timeline.knockout.qualified = isQualif;
+
+                if (showNextPhase) {
+                    htmlPhases += wrap(this.renderKnockoutBlock(games, qualif, score));
+                    showNextPhase = isQualif;
+
+                    gameStats.total += games.length;
+                    gameStats.completed += phaseCompleted;
+                } else {
+                    showNextPhase = false;
+                }
 
                 i = nextIndex - 1;
             }
@@ -197,40 +231,40 @@ class ZlanDashboard {
                 let isF = has(groupTitle, "PHASE FINALE");
                 let isR = has(groupTitle, "PHASE A") || has(groupTitle, "PHASE À") || has(groupTitle, "PHASE À 3 ÉQUIPES");
                 let { chunk, nextIndex, blueCount, redCount, qStatus, gamesCount, completedCount, articleId } = this.renderGroupBlock(data, i, lastValidRowIndex, state, bluePhaseCount, redPhaseCount);
-                htmlChunks.groups += chunk;
-                let isFinished = gamesCount > 0 && completedCount === gamesCount;
-                if (isF) {
-                    timeline.finale.exists = true;
-                    if (state.tournamentWon || isFinished) timeline.finale.finished = true;
-                    timeline.finale.completedMatches += completedCount;
-                } else if (isR) {
-                    timeline.carre.completedMatches += completedCount;
-                    if (!timeline.carre.exists) {
-                        timeline.carre.exists = true;
-                        timeline.carre.finished = isFinished;
-                        timeline.carre.target = articleId;
-                    } else {
-                        timeline.carre.finished = timeline.carre.finished && isFinished;
-                    }
-                    if (has(groupTitle, "4 ÉQUIPES") || has(groupTitle, "4 EQUIPES")) {
-                        timeline.carre.target = articleId;
-                    }
-                } else {
-                    if (!timeline.eliminatoire.exists) {
-                        timeline.eliminatoire.exists = true;
-                        timeline.eliminatoire.finished = isFinished;
-                        timeline.eliminatoire.target = articleId;
-                    } else {
-                        timeline.eliminatoire.finished = timeline.eliminatoire.finished && isFinished;
-                    }
-                    timeline.eliminatoire.completedMatches += completedCount;
-                    if (has(groupTitle, "32 ÉQUIPES") || has(groupTitle, "PHASE ÉLIMINATOIRE (32 ÉQUIPES)")) {
-                        timeline.eliminatoire.target = articleId;
-                    }
+
+                let isQualif = has(qStatus, "OUI") || has(qStatus, "WIN") || has(qStatus, "TOP");
+                if (has(qStatus, "NON")) explicitElimination = true;
+
+                // Si on est en finale et qu'il y a OUI/WIN/TOP ou NON, on marque la finale comme finie
+                if (isF && (isQualif || has(qStatus, "NON"))) {
+                    finaleFinished = true;
                 }
 
-                gameStats.total += gamesCount;
-                gameStats.completed += completedCount;
+                let isFinished = gamesCount > 0 && completedCount === gamesCount;
+
+                let tPhase = isF ? timeline.finale : (isR ? timeline.carre : timeline.eliminatoire);
+
+                tPhase.exists = true;
+                tPhase.unlocked = tPhase.unlocked || showNextPhase;
+                tPhase.completedMatches += completedCount;
+                tPhase.target = articleId;
+
+                if (tPhase.finished === false && tPhase.completedMatches === completedCount) {
+                    tPhase.finished = isFinished;
+                } else {
+                    tPhase.finished = tPhase.finished && isFinished;
+                }
+                tPhase.qualified = tPhase.qualified || isQualif;
+
+                if (showNextPhase) {
+                    htmlPhases += wrap(chunk);
+                    showNextPhase = isQualif;
+
+                    gameStats.total += gamesCount;
+                    gameStats.completed += completedCount;
+                } else {
+                    showNextPhase = false;
+                }
 
                 bluePhaseCount = blueCount;
                 redPhaseCount = redCount;
@@ -238,8 +272,23 @@ class ZlanDashboard {
             }
         }
 
+        // ======= GESTION DU RÉSULTAT FINAL (LA TOUTE DERNIÈRE LIGNE) =======
+        let lastRow = data[lastValidRowIndex] || [];
+        let finalRankText = lastRow.find(c => (c || '').trim()) || "";
+
+        let isTechnicalRow = has(finalRankText, "PHASE") || has(finalRankText, "JEUX") || has(finalRankText, "QUALIFIÉ") || has(finalRankText, "WIN ?") || has(finalRankText, "CONTRE QUI") || has(finalRankText, "TEAM :");
+
+        // Le bloc final n'apparait QUE SI :
+        // 1. Quelqu'un a écrit "NON" explicitement dans une des phases précédentes (explicitElimination)
+        // 2. OU la Finale est passée et le statut final a été rempli avec OUI/WIN/TOP ou NON (finaleFinished)
+        if (finalRankText && !isTechnicalRow && (explicitElimination || finaleFinished)) {
+            htmlChunks.finalRank = this.renderFinalRankBlock(finalRankText, state);
+            state.tournamentOver = true;
+        }
+
         const container = document.getElementById('dashboard-container');
         if (container) {
+            // ================== MÉCANISME DE VERROUILLAGE (LOCK) ==================
             // Date de déverrouillage : 15 mai 2026 à 19:00:00 (Heure de Paris)
             const unlockDate = new Date('2026-05-15T19:00:00+02:00').getTime();
             const now = Date.now();
@@ -255,8 +304,7 @@ class ZlanDashboard {
                         <svg width="60" height="80" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 10px rgba(229,57,53,0.8));">
                             <path d="M7 10V6C7 3.23858 9.23858 1 12 1C14.7614 1 17 3.23858 17 6V10" stroke="var(--pixel-red)" stroke-width="2.5" stroke-linecap="square"/>
                             <rect x="4" y="10" width="16" height="15" fill="#09090b" stroke="var(--pixel-red)" stroke-width="2.5" stroke-linejoin="round"/>
-                            <path d="M12 15V19" stroke="var(--pixel-red)" stroke-width="2" stroke-linecap="round"/>
-                            <circle cx="12" cy="15" r="1.5" fill="var(--pixel-red)"/>
+                            <rect x="11" y="16" width="2" height="4" fill="var(--pixel-red)"/>
                         </svg>
                     </div>
                     
@@ -270,7 +318,7 @@ class ZlanDashboard {
                 `;
 
                 let lockedBlock = `
-                <section class="mt-8 md:mt-12 mb-8 md:mb-12 flex justify-center w-full px-2 md:px-0 pixel-animate-enter relative">
+                <section class="mt-8 md:mt-12 mb-8 md:mb-12 flex justify-center w-full px-2 md:px-0 relative">
                     <div class="w-full max-w-[920px] pixel-card bg-[#09090b] relative flex flex-col items-center overflow-hidden min-h-[350px] md:min-h-[400px] justify-center border-[3px] md:border-4 border-[#27272a]">
                         <div class="absolute inset-0 opacity-[0.15] pointer-events-none flex flex-col items-center justify-center grayscale select-none">
                             <div class="font-pixel text-[10px] md:text-sm text-slate-500 mb-6 border border-slate-700 px-4 py-2">>> SUIVI DU TOURNOI <<</div>
@@ -288,36 +336,21 @@ class ZlanDashboard {
                 </section>
                 `;
 
-                // On n'affiche QUE le header de la team et le bloc verrouillé. Tout ce qui est en dessous est ignoré.
-                const fullHtml = htmlChunks.team + lockedBlock;
+                // Reset delay for final assembly
+                animDelay = 0;
+                const fullHtml = wrap(htmlChunks.team) + wrap(lockedBlock);
                 if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
                     container.innerHTML = fullHtml;
                     this.startCountdown(unlockDate);
                 }
             } else {
-                // Comportement normal si la date est dépassée
-                if (this.countdownInterval) {
-                    clearInterval(this.countdownInterval);
-                }
+                if (this.countdownInterval) clearInterval(this.countdownInterval);
                 const trackerHtml = this.renderTracker(timeline, state, gameStats);
-                
-                // Construction conditionnelle pour ne pas encombrer le dashboard
-                let fullHtml = htmlChunks.team + trackerHtml + htmlChunks.seeding;
 
-                // On affiche le Knockout si le Seeding est fini OU si le Knockout a commencé
-                if (timeline.seeding.finished || timeline.knockout.completedMatches > 0) {
-                    fullHtml += htmlChunks.knockout;
-                }
+                let fullHtml = wrap(htmlChunks.team) + wrap(trackerHtml) + htmlPhases;
 
-                // On affiche les Groupes si le Knockout est fini OU si un match de groupe est complété
-                const groupStarted = gameStats.completed > (timeline.seeding.completedMatches + timeline.knockout.completedMatches);
-                if (timeline.knockout.finished || groupStarted) {
-                    if (htmlChunks.groups) fullHtml += `<div>${htmlChunks.groups}</div>`;
-                }
-
-                // On affiche le rang final uniquement si le tournoi est fini
-                if (state.tournamentOver) {
-                    fullHtml += htmlChunks.finalRank;
+                if (state.tournamentOver && htmlChunks.finalRank) {
+                    fullHtml += wrap(htmlChunks.finalRank);
                 }
 
                 if (container.innerHTML !== fullHtml && fullHtml.trim() !== "") {
@@ -333,22 +366,16 @@ class ZlanDashboard {
         return `<section class="mb-6 md:mb-12 flex justify-center w-full px-2 md:px-0"><div class="pixel-card border-b-4 px-4 py-5 md:px-8 md:p-8 w-full max-w-[920px]" style="border-bottom-color: var(--pixel-orange);"><div class="flex flex-col md:flex-row items-center justify-center gap-5 md:gap-8">${avatarHtml}<div class="flex flex-col items-center md:items-start text-center md:text-left"><h1 class="text-[var(--pixel-orange)] font-text text-base md:text-xl lg:text-2xl mb-2 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1><p class="text-2xl md:text-4xl lg:text-5xl font-pixel text-white tracking-wider leading-snug">${cleanTeam}</p></div></div></div></section>`;
     }
 
-    renderFinalRankBlock(row, r0, state) {
-        let finalRankText = r0 || row.find(c => (c || '').trim()) || "";
-        const exitKeywords = ["ÉLIMINÉ", "ELIMINE", "GAGNÉ", "GAGNE", "CHAMPION", "VICTOIRE", "DÉFAITE", "TOP", "CLASSEMENT", "FINI", "1ER", "2EME", "3EME"];
-        const isExplicitEnd = exitKeywords.some(kw => has(finalRankText, kw));
-        if (isExplicitEnd) state.tournamentOver = true;
-        const isHeaderOnly = (has(finalRankText, "PHASE") || has(finalRankText, "JEUX") || has(finalRankText, "QUALIFIÉ") || has(finalRankText, "WIN ?")) && !isExplicitEnd;
-        if (state.tournamentOver && !isHeaderOnly && finalRankText?.trim()) {
-            if (isHeaderOnly) finalRankText = state.tournamentWon ? "CHAMPIONS !" : "TOURNOI TERMINÉ";
-            let isWin = state.tournamentWon || ["WIN", "1ER", "GAGNÉ", "OUI", "TOP 1", "CHAMPIONS", "VICTOIRE"].some(kw => has(finalRankText, kw));
-            if (isWin) state.tournamentWon = true;
-            let c = state.tournamentWon ? "var(--pixel-green)" : "var(--pixel-red)";
-            let bg = state.tournamentWon ? "rgba(100, 255, 218, 0.08)" : "rgba(229, 57, 53, 0.08)";
-            let sh = state.tournamentWon ? "rgba(100, 255, 218, 0.3)" : "rgba(229, 57, 53, 0.3)";
-            return `<section class="pixel-animate-enter mt-10 md:mt-16 mb-12 md:mb-20 flex justify-center w-full px-2 md:px-0"><div class="pixel-card border-4 px-6 py-8 md:px-12 md:py-16 w-full max-w-[800px] relative overflow-hidden" style="border-color: ${c}; text-align: center; background: ${bg}; box-shadow: 0 0 30px ${sh}, 8px 8px 0px rgba(0,0,0,0.9);"><div class="absolute top-0 left-0 w-full h-1 opacity-50" style="background: ${c};"></div><h2 class="text-slate-400 font-text text-xl md:text-4xl mb-4 tracking-[0.2em] uppercase">RÉSULTAT FINAL</h2><p class="text-3xl md:text-7xl font-pixel tracking-widest animate-pulse" style="color: ${c}; text-shadow: 4px 4px 0px rgba(0,0,0,0.8);">${finalRankText.toUpperCase()}</p><div class="mt-6 flex justify-center gap-4 opacity-30"><span style="color: ${c};">★</span><span style="color: ${c};">★</span><span style="color: ${c};">★</span></div></div></section>`;
-        }
-        return "";
+    renderFinalRankBlock(finalRankText, state) {
+        if (!finalRankText) return "";
+        let isWin = state.tournamentWon || ["WIN", "1ER", "GAGNÉ", "OUI", "TOP 1", "CHAMPIONS", "VICTOIRE"].some(kw => has(finalRankText, kw));
+        if (isWin) state.tournamentWon = true;
+
+        let c = state.tournamentWon ? "var(--pixel-green)" : "var(--pixel-red)";
+        let bg = state.tournamentWon ? "rgba(100, 255, 218, 0.08)" : "rgba(229, 57, 53, 0.08)";
+        let sh = state.tournamentWon ? "rgba(100, 255, 218, 0.3)" : "rgba(229, 57, 53, 0.3)";
+
+        return `<section class="mt-10 md:mt-16 mb-12 md:mb-20 flex justify-center w-full px-2 md:px-0"><div class="pixel-card border-4 px-6 py-8 md:px-12 md:py-16 w-full max-w-[800px] relative overflow-hidden" style="border-color: ${c}; text-align: center; background: ${bg}; box-shadow: 0 0 30px ${sh}, 8px 8px 0px rgba(0,0,0,0.9);"><div class="absolute top-0 left-0 w-full h-1 opacity-50" style="background: ${c};"></div><h2 class="text-slate-400 font-text text-xl md:text-4xl mb-4 tracking-[0.2em] uppercase">RÉSULTAT FINAL</h2><p class="text-3xl md:text-7xl font-pixel tracking-widest animate-pulse" style="color: ${c}; text-shadow: 4px 4px 0px rgba(0,0,0,0.8);">${finalRankText.toUpperCase()}</p><div class="mt-6 flex justify-center gap-4 opacity-30"><span style="color: ${c};">★</span><span style="color: ${c};">★</span><span style="color: ${c};">★</span></div></div></section>`;
     }
 
     parseSeeding(data, start, lastIndex) {
@@ -369,7 +396,7 @@ class ZlanDashboard {
 
     renderSeedingBlock(games, score) {
         let gHtml = games.map((g, idx) => `<div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}"><div class="col-span-2 font-pixel text-[9px] md:text-base lg:text-xl uppercase py-1.5 md:py-3 px-1 flex items-center justify-center" style="color: var(--pixel-orange);">${g.name}</div><div class="col-span-2 font-text text-sm md:text-xl lg:text-2xl ${g.place === '???' ? 'text-slate-600' : 'text-white'} py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]/50">${g.place || '???'}</div>${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 border-l border-[#27272a]/50 flex justify-center items-center">${g.heure}</time>` : ''}</div>`).join('');
-        const displayScore = score || "EN ATTENTE";
+        const displayScore = score || "EN ATTENTE...";
         const isWaiting = has(displayScore, 'EN ATTENTE');
         const scoreFooter = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">SEED FINALE</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${isWaiting ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 158, 11, 0.1)'};"><span class="font-pixel text-xl md:text-5xl" style="color: ${isWaiting ? '#94a3b8' : 'var(--pixel-orange)'};">${displayScore}</span></div></div>`;
         return `<section id="section-seeding" class="pixel-card mt-6 mx-2 md:mx-0"><header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[500px]"><div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]"><div class="col-span-2">JEUX</div><div class="col-span-2">PLACE</div>${this.is2026 ? `<div class="col-span-2">HEURE DU LIVE :</div>` : ''}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${scoreFooter}</section>`;
@@ -379,13 +406,15 @@ class ZlanDashboard {
         let games = [], qualif = "", score = "", j = start + 1;
         while (j < data.length && !isGroupPhase(data[j])) {
             let sub = data[j];
-            let qIdx = sub.findIndex(c => has(c, "QUALIFIÉ"));
+            let qIdx = sub.findIndex(c => has(c, "QUALIFIÉ") || has(c, "WIN ?") || has(c, "WIN?"));
             if (qIdx !== -1) {
                 let vals = sub.slice(qIdx + 1).filter(v => v.trim() !== "");
                 qualif = vals[0] || ""; score = vals[1] || "";
-                let isO = has(qualif, "OUI") || has(qualif, "WIN");
+                let isO = has(qualif, "OUI") || has(qualif, "WIN") || has(qualif, "TOP");
                 let isAttente = has(qualif, "EN ATTENTE") || qualif.trim() === "";
                 if (!isO && !isAttente) state.tournamentOver = true;
+            } else if (!sub[0] && sub.some(c => has(c, "OUI") || has(c, "WIN") || has(c, "TOP") || has(c, "NON"))) {
+                qualif = sub.find(c => has(c, "OUI") || has(c, "WIN") || has(c, "TOP") || has(c, "NON")) || "";
             } else if (sub[0] && !has(sub[0], "JEUX") && !has(sub[0], "PHASE")) {
                 if (this.is2026) games.push({ name: sub[0], choix: sub[3] || '', contre: sub[4] || '', score: [sub[6] || ''], resultat: sub[7] || '', vies: sub[8] || '', heure: sub[9] || '' });
                 else games.push({ name: sub[0], choix: '', contre: sub[3] || '', score: [sub[5] || ''], resultat: sub[6] || '', vies: sub[7] || '', heure: '' });
@@ -404,9 +433,10 @@ class ZlanDashboard {
             let cJ = this.is2026 ? 'col-span-2' : 'col-span-3', cC = this.is2026 ? 'col-span-2' : 'col-span-3', cS = this.is2026 ? 'col-span-2' : 'col-span-3';
             return `<div class="grid grid-cols-12 text-[10px] text-center border-b border-black/50 last:border-0 hover:bg-white/5 items-stretch ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}"><div class="${cJ} font-pixel text-[8px] md:text-base lg:text-xl px-1 py-1.5 md:py-3 flex items-center justify-center uppercase" style="color: var(--pixel-green);">${g.name}</div>${this.is2026 ? `<div class="col-span-2 font-text text-[8px] md:text-sm lg:text-base text-white px-1 py-1.5 flex items-center justify-center border-l border-[#27272a]/50">${g.choix}</div>` : ''}<div class="${cC} font-text text-[10px] md:text-lg lg:text-xl text-[var(--pixel-red)] px-1 py-1.5 md:py-3 flex items-center justify-center border-l border-[#27272a]/50">${g.contre}</div><div class="${cS} font-text text-[10px] md:text-xl lg:text-2xl text-white px-1 py-1.5 md:py-3 flex flex-col justify-center gap-0.5 border-l border-[#27272a]/50">${g.score.map(s => `<div>${s}</div>`).join('')}</div><div class="col-span-2 font-pixel text-[7px] md:text-sm lg:text-lg ${rc} px-1 py-1.5 md:py-3 flex items-center justify-center uppercase border-l border-[#27272a]/50">${g.resultat}</div><div class="col-span-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]">${vd}</div>${this.is2026 ? `<time class="col-span-1 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 px-1 py-1.5 md:py-3 flex justify-center items-center border-l border-[#27272a]/50">${g.heure}</time>` : ''}</div>`;
         }).join('');
-        let iO = has(qualif, "OUI") || has(qualif, "WIN");
-        let bgR = iO ? "rgba(100, 255, 218, 0.1)" : (has(qualif, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)");
-        let tR = iO ? "var(--pixel-green)" : (has(qualif, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)");
+        let iO = has(qualif, "OUI") || has(qualif, "WIN") || has(qualif, "TOP");
+        let iN = has(qualif, "NON");
+        let bgR = iO ? "rgba(100, 255, 218, 0.1)" : (iN ? "rgba(229, 57, 53, 0.1)" : "rgba(255, 255, 255, 0.05)");
+        let tR = iO ? "var(--pixel-green)" : (iN ? "var(--pixel-red)" : "#94a3b8");
         let hH = this.is2026 ? `<div class="col-span-2">JEUX</div><div class="col-span-2">CHOIX</div><div class="col-span-2">CONTRE QUI</div><div class="col-span-2">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div><div class="col-span-1">LIVE</div>` : `<div class="col-span-3">JEUX</div><div class="col-span-3">CONTRE QUI ?</div><div class="col-span-3">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div>`;
         return `<section id="section-knockout" class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0"><header class="pixel-header-green px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative"><div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div><h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2></header><div class="p-2 md:p-0"><div class="w-full overflow-x-auto pb-2"><div class="min-w-[800px]"><div class="grid grid-cols-12 font-pixel text-[10px] md:text-sm text-slate-500 p-1.5 md:p-3 text-center bg-[#09090b] border-b border-[#27272a]">${hH}</div><div class="bg-[#0f0f13]">${gHtml}</div></div></div></div>${qualif ? `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">QUALIFIÉ ?</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bgR};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tR};">${qualif}</span></div>${score ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: var(--pixel-green);">${score}</span></div>` : ''}</div>` : ''}</section>`;
     }
@@ -419,16 +449,18 @@ class ZlanDashboard {
         while (j < data.length && !isGroupPhase(data[j])) {
             let sub = data[j];
             let isHeaderRow = sub.some(c => has(c, "JEUX") || has(c, "PHASE") || has(c, "RÉSULTATS"));
-            let qIdx = isHeaderRow ? -1 : sub.findIndex(c => has(c, "QUALIFIÉ") || has(c, "WIN"));
+            let qIdx = isHeaderRow ? -1 : sub.findIndex(c => has(c, "QUALIFIÉ") || has(c, "WIN ?") || has(c, "WIN?"));
 
             if (qIdx !== -1) {
                 let vals = sub.slice(qIdx + 1).filter(v => v.trim() !== "");
                 qStatus = vals[0] || ""; qScore = vals[1] || "";
-                let isO = has(qStatus, "OUI") || has(qStatus, "WIN");
+                let isO = has(qStatus, "OUI") || has(qStatus, "WIN") || has(qStatus, "TOP");
                 let isAttente = has(qStatus, "EN ATTENTE") || qStatus.trim() === "";
 
                 if (isF && isO) { state.tournamentOver = true; state.tournamentWon = true; }
                 else if (!isO && !isAttente) state.tournamentOver = true;
+            } else if (!isHeaderRow && !sub[0] && sub.some(c => has(c, "OUI") || has(c, "WIN") || has(c, "TOP") || has(c, "NON"))) {
+                qStatus = sub.find(c => has(c, "OUI") || has(c, "WIN") || has(c, "TOP") || has(c, "NON")) || "";
             } else if (sub.some(c => { const tc = normalizeText(c); return tc.includes("teams presentes") || tc.includes("contre"); })) {
                 let pIdx = sub.findIndex(c => normalizeText(c).includes("teams presentes")), cIdx = sub.findIndex(c => normalizeText(c).includes("contre"));
                 if (pIdx !== -1) { tTitle = sub[pIdx]; teams = sub.slice(pIdx + 1).find(c => (c || '').trim() && !has(c, "CONTRE")) || (data[j + 1] && (data[j + 1][pIdx] || '').trim() && !has(data[j + 1][pIdx], "JEUX") ? data[j + 1][pIdx] : ""); }
@@ -438,7 +470,7 @@ class ZlanDashboard {
                 if (!isVal && (sub[0] || '').trim()) {
                     let pJ = sub[4] || sub[3] || sub[5] || sub[6] || "";
                     let p = sub[7] || sub[6] || sub[5] || sub[4] || "";
-                    if (pJ === p) p = sub[7] || sub[6] || ""; // Avoid duplication if same column picked
+                    if (pJ === p) p = sub[7] || sub[6] || "";
                     if (pJ.trim() || p.trim() || sub[0].length < 50) {
                         games.push({ name: sub[0], placeJeu: pJ, place: p, heure: sub[8] || sub[9] || sub[10] || '' });
                     }
@@ -459,17 +491,17 @@ class ZlanDashboard {
             else { let cRJ = this.is2026 ? 'col-span-3' : 'col-span-4', cP = this.is2026 ? 'col-span-3' : 'col-span-4'; return `<div class="grid grid-cols-12 gap-0 items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}"><div class="col-span-4 font-pixel text-[9px] md:text-base lg:text-xl uppercase px-1 py-1.5 md:py-3 flex items-center justify-center text-center" title="${g.name}" style="color: ${tC};">${g.name}</div><div class="${cRJ} font-text text-[10px] md:text-lg lg:text-xl text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.placeJeu}</div><div class="${cP} font-pixel text-[10px] md:text-lg lg:text-xl py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]" style="color: ${pc};">${g.place}</div>${this.is2026 ? `<time class="col-span-2 font-pixel italic text-[7px] md:text-xs lg:text-base text-slate-400 py-1.5 md:py-3 px-1 flex items-center justify-center border-l border-[#27272a]">${g.heure}</time>` : ''}</div>`; }
         }).join('');
         let hH = isF ? (this.is2026 ? `<div class="col-span-7">JEUX</div><div class="col-span-3">RÉSULTATS</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-8">JEUX</div><div class="col-span-4">RÉSULTATS</div>`) : (isE ? `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS SUR LE JEU</div><div class="col-span-4">WIN?</div>` : (this.is2026 ? `<div class="col-span-4">JEUX</div><div class="col-span-3">RÉSULTATS DU JEU</div><div class="col-span-3">PLACE</div><div class="col-span-2">LIVE</div>` : `<div class="col-span-4">JEUX</div><div class="col-span-4">RÉSULTATS DU JEU</div><div class="col-span-4">PLACE</div>`));
-        let qH = ""; if (qStatus) { let isO = has(qStatus, "OUI") || has(qStatus, "WIN"); let bg = isO ? "rgba(100, 255, 218, 0.1)" : (has(qStatus, "EN ATTENTE") ? "rgba(255, 255, 255, 0.05)" : "rgba(229, 57, 53, 0.1)"); let tr = isO ? "var(--pixel-green)" : (has(qStatus, "EN ATTENTE") ? "#94a3b8" : "var(--pixel-red)"); qH = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">${isF ? "WIN ?" : "QUALIFIÉ ?"}</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bg};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tr};">${qStatus}</span></div>${qScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: ${tC};">${qScore}</span></div>` : ''}</div>`; }
+        let qH = ""; if (qStatus) { let isO = has(qStatus, "OUI") || has(qStatus, "WIN") || has(qStatus, "TOP"); let iN = has(qStatus, "NON"); let bg = isO ? "rgba(100, 255, 218, 0.1)" : (iN ? "rgba(229, 57, 53, 0.1)" : "rgba(255, 255, 255, 0.05)"); let tr = isO ? "var(--pixel-green)" : (iN ? "var(--pixel-red)" : "#94a3b8"); qH = `<div class="flex border-t-[3px] border-[#27272a] mt-auto flex-col md:flex-row"><div class="bg-[#18181b] flex-1 p-2.5 md:p-3 flex items-center justify-center"><span class="font-text text-base md:text-2xl text-slate-400">${isF ? "WIN ?" : "QUALIFIÉ ?"}</span></div><div class="flex-1 p-2.5 md:p-3 flex items-center justify-center md:border-l-[3px] border-t-[3px] md:border-t-0 border-[#27272a]" style="background: ${bg};"><span class="font-pixel text-xl md:text-5xl" style="color: ${tr};">${qStatus}</span></div>${qScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: ${tC};">${qScore}</span></div>` : ''}</div>`; }
         let tH = "";
         if (cTitle && tTitle) {
             tH = `<div class="flex flex-col md:flex-row border-b-2 border-[#27272a]">
-                    <div class="w-full md:w-[30%] flex-none flex flex-col md:border-r-2 border-[#27272a]">
-                        <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${cTitle}</div>
-                        <div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div>
+                    <div class="w-full md:w-[30%] flex-none flex flex-col md:border-r-2 border-[#27272a] min-w-0">
+                        <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-xs md:text-lg lg:text-xl text-slate-300 border-b border-[#27272a]">${cTitle}</div>
+                        <div class="bg-[rgba(229,57,53,0.1)] p-2 md:p-4 text-center font-pixel text-[10px] md:text-base lg:text-lg text-[var(--pixel-red)] h-full flex items-center justify-center">${contre}</div>
                     </div>
-                    <div class="flex-1 flex flex-col">
-                        <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>
-                        <div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-sm md:text-xl text-[var(--pixel-orange)] h-full flex items-center justify-center">${teams}</div>
+                    <div class="flex-1 flex flex-col min-w-0">
+                        <div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-xs md:text-lg lg:text-xl text-slate-300 border-b border-[#27272a]">${tTitle}</div>
+                        <div class="bg-[rgba(245,158,11,0.15)] p-2 md:p-4 text-center font-pixel text-[10px] md:text-base lg:text-lg text-[var(--pixel-orange)] h-full flex items-center justify-center pixel-marquee"><span>${teams}</span></div>
                     </div>
                   </div>`;
         } else if (tTitle || teams || cTitle || contre) {
@@ -479,8 +511,8 @@ class ZlanDashboard {
             const bg = isRed ? "rgba(229,57,53,0.1)" : "rgba(245,158,11,0.15)";
             const color = isRed ? "var(--pixel-red)" : "var(--pixel-orange)";
             tH = `<div class="border-b-2 border-[#27272a]">
-                    ${title ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-base md:text-2xl text-slate-300 border-b border-[#27272a]">${title}</div>` : ''}
-                    <div class="p-2 md:p-4 text-center font-pixel text-sm md:text-xl h-full flex items-center justify-center" style="background: ${bg}; color: ${color};">${val}</div>
+                    ${title ? `<div class="bg-[rgba(88,101,242,0.15)] p-2 md:p-3 text-center font-text text-xs md:text-lg lg:text-xl text-slate-300 border-b border-[#27272a]">${title}</div>` : ''}
+                    <div class="p-2 md:p-4 text-center font-pixel text-[10px] md:text-base lg:text-lg h-full flex items-center justify-center pixel-marquee" style="background: ${bg}; color: ${color};"><span>${val}</span></div>
                   </div>`;
         }
         let articleId = isF ? "section-finale" : (isR ? `section-carre-${redCount}` : `section-eliminatoire-${blueCount}`);
@@ -498,11 +530,11 @@ class ZlanDashboard {
         if (!timeline.seeding.exists && !timeline.knockout.exists && !timeline.eliminatoire.exists && !timeline.carre.exists && !timeline.finale.exists) return "";
 
         let steps = [
-            { id: "seeding", label: "SEEDING", target: timeline.seeding.target, exists: timeline.seeding.exists, finished: timeline.seeding.finished },
-            { id: "knockout", label: "KNOCKOUT", target: timeline.knockout.target, exists: timeline.knockout.exists, finished: timeline.knockout.finished },
-            { id: "eliminatoire", label: "ÉLIMINATOIRES", target: timeline.eliminatoire.target, exists: timeline.eliminatoire.exists, finished: timeline.eliminatoire.finished },
-            { id: "carre", label: "CARRÉ FINAL", target: timeline.carre.target, exists: timeline.carre.exists, finished: timeline.carre.finished },
-            { id: "finale", label: "FINALE", target: timeline.finale.target, exists: timeline.finale.exists, finished: timeline.finale.finished }
+            { id: "seeding", label: "SEEDING", target: timeline.seeding.target, exists: timeline.seeding.exists, unlocked: timeline.seeding.unlocked, finished: timeline.seeding.finished },
+            { id: "knockout", label: "KNOCKOUT", target: timeline.knockout.target, exists: timeline.knockout.exists, unlocked: timeline.knockout.unlocked, finished: timeline.knockout.finished },
+            { id: "eliminatoire", label: "ÉLIMINATOIRES", target: timeline.eliminatoire.target, exists: timeline.eliminatoire.exists, unlocked: timeline.eliminatoire.unlocked, finished: timeline.eliminatoire.finished },
+            { id: "carre", label: "CARRÉ FINAL", target: timeline.carre.target, exists: timeline.carre.exists, unlocked: timeline.carre.unlocked, finished: timeline.carre.finished },
+            { id: "finale", label: "FINALE", target: timeline.finale.target, exists: timeline.finale.exists, unlocked: timeline.finale.unlocked, finished: timeline.finale.finished }
         ];
 
         let seedingProg = (timeline.seeding.completedMatches || 0) * 3;
@@ -518,7 +550,7 @@ class ZlanDashboard {
         let activeFound = false;
         let breadcrumbs = steps.map((s, idx) => {
             let isActive = false;
-            if (s.exists && !s.finished && !activeFound) {
+            if (s.exists && s.unlocked && !s.finished && !activeFound) {
                 isActive = true;
                 activeFound = true;
             }
@@ -585,11 +617,11 @@ class ZlanDashboard {
             return `<div class="absolute top-1/2 -translate-y-1/2 ${isLast ? 'w-[2px] md:w-[3px] h-3 md:h-4 bg-[var(--pixel-violet)] shadow-[0_0_5px_var(--pixel-violet)]' : 'w-[1px] h-1.5 md:h-2 bg-slate-500'} z-20" style="left: calc(${pos}% - ${isLast ? '2px' : '0px'})"></div>`;
         }).join('');
 
-        let activeStep = steps.find(s => s.exists && !s.finished) || steps.find(s => !s.exists);
+        let activeStep = steps.find(s => s.exists && s.unlocked && !s.finished) || steps.reverse().find(s => s.exists && s.unlocked);
         let phaseName = activeStep ? activeStep.label : "TERMINÉ";
 
         return `
-            <section class="mt-8 md:mt-12 mb-8 md:mb-12 flex justify-center w-full px-2 md:px-0 pixel-animate-enter">
+            <section class="mt-8 md:mt-12 mb-8 md:mb-12 flex justify-center w-full px-2 md:px-0">
                 <div class="w-full max-w-[920px] pixel-card border-[3px] md:border-4 border-[#27272a] bg-[#09090b] p-5 md:p-8 relative flex flex-col items-center" style="box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);">
                     <div class="absolute -top-4 md:-top-5 left-1/2 -translate-x-1/2 bg-[#09090b] px-4 py-1.5 font-pixel text-[10px] md:text-sm text-white border-2 border-[var(--pixel-green)] shadow-[0_0_12px_rgba(100,255,218,0.2)] rounded-sm flex items-center gap-2 whitespace-nowrap">
                         <span class="text-[var(--pixel-green)] animate-pulse">>></span> SUIVI DU TOURNOI <span class="text-[var(--pixel-green)] animate-pulse"><<</span>
@@ -652,7 +684,7 @@ class ZlanDashboard {
     }
 
     getMockData() {
-        return [["TEAM : LES MOCKERS FOUS"], [""], ["PHASE DE SEEDING"], ["JEUX", "", "", "PLACE", "", "", "", "", "", "HEURE"], ["MINECRAFT", "", "", "TOP 3", "", "", "", "", "", "13:00"], ["TRACKMANIA", "", "", "1ER", "", "", "", "", "", "14:00"], ["", "", "", ">> SEEDING", "2"], [""], ["PHASE DE KNOCKOUT"], ["JEUX", "", "", "CHOIX", "CONTRE QUI", "", "SCORE", "RÉSULTATS", "VIES", "LIVE"], ["WORMS", "", "", "OUI", "LES TARDTARDS", "", "2-0", "GAGNÉ", "3", "15:00"], ["TETRIS", "", "", "NON", "LES TARDTARDS", "", "1-3", "PERDU", "2", "16:00"], ["CULT OF THE LAMB", "", "", "OUI", "AUTRE TEAM", "", "3-0", "GAGNÉ", "2", "17:00"], ["", "", "QUALIFIÉ ?", "OUI", "2-1"], [""], ["PHASE ÉLIMINATOIRE (16 ÉQUIPES)"], ["CONTRE QUI ?", "", "", "TEAMS PRÉSENTES"], ["???", "", "", "???"], ["JEUX", "", "", "", "RÉSULTATS SUR LE JEU", "", "", "WIN?"], ["MINECRAFT", "", "", "", "1ER", "", "", "OUI"], ["VALORANT", "", "", "", "13-5", "", "", "OUI"], ["", "", "QUALIFIÉ ?", "OUI", "2-0"], [""], ["PHASE FINALE"], ["JEUX", "", "", "", "", "", "", "RÉSULTATS", "LIVE"], ["JEU MYSTÈRE", "", "", "", "VICTOIRE", "", "", "1ER", "21:00"], ["", "", "WIN ?", "OUI", "CHAMPIONS"], [""], ["WIN !"]];
+        return [["TEAM : LES MOCKERS FOUS"], [""], ["PHASE DE SEEDING"], ["JEUX", "", "", "PLACE", "", "", "", "", "", "HEURE"], ["MINECRAFT", "", "", "TOP 3", "", "", "", "", "", "13:00"], ["TRACKMANIA", "", "", "1ER", "", "", "", "", "", "14:00"], ["", "", "", ">> SEEDING", "TOP 2"], [""], ["PHASE DE KNOCKOUT"], ["JEUX", "", "", "CHOIX", "CONTRE QUI", "", "SCORE", "RÉSULTATS", "VIES", "LIVE"], ["WORMS", "", "", "OUI", "LES TARDTARDS", "", "2-0", "GAGNÉ", "3", "15:00"], ["TETRIS", "", "", "NON", "LES TARDTARDS", "", "1-3", "PERDU", "2", "16:00"], ["CULT OF THE LAMB", "", "", "OUI", "AUTRE TEAM", "", "3-0", "GAGNÉ", "2", "17:00"], ["", "", "QUALIFIÉ ?", "OUI", "2-1"], [""], ["PHASE ÉLIMINATOIRE (16 ÉQUIPES)"], ["CONTRE QUI ?", "", "", "TEAMS PRÉSENTES"], ["???", "", "", "???"], ["JEUX", "", "", "", "RÉSULTATS SUR LE JEU", "", "", "WIN?"], ["MINECRAFT", "", "", "", "1ER", "", "", "OUI"], ["VALORANT", "", "", "", "13-5", "", "", "OUI"], ["", "", "QUALIFIÉ ?", "OUI", "2-0"], [""], ["PHASE FINALE"], ["JEUX", "", "", "", "", "", "", "RÉSULTATS", "LIVE"], ["JEU MYSTÈRE", "", "", "", "VICTOIRE", "", "", "1ER", "21:00"], ["", "", "WIN ?", "OUI", "CHAMPIONS"], [""], ["TOP 1"]];
     }
 }
 

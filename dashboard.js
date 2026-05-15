@@ -72,7 +72,7 @@ class ZlanDashboard {
         if (!data?.length) return;
 
         let htmlChunks = { team: "", seeding: "", knockout: "", groups: "", finalRank: "" };
-        let state = { seedingFinished: false, knockoutFinished: false, groupFinished: true, tournamentOver: false, tournamentWon: false };
+        let state = { seedingFinished: false, seedingQualified: false, knockoutFinished: false, knockoutQualified: false, groupFinished: true, groupQualified: false, tournamentOver: false, tournamentWon: false };
 
         let animDelay = 0;
         let bluePhaseCount = 0;
@@ -96,13 +96,14 @@ class ZlanDashboard {
                 ` : '<div class="mt-4"></div>';
 
                 htmlChunks.team = `
-                    <section class="mb-6 md:mb-12 flex justify-center w-full px-2 md:px-0">
+                    <section class="pixel-animate-enter mb-6 md:mb-12 flex justify-center w-full px-2 md:px-0" style="animation-delay: ${animDelay}s;">
                         <div class="pixel-card border-b-4 px-4 py-5 md:px-8 md:p-10 w-full max-w-[920px]" style="border-bottom-color: var(--pixel-orange); text-align: center;">
                             <h1 class="text-[var(--pixel-orange)] font-text text-lg md:text-2xl mb-1.5 tracking-widest drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">>> JOUEURS ENGAGÉS <<</h1>
                             ${avatarHtml}
                             <p class="text-lg md:text-4xl font-pixel text-white tracking-wider">${cleanTeam}</p>
                         </div>
                     </section>`;
+                animDelay += 0.15;
             }
 
             // --- 2. RÉSULTAT FINAL ---
@@ -122,6 +123,7 @@ class ZlanDashboard {
                                 <p class="text-2xl md:text-6xl font-pixel tracking-widest" style="color: ${colorVar}; text-shadow: 3px 3px 0px rgba(0,0,0,0.5);">${finalRankText}</p>
                             </div>
                         </section>`;
+                    animDelay += 0.15;
                 }
             }
 
@@ -142,7 +144,10 @@ class ZlanDashboard {
                     j++;
                 }
 
-                if (seedingScore && !has(seedingScore, "EN ATTENTE")) state.seedingFinished = true;
+                if (seedingScore && !has(seedingScore, "EN ATTENTE")) {
+                    state.seedingFinished = true;
+                    state.seedingQualified = true; // Everyone qualifies from seeding
+                }
 
                 let gamesHtml = games.map((g, idx) => `
                     <div class="grid ${this.is2026 ? 'grid-cols-6' : 'grid-cols-4'} text-center items-stretch border-b border-black/50 last:border-0 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-[#18181b]" : "bg-[#27272a]/50"}">
@@ -153,7 +158,7 @@ class ZlanDashboard {
                 `).join('');
 
                 htmlChunks.seeding = `
-                    <section class="pixel-card mt-6 mx-2 md:mx-0">
+                    <section class="pixel-animate-enter pixel-card mt-6 mx-2 md:mx-0" style="animation-delay: ${animDelay}s;">
                         <header class="pixel-header-orange px-2.5 py-3 md:px-4 md:p-5 flex flex-col justify-center items-center text-center relative">
                             <div class="text-slate-300 font-text text-sm md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
                             <h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-orange);">PHASE DE SEEDING</h2>
@@ -178,12 +183,13 @@ class ZlanDashboard {
                             </div>
                         </div>` : ''}
                     </section>`;
+                animDelay += 0.15;
                 i = j - 1;
             }
 
             // --- 4. PHASE DE KNOCKOUT ---
             else if (has(r0, "PHASE DE KNOCKOUT")) {
-                if (!state.seedingFinished) {
+                if (!state.seedingQualified) {
                     while (i + 1 < data.length && !isGroupPhase(data[i + 1])) i++;
                     continue;
                 }
@@ -199,7 +205,9 @@ class ZlanDashboard {
                         let vals = subRow.slice(qualifIdx + 1).filter(v => v.trim() !== "");
                         qualifKnockout = vals[0] || "";
                         qualifKnockoutScore = vals[1] || "";
-                        if (!has(qualifKnockout, "OUI") && !has(qualifKnockout, "WIN") && !has(qualifKnockout, "EN ATTENTE") && qualifKnockout.trim()) {
+                        if (has(qualifKnockout, "OUI") || has(qualifKnockout, "WIN")) {
+                            state.knockoutQualified = true;
+                        } else if (!has(qualifKnockout, "EN ATTENTE") && qualifKnockout.trim()) {
                             state.tournamentOver = true;
                         }
                     } else if (subRow[0] && !has(subRow[0], "JEUX") && !has(subRow[0], "PHASE")) {
@@ -258,7 +266,7 @@ class ZlanDashboard {
                     : `<div class="col-span-3">JEUX</div><div class="col-span-3">CONTRE QUI ?</div><div class="col-span-3">SCORE</div><div class="col-span-2">RÉSULTATS</div><div class="col-span-1">VIES</div>`;
 
                 htmlChunks.knockout = `
-                    <section class="pixel-card mt-6 md:mt-10 mx-2 md:mx-0">
+                    <section class="pixel-animate-enter pixel-card mt-6 md:mt-10 mx-2 md:mx-0" style="animation-delay: ${animDelay}s;">
                         <header class="pixel-header-green px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
                             <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
                             <h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: var(--pixel-green);">PHASE DE KNOCKOUT</h2>
@@ -282,12 +290,13 @@ class ZlanDashboard {
                             ${qualifKnockoutScore ? `<div class="bg-[#09090b] w-full md:w-[30%] p-2.5 md:p-3 flex items-center justify-center border-t-[3px] md:border-t-0 md:border-l-[3px] border-[#27272a]"><span class="font-pixel text-base md:text-2xl" style="color: var(--pixel-green);">${qualifKnockoutScore}</span></div>` : ''}
                         </div>` : ''}
                     </section>`;
+                animDelay += 0.15;
                 i = j - 1;
             }
 
             // --- 5. GROUPES & FINALES ---
             else if (isGroupPhase(row)) {
-                if (!state.knockoutFinished || !state.groupFinished) {
+                if (!state.knockoutQualified) {
                     while (i + 1 < data.length && !isGroupPhase(data[i + 1])) i++;
                     continue;
                 }
@@ -307,8 +316,12 @@ class ZlanDashboard {
                         qualifStatus = vals[0] || "";
                         qualifStatusScore = vals[1] || "";
                         let isOui = has(qualifStatus, "OUI") || has(qualifStatus, "WIN");
-                        if (isFinale && isOui) { state.tournamentOver = true; state.tournamentWon = true; }
-                        else if (!isOui && !has(qualifStatus, "EN ATTENTE") && qualifStatus.trim()) { state.tournamentOver = true; }
+                        if (isOui) {
+                            state.groupQualified = true;
+                            if (isFinale) { state.tournamentOver = true; state.tournamentWon = true; }
+                        } else if (!isOui && !has(qualifStatus, "EN ATTENTE") && qualifStatus.trim()) { 
+                            state.tournamentOver = true; 
+                        }
                     } else if (subRow.some(c => has(c, "TEAMS PRÉSENTES"))) {
                         teamsTitle = subRow.find(c => has(c, "TEAMS PRÉSENTES"));
                         let potentialTeams = subRow.find(c => c.trim() !== "" && !has(c, "TEAMS PRÉSENTES"));
@@ -384,7 +397,7 @@ class ZlanDashboard {
                 }
 
                 htmlChunks.groups += `
-                    <article class="pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0">
+                    <article class="pixel-animate-enter pixel-card mt-6 md:mt-10 flex flex-col h-full mx-2 md:mx-0" style="animation-delay: ${animDelay}s;">
                         <header class="${headerClass} px-3 py-4 md:px-5 md:p-6 flex flex-col justify-center items-center text-center relative">
                             <div class="text-slate-300 font-text text-base md:text-xl mb-1 tracking-widest">RÉSULTATS DE LA</div>
                             <h2 class="font-pixel text-lg md:text-3xl tracking-widest" style="color: ${titleColor};">${groupTitle}</h2>
@@ -404,6 +417,7 @@ class ZlanDashboard {
                         ${qualifHtml}
                     </article>`;
 
+                animDelay += 0.15;
                 state.groupFinished = qualifStatus && !has(qualifStatus, "EN ATTENTE");
                 i = j - 1;
             }
