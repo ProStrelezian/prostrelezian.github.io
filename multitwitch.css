@@ -103,7 +103,11 @@ body.is-fullscreen #stream-controls {
 }
 
 body.chat-hidden #mt-chat {
-    display: none !important;
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -100 !important;
+    visibility: hidden !important;
 }
 
 body.chat-hidden #mt-videos {
@@ -113,6 +117,14 @@ body.chat-hidden #mt-videos {
 body.chat-hidden.is-fullscreen #mt-videos {
     width: 100vw !important;
     height: 100vh !important;
+}
+
+/* Smooth transition for Layout Toggling (Chat Hide/Show) */
+#mt-videos, #mt-chat {
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.4s ease, 
+                transform 0.4s ease !important;
 }
 
 /* Transitions fluides pour le Mode Focus */
@@ -432,4 +444,37 @@ body.is-fullscreen #mt-videos.has-focus.container-md {
     height: auto !important;
     aspect-ratio: 16/9 !important;
     order: -1 !important;
+}
+
+/* Utility to hide elements without using display: none, to keep iframes/media alive */
+.keep-alive-hidden {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -100 !important;
+    visibility: hidden !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Stabilize Chat Header to avoid Layout Shift when tabs appear */
+#mt-chat header {
+    min-height: 85px; /* Empêche le saut de l'iframe quand les onglets s'affichent */
+    align-content: flex-start;
+}
+
+@media (min-width: 1024px) {
+    #mt-chat header {
+        min-height: 95px;
+    }
+}
+
+.keep-alive-visible {
+    position: relative !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: auto !important;
+    visibility: visible !important;
+    width: 100% !important;
+    height: 100% !important;
 }

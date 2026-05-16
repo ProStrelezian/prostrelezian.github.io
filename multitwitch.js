@@ -298,15 +298,18 @@ const MultitwitchApp = (function () {
             document.documentElement.classList.toggle('is-fullscreen', isFs);
             if (DOM.fullscreenBtn) DOM.fullscreenBtn.innerHTML = isFs ? '❌ QUITTER PLEIN ÉCRAN' : '📺 PLEIN ÉCRAN';
         });
+
+        // Anti-pause on window focus
+        window.addEventListener('focus', () => {
+            triggerAntiPauseMitraillette();
+        });
     }
 
     function startHeartbeat() {
         if (state.heartbeatInterval) clearInterval(state.heartbeatInterval);
 
         state.heartbeatInterval = setInterval(() => {
-            // Le script dans le HTML empêche déjà la mise en veille, mais c'est une sécurité.
-            if (document.hidden) return;
-
+            // On force la lecture même si document.hidden est détecté (sécurité renforcée)
             Object.keys(state.players).forEach(slot => {
                 try {
                     const p = state.players[slot];
@@ -315,7 +318,7 @@ const MultitwitchApp = (function () {
                     }
                 } catch (e) { /* Ignore les erreurs des lecteurs corrompus */ }
             });
-        }, 2000); // Vérification toutes les 2 secondes
+        }, 1000); // Vérification toutes les 1 seconde
     }
 
     function getTwitchParents() {
@@ -513,6 +516,13 @@ const MultitwitchApp = (function () {
                 if (state.players[slot]) {
                     state.players[slot].setQuality('480p');
                     state.players[slot].play();
+
+                    // Anti-pause : On met le volume à 1% au lieu de Mute pour que le navigateur
+                    // considère l'onglet comme "actif" et ne le suspende pas.
+                    if (slot !== 1) {
+                        state.players[slot].setMuted(false);
+                        state.players[slot].setVolume(0.0001);
+                    }
                 }
             });
 
@@ -559,8 +569,7 @@ const MultitwitchApp = (function () {
             if (!chatIframe) {
                 chatIframe = document.createElement('iframe');
                 chatIframe.id = 'iframe-chat-' + slot;
-                chatIframe.className = 'w-full h-full';
-                chatIframe.style.display = 'none';
+                chatIframe.className = 'w-full h-full keep-alive-hidden';
                 chatIframe.setAttribute('frameborder', '0');
                 chatIframe.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; storage-access');
                 DOM.chatIframesContainer.appendChild(chatIframe);
@@ -637,7 +646,10 @@ const MultitwitchApp = (function () {
 
         if (oldTarget) {
             const oldIframe = document.getElementById('iframe-chat-' + oldTarget);
-            if (oldIframe) oldIframe.style.display = 'none';
+            if (oldIframe) {
+                oldIframe.classList.remove('keep-alive-visible');
+                oldIframe.classList.add('keep-alive-hidden');
+            }
 
             const oldBtn = SLOTS[oldTarget] && SLOTS[oldTarget].chatBtn;
             if (oldBtn) {
@@ -649,7 +661,8 @@ const MultitwitchApp = (function () {
         if (target) {
             const iframe = document.getElementById('iframe-chat-' + target);
             if (iframe) {
-                iframe.style.display = 'block';
+                iframe.classList.remove('keep-alive-hidden');
+                iframe.classList.add('keep-alive-visible');
                 if (iframe.getAttribute('src') !== iframe.dataset.src) {
                     iframe.src = iframe.dataset.src;
                 }
@@ -662,6 +675,10 @@ const MultitwitchApp = (function () {
                 activeBtn.classList.remove('hidden');
             }
         }
+
+        // Le changement de tchat ou le clic sur un onglet peut provoquer une perte de focus
+        // On déclenche la mitraillette anti-pause pour garantir la fluidité.
+        triggerAntiPauseMitraillette();
     }
 
     async function addStream() {
@@ -809,7 +826,10 @@ const MultitwitchApp = (function () {
         if (firstActive) switchChat(firstActive);
     }
 
-    return { init: initializeApp };
+    return {
+        init: initializeApp,
+        triggerAntiPause: triggerAntiPauseMitraillette
+    };
 })();
 
 // Start Application

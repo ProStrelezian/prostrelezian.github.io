@@ -19,6 +19,25 @@
             const spoof = () => {
                 Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
                 Object.defineProperty(document, 'hidden', { get: () => false, configurable: true });
+
+                // BYPASS INTERSECTION OBSERVER V2
+                if (window.IntersectionObserver) {
+                    const OriginalObserver = window.IntersectionObserver;
+                    window.IntersectionObserver = class extends OriginalObserver {
+                        constructor(callback, options) {
+                            super((entries, observer) => {
+                                const spoofedEntries = entries.map(entry => new Proxy(entry, {
+                                    get: (target, prop) => {
+                                        if (prop === 'isIntersecting' || prop === 'isVisible') return true;
+                                        if (prop === 'intersectionRatio') return 1;
+                                        return target[prop];
+                                    }
+                                }));
+                                callback(spoofedEntries, observer);
+                            }, options);
+                        }
+                    };
+                }
             };
             spoof();
 
@@ -30,7 +49,12 @@
             }, true);
 
             document.addEventListener('visibilitychange', (e) => e.stopImmediatePropagation(), true);
-            window.addEventListener('blur', (e) => e.stopImmediatePropagation(), true);
+            window.addEventListener('blur', (e) => {
+                if (window.MultitwitchApp && window.MultitwitchApp.triggerAntiPause) {
+                    window.MultitwitchApp.triggerAntiPause();
+                }
+                e.stopImmediatePropagation();
+            }, true);
 
             // 4. HEARTBEAT : Cookie actif
             setInterval(() => {
@@ -332,10 +356,10 @@
                         class="bg-[#18181b] border-l-4 border-[#3b82f6] p-4 hover:bg-white/5 transition-colors h-full flex flex-col">
                         <h3 class="font-pixel text-white text-xs md:text-sm mb-2 flex items-center gap-2"><span
                                 class="text-[#3b82f6]">🔊</span> AUDIO & LECTURE</h3>
-                        <p class="text-slate-400">Pour éviter la cacophonie, <span class="text-slate-200">seul le stream
-                                principal a le son activé</span> par défaut. Utilisez le lecteur Twitch pour ajuster le
-                            volume. Le bouton <span class="text-slate-200 font-bold">Play/Pause</span> au-dessus du
-                            stream le suspend totalement pour économiser votre connexion.</p>
+                        <p class="text-slate-400">Pour éviter la cacophonie, <span class="text-slate-200">le son des streams
+                                secondaires est réduit à 1%</span> par défaut. Cela empêche votre navigateur de mettre
+                            l'onglet en veille. Le bouton <span class="text-slate-200 font-bold">Play/Pause</span>
+                            au-dessus du stream le suspend totalement pour économiser votre connexion.</p>
                     </div>
                     <div
                         class="bg-[#18181b] border-l-4 border-[var(--pixel-violet)] p-4 hover:bg-white/5 transition-colors h-full flex flex-col">
@@ -378,9 +402,9 @@
                             <li><span class="text-slate-200 font-bold">Chrome / Brave :</span> Paramètres > Performances
                                 > Économiseur de mémoire.</li>
                             <li><span class="text-slate-200 font-bold">Edge :</span> Paramètres > Système et
-                                performances > Mise en veille.</li>
+                                performances > Mise en veille des onglets.</li>
                             <li><span class="text-slate-200 font-bold">Opera GX :</span> Paramètres > Navigateur >
-                                Snooze (Onglets inactifs).</li>
+                                Snooze les onglets inactifs.</li>
                         </ul>
                     </div>
                 </div>
