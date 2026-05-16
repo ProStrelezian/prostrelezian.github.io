@@ -447,12 +447,25 @@ body.is-fullscreen #mt-videos.has-focus.container-md {
 }
 
 /* Utility to hide elements without using display: none, to keep iframes/media alive */
+/* SCÉNARIO 2 BYPASS : Contournement physique de l'Intersection Observer V2 interne à l'iframe Twitch */
 .keep-alive-hidden {
     position: absolute !important;
-    opacity: 0 !important;
+    
+    /* Pas d'opacité ou de visibilité cachée, IO V2 le détecterait immédiatement */
+    opacity: 1 !important;
+    visibility: visible !important;
+    
+    /* On décale l'élément presque totalement hors de son conteneur, 
+       mais on laisse exactement 1 pixel dans le viewport. 
+       Pour IO V2, isIntersecting sera TRUE et isVisible sera TRUE. */
+    left: calc(-100% + 1px) !important;
+    top: 0 !important;
+    
+    /* L'Observer V2 vérifie l'occultation. Un z-index négatif le déclencherait.
+       On le force au premier plan, mais inactif aux clics. */
+    z-index: 9999 !important;
     pointer-events: none !important;
-    z-index: -100 !important;
-    visibility: hidden !important;
+    
     width: 100% !important;
     height: 100% !important;
 }

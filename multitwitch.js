@@ -576,12 +576,8 @@ const MultitwitchApp = (function () {
             }
 
             const newSrc = 'https://www.twitch.tv/embed/' + newChannel + '/chat?' + parentParams + '&darkpopout';
-            chatIframe.dataset.src = newSrc; // On stocke l'URL sans la charger
-
-            // Lazy Loading : on ne charge l'iframe que si c'est l'onglet de tchat actif
-            if (state.activeChatTab == slot && chatIframe.src !== newSrc) {
-                chatIframe.src = newSrc;
-            }
+            chatIframe.src = newSrc; // Chargement immédiat en arrière-plan
+            chatIframe.dataset.src = newSrc;
 
             if (slotDOM.chatBtn) {
                 slotDOM.chatBtn.textContent = newChannel.toUpperCase();
@@ -663,9 +659,6 @@ const MultitwitchApp = (function () {
             if (iframe) {
                 iframe.classList.remove('keep-alive-hidden');
                 iframe.classList.add('keep-alive-visible');
-                if (iframe.getAttribute('src') !== iframe.dataset.src) {
-                    iframe.src = iframe.dataset.src;
-                }
             }
 
             const activeBtn = SLOTS[target] && SLOTS[target].chatBtn;
